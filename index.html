@@ -4,24 +4,38 @@
   <meta charset="UTF-8">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="admin.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <h1>Admin Panel</h1>
-  <button id="refreshBtn">🔄 刷新用户数据</button>
-  <table id="usersTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>用户名</th>
-        <th>密码</th>
-        <th>创建时间</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
+  <!-- 管理员密码登录 -->
+  <div id="loginSection">
+    <input type="password" id="adminPassword" placeholder="Enter admin password">
+    <button onclick="checkAdmin()">Login</button>
+  </div>
+
+  <!-- 管理内容（默认隐藏） -->
+  <div id="adminSection" style="display:none;">
+    <input type="text" id="searchInput" placeholder="Search username..." onkeyup="searchUsers()">
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Platform Account</th>
+          <th>Balance</th>
+          <th>Traffic</th>
+          <th>Register Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 动态填充 -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

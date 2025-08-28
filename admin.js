@@ -38,7 +38,6 @@ async function loadUsers() {
     tr.innerHTML = `
       <td>${user.id}</td>
       <td>${user.username}</td>
-      <td>${u.password}</td>
       <td>${user.platform_account || "-"}</td>
       <td>${user.balance ?? 0}</td>
       <td>${user.traffic ?? 0}</td>

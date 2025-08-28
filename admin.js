@@ -1,5 +1,5 @@
 // ⚡ 管理员简单密码保护
-const adminPassword = "mySecret123"; // 你自己设定的密码
+const adminPassword = "123"; // 你自己设定的密码
 const input = prompt("请输入管理员密码：");
 if (input !== adminPassword) {
   alert("密码错误！");

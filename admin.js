@@ -1,25 +1,32 @@
-// ⚡ 管理员简单密码保护
-const adminPassword = "123"; // 你自己设定的密码
-const input = prompt("请输入管理员密码：");
-if (input !== adminPassword) {
-  alert("密码错误！");
-  window.location.href = "/"; // 跳回首页
-}
-
 // ⚡ 初始化 Supabase
 const SUPABASE_URL = "https://ffdrwsemmfvqlqhyjlnb.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmZHJ3c2VtbWZ2cWxxaHlqbG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDI1ODQsImV4cCI6MjA3MTg3ODU4NH0.x7TQHZ2af8O_f9ye__mT6eVstlH9BiyVkNVaOnL3h74";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 加载用户数据
+// 设定管理员密码（⚠️ 简单演示，正式环境推荐放在 server）
+const ADMIN_PASSWORD = "Anna123";
+
+// 登录验证
+function checkAdmin() {
+  const input = document.getElementById("adminPassword").value;
+  if (input === ADMIN_PASSWORD) {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("adminSection").style.display = "block";
+    loadUsers();
+  } else {
+    alert("Wrong password!");
+  }
+}
+
+// 加载用户
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("*")
+    .select("id, username, platform_account, balance, traffic, created_at")
     .order("id", { ascending: true });
 
   if (error) {
-    alert("加载用户失败: " + error.message);
+    alert("Error loading users: " + error.message);
     return;
   }
 
@@ -27,45 +34,45 @@ async function loadUsers() {
   tbody.innerHTML = "";
 
   data.forEach(user => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td>${user.id}</td>
       <td>${user.username}</td>
-      <td>${user.password}</td>
-      <td>${user.created_at || ""}</td>
-      <td><button class="deleteBtn" data-id="${user.id}">删除</button></td>
+      <td>${user.platform_account || "-"}</td>
+      <td>${user.balance ?? 0}</td>
+      <td>${user.traffic ?? 0}</td>
+      <td>${new Date(user.created_at).toLocaleString()}</td>
+      <td><button onclick="deleteUser(${user.id})">Delete</button></td>
     `;
-    tbody.appendChild(row);
-  });
-
-  // 绑定删除事件
-  document.querySelectorAll(".deleteBtn").forEach(btn => {
-    btn.addEventListener("click", async (e) => {
-      const userId = e.target.getAttribute("data-id");
-      if (confirm("确定要删除该用户吗？")) {
-        await deleteUser(userId);
-      }
-    });
+    tbody.appendChild(tr);
   });
 }
 
 // 删除用户
 async function deleteUser(userId) {
-  const { error } = await supabaseClient
-    .from("users")
-    .delete()
-    .eq("id", userId);
+  if (!confirm("Are you sure you want to delete user #" + userId + "?")) return;
+
+  const { error } = await supabaseClient.from("users").delete().eq("id", userId);
 
   if (error) {
-    alert("删除失败: " + error.message);
+    alert("Error deleting user: " + error.message);
   } else {
-    alert("用户已删除！");
-    loadUsers(); // 刷新列表
+    alert("User deleted successfully!");
+    loadUsers(); // 刷新
   }
 }
 
-// 刷新按钮
-document.getElementById("refreshBtn").addEventListener("click", loadUsers);
+// 搜索用户
+function searchUsers() {
+  const filter = document.getElementById("searchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("#usersTable tbody tr");
 
-// 默认进入页面时加载
-loadUsers();
+  rows.forEach(row => {
+    const username = row.cells[1].textContent.toLowerCase();
+    if (username.includes(filter)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}

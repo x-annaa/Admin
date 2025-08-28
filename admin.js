@@ -1,12 +1,16 @@
 // ⚡ 初始化 Supabase
 const SUPABASE_URL = "https://ffdrwsemmfvqlqhyjlnb.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmZHJ3c2VtbWZ2cWxxaHlqbG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDI1ODQsImV4cCI6MjA3MTg3ODU4NH0.x7TQHZ2af8O_f9ye__mT6eVstlH9BiyVkNVaOnL3h74";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmZHJ3c2VtbWZ2cWxxaHlqbG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDI1ODQsImV4cCI6MjA3MTg3ODU4NH0.x7TQHZ2af8O_f9ye__mT6eVstlH9BiyVkNVaOnL3h74";
+
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 设定管理员密码（⚠️ 简单演示，正式环境推荐放在 server）
+// 🔐 管理员密码（⚠️ demo 用，正式建议放后端）
 const ADMIN_PASSWORD = "123";
 
-// 登录验证
+// ======================
+// 管理员登录验证
+// ======================
 function checkAdmin() {
   const input = document.getElementById("adminPassword").value;
   if (input === ADMIN_PASSWORD) {
@@ -14,11 +18,13 @@ function checkAdmin() {
     document.getElementById("adminSection").style.display = "block";
     loadUsers();
   } else {
-    alert("Wrong password!");
+    alert("❌ Wrong password!");
   }
 }
 
-// 加载用户
+// ======================
+// 加载用户数据
+// ======================
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
@@ -33,11 +39,12 @@ async function loadUsers() {
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
 
-  data.forEach(user => {
+  data.forEach((user) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${user.id}</td>
       <td>${user.username}</td>
+      <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
       <td>${user.balance ?? 0}</td>
       <td>${user.traffic ?? 0}</td>
@@ -48,26 +55,30 @@ async function loadUsers() {
   });
 }
 
+// ======================
 // 删除用户
+// ======================
 async function deleteUser(userId) {
-  if (!confirm("Are you sure you want to delete user #" + userId + "?")) return;
+  if (!confirm("⚠️ Are you sure you want to delete user #" + userId + "?")) return;
 
   const { error } = await supabaseClient.from("users").delete().eq("id", userId);
 
   if (error) {
     alert("Error deleting user: " + error.message);
   } else {
-    alert("User deleted successfully!");
-    loadUsers(); // 刷新
+    alert("✅ User deleted successfully!");
+    loadUsers(); // 重新刷新
   }
 }
 
+// ======================
 // 搜索用户
+// ======================
 function searchUsers() {
   const filter = document.getElementById("searchInput").value.toLowerCase();
   const rows = document.querySelectorAll("#usersTable tbody tr");
 
-  rows.forEach(row => {
+  rows.forEach((row) => {
     const username = row.cells[1].textContent.toLowerCase();
     if (username.includes(filter)) {
       row.style.display = "";
@@ -75,4 +86,11 @@ function searchUsers() {
       row.style.display = "none";
     }
   });
+}
+
+// ======================
+// 刷新按钮
+// ======================
+function refreshUsers() {
+  loadUsers();
 }

@@ -4,7 +4,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 设定管理员密码（⚠️ 简单演示，正式环境推荐放在 server）
-const ADMIN_PASSWORD = "Anna123";
+const ADMIN_PASSWORD = "123";
 
 // 登录验证
 function checkAdmin() {

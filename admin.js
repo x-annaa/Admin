@@ -22,7 +22,7 @@ function checkAdmin() {
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, username, platform_account, balance, traffic, created_at")
+    .select("id, username, password, balance, platform_account, traffic, created_at")
     .order("id", { ascending: true });
 
   if (error) {

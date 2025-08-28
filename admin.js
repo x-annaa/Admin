@@ -3,40 +3,6 @@ const SUPABASE_URL = "https://ffdrwsemmfvqlqhyjlnb.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmZHJ3c2VtbWZ2cWxxaHlqbG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDI1ODQsImV4cCI6MjA3MTg3ODU4NH0.x7TQHZ2af8O_f9ye__mT6eVstlH9BiyVkNVaOnL3h74";  
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 🌐 翻译字典
-const translations = {
-  en: {
-    title: "Welcome",
-    description: "Please register or login below:",
-    username: "Username",
-    password: "Password",
-    confirm: "Confirm Password",
-    login: "Login",
-    register: "Register",
-    agree: "I agree to the terms"
-  },
-  zh: {
-    title: "欢迎",
-    description: "请在下方注册或登录：",
-    username: "用户名",
-    password: "密码",
-    confirm: "确认密码",
-    login: "登录",
-    register: "注册",
-    agree: "我已阅读并同意条款"
-  },
-  jp: {
-    title: "ようこそ",
-    description: "以下から登録またはログインしてください：",
-    username: "ユーザー名",
-    password: "パスワード",
-    confirm: "確認パスワード",
-    login: "ログイン",
-    register: "登録",
-    agree: "利用規約に同意します"
-  }
-};
-
 // 更新语言
 function updateLanguage(lang) {
   document.getElementById("title").textContent = translations[lang].title;
@@ -52,9 +18,6 @@ function updateLanguage(lang) {
   document.getElementById("registerBtn").textContent = translations[lang].register;
   document.querySelector(".agreement").innerHTML = `<input type="checkbox" id="agreeTerms"> ${translations[lang].agree}`;
 }
-
-document.getElementById("language").addEventListener("change", function () {
-  updateLanguage(this.value);
 });
 
 // 切换窗口

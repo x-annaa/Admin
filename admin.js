@@ -53,12 +53,9 @@ function updateLanguage(lang) {
   document.querySelector(".agreement").innerHTML = `<input type="checkbox" id="agreeTerms"> ${translations[lang].agree}`;
 }
 
-const langSelect = document.getElementById("language");
-if (langSelect) {
-  langSelect.addEventListener("change", function () {
-    updateLanguage(this.value);
-  });
-}
+document.getElementById("language").addEventListener("change", function () {
+  updateLanguage(this.value);
+});
 
 // 切换窗口
 document.getElementById("showLogin").addEventListener("click", () => {

@@ -16,27 +16,11 @@
 
   <!-- 后台管理区 -->
   <div id="adminSection" style="display:none;">
-    <!-- 搜索 -->
-    <input type="text" id="searchInput" placeholder="Search username..." onkeyup="searchUsers()">
 
-    <!-- 用户表格 -->
-    <table id="usersTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Platform Account</th>
-          <th>Balance</th>
-          <th>Traffic</th>
-          <th>Register Time</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- 动态填充 -->
-      </tbody>
-    </table>
+    <!-- 页面区 -->
+    <div id="pageContent">
+      <!-- Users 页面内容会动态切换 -->
+    </div>
   </div>
 
   <!-- 底部导航栏 -->
@@ -46,11 +30,6 @@
     <button onclick="switchPage('orders')">Orders</button>
     <button onclick="switchPage('stats')">Stats</button>
     <button onclick="switchPage('settings')">Settings</button>
-  </div>
-
-  <!-- 页面区 -->
-  <div id="pageContent">
-    <!-- 不同页面内容会切换到这里 -->
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js"></script>

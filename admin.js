@@ -6,7 +6,7 @@ const SUPABASE_KEY =
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 🔐 管理员密码
-const ADMIN_PASSWORD = "1";
+const ADMIN_PASSWORD = "123";
 
 // ======================
 // 管理员登录验证

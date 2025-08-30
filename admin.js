@@ -5,7 +5,7 @@ const SUPABASE_KEY =
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 🔐 管理员密码（⚠️ demo 用，正式建议放后端）
+// 🔐 管理员密码
 const ADMIN_PASSWORD = "123";
 
 // ======================
@@ -49,10 +49,39 @@ async function loadUsers() {
       <td>${user.balance ?? 0}</td>
       <td>${user.traffic ?? 0}</td>
       <td>${new Date(user.created_at).toLocaleString()}</td>
-      <td><button onclick="deleteUser(${user.id})">Delete</button></td>
+      <td class="action-btns">
+        <button onclick="updateBalance(${user.id}, 'add')">➕ Add</button>
+        <button onclick="updateBalance(${user.id}, 'sub')">➖ Sub</button>
+        <button onclick="deleteUser(${user.id})">🗑 Delete</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+// ======================
+// 修改余额
+// ======================
+async function updateBalance(userId, action) {
+  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
+  if (!amount || isNaN(amount)) return;
+  amount = parseFloat(amount);
+
+  // 获取用户当前余额
+  const { data: user } = await supabaseClient.from("users").select("balance").eq("id", userId).single();
+  if (!user) return alert("User not found");
+
+  let newBalance = action === "add" ? user.balance + amount : user.balance - amount;
+  if (newBalance < 0) newBalance = 0; // 不允许负数
+
+  const { error } = await supabaseClient.from("users").update({ balance: newBalance }).eq("id", userId);
+
+  if (error) {
+    alert("Error updating balance: " + error.message);
+  } else {
+    alert("✅ Balance updated successfully!");
+    loadUsers();
+  }
 }
 
 // ======================
@@ -67,7 +96,7 @@ async function deleteUser(userId) {
     alert("Error deleting user: " + error.message);
   } else {
     alert("✅ User deleted successfully!");
-    loadUsers(); // 重新刷新
+    loadUsers();
   }
 }
 
@@ -80,11 +109,7 @@ function searchUsers() {
 
   rows.forEach((row) => {
     const username = row.cells[1].textContent.toLowerCase();
-    if (username.includes(filter)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
+    row.style.display = username.includes(filter) ? "" : "none";
   });
 }
 
@@ -93,4 +118,23 @@ function searchUsers() {
 // ======================
 function refreshUsers() {
   loadUsers();
+}
+
+// ======================
+// 页面切换
+// ======================
+function switchPage(page) {
+  const content = document.getElementById("pageContent");
+  if (page === "users") {
+    loadUsers();
+    content.innerHTML = "<h2>Users Page</h2>";
+  } else if (page === "balance") {
+    content.innerHTML = "<h2>Balance Management</h2>";
+  } else if (page === "orders") {
+    content.innerHTML = "<h2>Orders Page</h2>";
+  } else if (page === "stats") {
+    content.innerHTML = "<h2>Statistics Page</h2>";
+  } else if (page === "settings") {
+    content.innerHTML = "<h2>Settings Page</h2>";
+  }
 }

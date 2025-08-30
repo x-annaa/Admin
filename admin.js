@@ -46,7 +46,7 @@ async function loadUsers() {
       <td>${user.username}</td>
       <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
-      <td>${user.balance ?? 0}</td>
+      <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${user.traffic ?? 0}</td>
       <td>${new Date(user.created_at).toLocaleString()}</td>
       <td class="action-btns">
@@ -60,7 +60,7 @@ async function loadUsers() {
 }
 
 // ======================
-// 修改余额
+// 修改余额（允许负数）
 // ======================
 async function updateBalance(userId, action) {
   let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
@@ -68,18 +68,24 @@ async function updateBalance(userId, action) {
   amount = parseFloat(amount);
 
   // 获取用户当前余额
-  const { data: user } = await supabaseClient.from("users").select("balance").eq("id", userId).single();
+  const { data: user } = await supabaseClient
+    .from("users")
+    .select("balance")
+    .eq("id", userId)
+    .single();
   if (!user) return alert("User not found");
 
   let newBalance = action === "add" ? user.balance + amount : user.balance - amount;
-  if (newBalance < 0) newBalance = 0; // 不允许负数
 
-  const { error } = await supabaseClient.from("users").update({ balance: newBalance }).eq("id", userId);
+  const { error } = await supabaseClient
+    .from("users")
+    .update({ balance: newBalance })
+    .eq("id", userId);
 
   if (error) {
-    alert("Error updating balance: " + error.message);
+    alert("❌ Error updating balance: " + error.message);
   } else {
-    alert("✅ Balance updated successfully!");
+    alert(`✅ Balance updated! New balance = ${newBalance}`);
     loadUsers();
   }
 }

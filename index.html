@@ -8,15 +8,18 @@
 <body>
   <h1>Admin Panel</h1>
 
-  <!-- 管理员密码登录 -->
+  <!-- 管理员登录 -->
   <div id="loginSection">
     <input type="password" id="adminPassword" placeholder="Enter admin password">
     <button onclick="checkAdmin()">Login</button>
   </div>
 
-  <!-- 管理内容（默认隐藏） -->
+  <!-- 后台管理区 -->
   <div id="adminSection" style="display:none;">
+    <!-- 搜索 -->
     <input type="text" id="searchInput" placeholder="Search username..." onkeyup="searchUsers()">
+
+    <!-- 用户表格 -->
     <table id="usersTable">
       <thead>
         <tr>
@@ -34,6 +37,20 @@
         <!-- 动态填充 -->
       </tbody>
     </table>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <div class="bottom-nav">
+    <button onclick="switchPage('users')">Users</button>
+    <button onclick="switchPage('balance')">Balance</button>
+    <button onclick="switchPage('orders')">Orders</button>
+    <button onclick="switchPage('stats')">Stats</button>
+    <button onclick="switchPage('settings')">Settings</button>
+  </div>
+
+  <!-- 页面区 -->
+  <div id="pageContent">
+    <!-- 不同页面内容会切换到这里 -->
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js"></script>

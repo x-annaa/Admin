@@ -6,7 +6,7 @@ const SUPABASE_KEY =
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 🔐 管理员密码
-const ADMIN_PASSWORD = "123";
+const ADMIN_PASSWORD = "1";
 
 // ======================
 // 管理员登录验证
@@ -16,7 +16,7 @@ function checkAdmin() {
   if (input === ADMIN_PASSWORD) {
     document.getElementById("loginSection").style.display = "none";
     document.getElementById("adminSection").style.display = "block";
-    loadUsers();
+    switchPage("users"); // 默认进入 Users 页面
   } else {
     alert("❌ Wrong password!");
   }
@@ -114,27 +114,33 @@ function searchUsers() {
 }
 
 // ======================
-// 刷新按钮
-// ======================
-function refreshUsers() {
-  loadUsers();
-}
-
-// ======================
 // 页面切换
 // ======================
 function switchPage(page) {
   const content = document.getElementById("pageContent");
+
   if (page === "users") {
+    content.innerHTML = `
+      <h2>Users Management</h2>
+      <input type="text" id="searchInput" placeholder="Search username..." onkeyup="searchUsers()">
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Platform Account</th>
+            <th>Balance</th>
+            <th>Traffic</th>
+            <th>Register Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
     loadUsers();
-    content.innerHTML = "<h2>Users Page</h2>";
-  } else if (page === "balance") {
-    content.innerHTML = "<h2>Balance Management</h2>";
-  } else if (page === "orders") {
-    content.innerHTML = "<h2>Orders Page</h2>";
-  } else if (page === "stats") {
-    content.innerHTML = "<h2>Statistics Page</h2>";
-  } else if (page === "settings") {
-    content.innerHTML = "<h2>Settings Page</h2>";
+  } else {
+    content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;
   }
 }

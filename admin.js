@@ -16,19 +16,11 @@ function checkAdmin() {
   if (input === ADMIN_PASSWORD) {
     document.getElementById("loginSection").style.display = "none";
     document.getElementById("adminSection").style.display = "block";
-    document.getElementById("bottomNav").style.display = "flex"; // 显示底部导航
-    switchPage("users"); // 默认进入 Users 页面
+    document.getElementById("bottomNav").style.display = "flex"; 
+    switchPage("users");
   } else {
     alert("❌ Wrong password!");
   }
-}
-
-// ======================
-// 页面刷新
-// ======================
-function refreshPage() {
-  const activePage = document.querySelector(".bottom-nav button.active")?.getAttribute("onclick")?.match(/'(\w+)'/)?.[1] || "users";
-  switchPage(activePage);
 }
 
 // ======================
@@ -69,7 +61,7 @@ async function loadUsers() {
 }
 
 // ======================
-// 修改余额（允许负数）
+// 修改余额
 // ======================
 async function updateBalance(userId, action) {
   let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
@@ -133,7 +125,7 @@ function searchUsers() {
 async function loadProducts() {
   const { data, error } = await supabaseClient
     .from("products")
-    .select("id, name, price, description, profti")
+    .select("id, name, price, description, profit")
     .order("id", { ascending: true });
 
   if (error) {
@@ -151,9 +143,9 @@ async function loadProducts() {
       <td>${product.name}</td>
       <td>${product.price}</td>
       <td>${product.description}</td>
-      <td>${product.profti}</td>
+      <td>${product.profit}</td>
       <td>
-        <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profti})">✏ Edit</button>
+        <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ Edit</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -163,7 +155,7 @@ async function loadProducts() {
 // ======================
 // 编辑产品信息
 // ======================
-async function editProduct(id, name, price, description, profti) {
+async function editProduct(id, name, price, description, profit) {
   const newName = prompt("Enter new name:", name);
   if (newName === null) return;
 
@@ -173,7 +165,7 @@ async function editProduct(id, name, price, description, profti) {
   const newDesc = prompt("Enter new description:", description);
   if (newDesc === null) return;
 
-  const newProfit = prompt("Enter new profit:", profti);
+  const newProfit = prompt("Enter new profit:", profit);
   if (newProfit === null || isNaN(newProfit)) return;
 
   const { error } = await supabaseClient
@@ -182,7 +174,7 @@ async function editProduct(id, name, price, description, profti) {
       name: newName,
       price: parseFloat(newPrice),
       description: newDesc,
-      profti: parseFloat(newProfit),
+      profit: parseFloat(newProfit),
     })
     .eq("id", id);
 
@@ -244,4 +236,8 @@ function switchPage(page) {
   } else {
     content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;
   }
+}
+
+function refreshPage() {
+  location.reload();
 }

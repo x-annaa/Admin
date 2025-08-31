@@ -16,6 +16,7 @@ function checkAdmin() {
   if (input === ADMIN_PASSWORD) {
     document.getElementById("loginSection").style.display = "none";
     document.getElementById("adminSection").style.display = "block";
+    document.getElementById("bottomNav").style.display = "flex"; // 显示底部导航
     switchPage("users"); // 默认进入 Users 页面
   } else {
     alert("❌ Wrong password!");
@@ -120,6 +121,73 @@ function searchUsers() {
 }
 
 // ======================
+// 加载产品信息
+// ======================
+async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, name, price, description, profti")
+    .order("id", { ascending: true });
+
+  if (error) {
+    alert("Error loading products: " + error.message);
+    return;
+  }
+
+  const tbody = document.querySelector("#productsTable tbody");
+  tbody.innerHTML = "";
+
+  data.forEach((product) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.price}</td>
+      <td>${product.description}</td>
+      <td>${product.profti}</td>
+      <td>
+        <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profti})">✏ Edit</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================
+// 编辑产品信息
+// ======================
+async function editProduct(id, name, price, description, profti) {
+  const newName = prompt("Enter new name:", name);
+  if (newName === null) return;
+
+  const newPrice = prompt("Enter new price:", price);
+  if (newPrice === null || isNaN(newPrice)) return;
+
+  const newDesc = prompt("Enter new description:", description);
+  if (newDesc === null) return;
+
+  const newProfit = prompt("Enter new profit:", profti);
+  if (newProfit === null || isNaN(newProfit)) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .update({
+      name: newName,
+      price: parseFloat(newPrice),
+      description: newDesc,
+      profti: parseFloat(newProfit),
+    })
+    .eq("id", id);
+
+  if (error) {
+    alert("❌ Error updating product: " + error.message);
+  } else {
+    alert("✅ Product updated successfully!");
+    loadProducts();
+  }
+}
+
+// ======================
 // 页面切换
 // ======================
 function switchPage(page) {
@@ -146,6 +214,26 @@ function switchPage(page) {
       </table>
     `;
     loadUsers();
+
+  } else if (page === "stats") {
+    content.innerHTML = `
+      <h2>Products Management</h2>
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Profit</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+    loadProducts();
+
   } else {
     content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;
   }

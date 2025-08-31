@@ -67,7 +67,6 @@ async function updateBalance(userId, action) {
   if (!amount || isNaN(amount)) return;
   amount = parseFloat(amount);
 
-  // 获取用户当前余额
   const { data: user } = await supabaseClient
     .from("users")
     .select("balance")
@@ -120,6 +119,107 @@ function searchUsers() {
 }
 
 // ======================
+// 加载产品
+// ======================
+async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, name, price, created_at")
+    .order("id", { ascending: true });
+
+  if (error) {
+    alert("Error loading products: " + error.message);
+    return;
+  }
+
+  const tbody = document.querySelector("#productsTable tbody");
+  tbody.innerHTML = "";
+
+  data.forEach((p) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.id}</td>
+      <td>${p.name}</td>
+      <td>¥${p.price.toFixed(2)}</td>
+      <td>${new Date(p.created_at).toLocaleString()}</td>
+      <td>
+        <button onclick="editProduct(${p.id}, '${p.name}', ${p.price})">✏ Edit</button>
+        <button onclick="deleteProduct(${p.id})">🗑 Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================
+// 添加新产品
+// ======================
+async function addProduct() {
+  const name = document.getElementById("newProductName").value.trim();
+  const price = parseFloat(document.getElementById("newProductPrice").value);
+
+  if (!name || isNaN(price) || price <= 0) {
+    alert("⚠️ Invalid name or price!");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("products")
+    .insert({ name, price });
+
+  if (error) {
+    alert("Error adding product: " + error.message);
+  } else {
+    alert("✅ Product added!");
+    loadProducts();
+    document.getElementById("newProductName").value = "";
+    document.getElementById("newProductPrice").value = "";
+  }
+}
+
+// ======================
+// 编辑产品
+// ======================
+async function editProduct(id, oldName, oldPrice) {
+  const newName = prompt("Edit name:", oldName);
+  if (newName === null) return;
+
+  const newPrice = parseFloat(prompt("Edit price:", oldPrice));
+  if (isNaN(newPrice) || newPrice <= 0) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .update({ name: newName, price: newPrice })
+    .eq("id", id);
+
+  if (error) {
+    alert("Error editing product: " + error.message);
+  } else {
+    alert("✅ Product updated!");
+    loadProducts();
+  }
+}
+
+// ======================
+// 删除产品
+// ======================
+async function deleteProduct(id) {
+  if (!confirm("⚠️ Delete product #" + id + "?")) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Error deleting product: " + error.message);
+  } else {
+    alert("✅ Product deleted!");
+    loadProducts();
+  }
+}
+
+// ======================
 // 页面切换
 // ======================
 function switchPage(page) {
@@ -146,6 +246,28 @@ function switchPage(page) {
       </table>
     `;
     loadUsers();
+  } else if (page === "orders") {
+    content.innerHTML = `
+      <h2>Products Management</h2>
+      <div class="product-actions">
+        <input type="text" id="newProductName" placeholder="Product name">
+        <input type="number" id="newProductPrice" placeholder="Price" step="0.01">
+        <button onclick="addProduct()">➕ Add Product</button>
+      </div>
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+    loadProducts();
   } else {
     content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;
   }

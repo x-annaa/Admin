@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <title>Admin Panel</title>
   <link rel="stylesheet" href="admin.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f0f0f0; }
+    input, button { margin: 5px; padding: 6px 10px; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #f8f8f8; padding: 10px; display: flex; justify-content: space-around; border-top: 1px solid #ddd; }
+    .product-actions { margin: 10px 0; }
+  </style>
 </head>
 <body>
   <h1>Admin Panel</h1>
@@ -16,11 +25,8 @@
 
   <!-- 后台管理区 -->
   <div id="adminSection" style="display:none;">
-
     <!-- 页面区 -->
-    <div id="pageContent">
-      <!-- Users 页面内容会动态切换 -->
-    </div>
+    <div id="pageContent"></div>
   </div>
 
   <!-- 底部导航栏 -->
@@ -32,6 +38,7 @@
     <button onclick="switchPage('settings')">Settings</button>
   </div>
 
+  <!-- Supabase & Admin Script -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="admin.js"></script>
 </body>

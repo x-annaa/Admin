@@ -60,6 +60,12 @@ button:hover {
   width: 200px;
 }
 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;

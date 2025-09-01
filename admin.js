@@ -29,7 +29,7 @@ function checkAdmin() {
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, username, password, coins, platform_account, created_at")
+    .select("id, username, password, coins, balance, platform_account, created_at")
     .order("id", { ascending: true });
 
   if (error) {
@@ -48,10 +48,13 @@ async function loadUsers() {
       <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
       <td style="color:${user.coins < 0 ? "red" : "black"}">${user.coins ?? 0}</td>
+      <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toLocaleString()}</td>
       <td class="action-btns">
-        <button onclick="updateCoins(${user.id}, 'add')">➕ Add</button>
-        <button onclick="updateCoins(${user.id}, 'sub')">➖ Sub</button>
+        <button onclick="updateCoins(${user.id}, 'add')">➕ Coins</button>
+        <button onclick="updateCoins(${user.id}, 'sub')">➖ Coins</button>
+        <button onclick="updateBalance(${user.id}, 'add')">💰➕ Balance</button>
+        <button onclick="updateBalance(${user.id}, 'sub')">💰➖ Balance</button>
         <button onclick="deleteUser(${user.id})">🗑 Delete</button>
       </td>
     `;
@@ -90,6 +93,36 @@ async function updateCoins(userId, action) {
 }
 
 // ======================
+// 修改 Balance
+// ======================
+async function updateBalance(userId, action) {
+  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
+  if (!amount || isNaN(amount)) return;
+  amount = parseFloat(amount);
+
+  const { data: user } = await supabaseClient
+    .from("users")
+    .select("balance")
+    .eq("id", userId)
+    .single();
+  if (!user) return alert("User not found");
+
+  let newBalance = action === "add" ? user.balance + amount : user.balance - amount;
+
+  const { error } = await supabaseClient
+    .from("users")
+    .update({ balance: newBalance })
+    .eq("id", userId);
+
+  if (error) {
+    alert("❌ Error updating balance: " + error.message);
+  } else {
+    alert(`✅ Balance updated! New balance = ${newBalance}`);
+    loadUsers();
+  }
+}
+
+// ======================
 // 删除用户
 // ======================
 async function deleteUser(userId) {
@@ -119,73 +152,6 @@ function searchUsers() {
 }
 
 // ======================
-// 加载产品信息
-// ======================
-async function loadProducts() {
-  const { data, error } = await supabaseClient
-    .from("products")
-    .select("id, name, price, description, profit")
-    .order("id", { ascending: true });
-
-  if (error) {
-    alert("Error loading products: " + error.message);
-    return;
-  }
-
-  const tbody = document.querySelector("#productsTable tbody");
-  tbody.innerHTML = "";
-
-  data.forEach((product) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${product.id}</td>
-      <td>${product.name}</td>
-      <td>${product.price}</td>
-      <td>${product.description}</td>
-      <td>${product.profit}</td>
-      <td>
-        <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ Edit</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// ======================
-// 编辑产品信息
-// ======================
-async function editProduct(id, name, price, description, profit) {
-  const newName = prompt("Enter new name:", name);
-  if (newName === null) return;
-
-  const newPrice = prompt("Enter new price:", price);
-  if (newPrice === null || isNaN(newPrice)) return;
-
-  const newDesc = prompt("Enter new description:", description);
-  if (newDesc === null) return;
-
-  const newProfit = prompt("Enter new profit:", profit);
-  if (newProfit === null || isNaN(newProfit)) return;
-
-  const { error } = await supabaseClient
-    .from("products")
-    .update({
-      name: newName,
-      price: parseFloat(newPrice),
-      description: newDesc,
-      profit: parseFloat(newProfit),
-    })
-    .eq("id", id);
-
-  if (error) {
-    alert("❌ Error updating product: " + error.message);
-  } else {
-    alert("✅ Product updated successfully!");
-    loadProducts();
-  }
-}
-
-// ======================
 // 页面切换
 // ======================
 function switchPage(page) {
@@ -203,6 +169,7 @@ function switchPage(page) {
             <th>Password</th>
             <th>Platform Account</th>
             <th>Coins</th>
+            <th>Balance</th>
             <th>Register Time</th>
             <th>Actions</th>
           </tr>
@@ -211,25 +178,6 @@ function switchPage(page) {
       </table>
     `;
     loadUsers();
-
-  } else if (page === "stats") {
-    content.innerHTML = `
-      <h2>Products Management</h2>
-      <table id="productsTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Profit</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    `;
-    loadProducts();
 
   } else {
     content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;

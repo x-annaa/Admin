@@ -1,7 +1,6 @@
 // ⚡ 初始化 Supabase
 const SUPABASE_URL = "https://ffdrwsemmfvqlqhyjlnb.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmZHJ3c2VtbWZ2cWxxaHlqbG5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMDI1ODQsImV4cCI6MjA3MTg3ODU4NH0.x7TQHZ2af8O_f9ye__mT6eVstlH9BiyVkNVaOnL3h74";
+const SUPABASE_KEY = "YOUR_SUPABASE_KEY"; 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 🔐 管理员密码
@@ -15,7 +14,7 @@ function checkAdmin() {
   if (input === ADMIN_PASSWORD) {
     document.getElementById("loginSection").style.display = "none";
     document.getElementById("adminSection").style.display = "block";
-    document.getElementById("bottomNav").style.display = "flex";
+    document.getElementById("bottomNav").style.display = "flex"; 
     switchPage("users");
   } else {
     alert("❌ Wrong password!");
@@ -65,7 +64,7 @@ async function loadUsers() {
 // 修改 Coins
 // ======================
 async function updateCoins(userId, action) {
-  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"} (coins):`);
+  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
   if (!amount || isNaN(amount)) return;
   amount = parseFloat(amount);
 
@@ -95,7 +94,7 @@ async function updateCoins(userId, action) {
 // 修改 Balance
 // ======================
 async function updateBalance(userId, action) {
-  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"} (balance):`);
+  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
   if (!amount || isNaN(amount)) return;
   amount = parseFloat(amount);
 
@@ -151,6 +150,73 @@ function searchUsers() {
 }
 
 // ======================
+// 加载产品信息
+// ======================
+async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, name, price, description, profit")
+    .order("id", { ascending: true });
+
+  if (error) {
+    alert("Error loading products: " + error.message);
+    return;
+  }
+
+  const tbody = document.querySelector("#productsTable tbody");
+  tbody.innerHTML = "";
+
+  data.forEach((product) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.price}</td>
+      <td>${product.description}</td>
+      <td>${product.profit}</td>
+      <td>
+        <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ Edit</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================
+// 编辑产品信息
+// ======================
+async function editProduct(id, name, price, description, profit) {
+  const newName = prompt("Enter new name:", name);
+  if (newName === null) return;
+
+  const newPrice = prompt("Enter new price:", price);
+  if (newPrice === null || isNaN(newPrice)) return;
+
+  const newDesc = prompt("Enter new description:", description);
+  if (newDesc === null) return;
+
+  const newProfit = prompt("Enter new profit:", profit);
+  if (newProfit === null || isNaN(newProfit)) return;
+
+  const { error } = await supabaseClient
+    .from("products")
+    .update({
+      name: newName,
+      price: parseFloat(newPrice),
+      description: newDesc,
+      profit: parseFloat(newProfit),
+    })
+    .eq("id", id);
+
+  if (error) {
+    alert("❌ Error updating product: " + error.message);
+  } else {
+    alert("✅ Product updated successfully!");
+    loadProducts();
+  }
+}
+
+// ======================
 // 页面切换
 // ======================
 function switchPage(page) {
@@ -177,6 +243,25 @@ function switchPage(page) {
       </table>
     `;
     loadUsers();
+
+  } else if (page === "stats") {
+    content.innerHTML = `
+      <h2>Products Management</h2>
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Profit</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+    loadProducts();
 
   } else {
     content.innerHTML = `<h2>${page.charAt(0).toUpperCase() + page.slice(1)} Page</h2><p>(空白页面)</p>`;

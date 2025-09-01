@@ -21,19 +21,20 @@
       <button onclick="refreshPage()">🔄 Refresh</button>
     </div>
 
-    <!-- 页面区 -->
+    <!-- 页面内容区 -->
     <div id="pageContent"></div>
   </div>
 
   <!-- 底部导航栏 -->
   <div id="bottomNav" class="bottom-nav" style="display:none;">
-    <button onclick="switchPage('users')">Users</button>
-    <button onclick="switchPage('coins')">Coins</button>
-    <button onclick="switchPage('orders')">Orders</button>
-    <button onclick="switchPage('stats')">Stats</button>
-    <button onclick="switchPage('settings')">Settings</button>
+    <button onclick="switchPage('users')">User</button>
+    <button onclick="switchPage('orders')">Order</button>
+    <button onclick="switchPage('messages')">Message</button>
+    <button onclick="switchPage('withdraw')">Withdraw</button>
+    <button onclick="switchPage('deposit')">Deposit</button>
   </div>
 
+  <!-- Supabase & JS -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script src="admin.js"></script>
 </body>

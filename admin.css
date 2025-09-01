@@ -22,21 +22,20 @@ h1 {
   margin: 5px;
 }
 
-#usersTable, #productsTable {
+#usersTable {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-#usersTable th, #usersTable td,
-#productsTable th, #productsTable td {
+#usersTable th, #usersTable td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
 }
 
-#usersTable th, #productsTable th {
+#usersTable th {
   background: #0077cc;
   color: #fff;
 }
@@ -51,19 +50,13 @@ button {
 }
 
 button:hover {
-  background: #cc0000;
+  background: #028c26;
 }
 
 #searchInput {
   margin-bottom: 15px;
   padding: 8px;
   width: 200px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
 }
 
 .bottom-nav {
@@ -89,5 +82,5 @@ table {
 }
 
 .action-btns button {
-  margin: 0 2px;
+  margin: 2px;
 }

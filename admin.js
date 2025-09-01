@@ -6,7 +6,7 @@ const SUPABASE_KEY =
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 🔐 管理员密码
-const ADMIN_PASSWORD = "123";
+const ADMIN_PASSWORD = "1";
 
 // ======================
 // 管理员登录验证
@@ -29,7 +29,7 @@ function checkAdmin() {
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, username, password, coins, platform_account, traffic, created_at")
+    .select("id, username, password, coins, platform_account, created_at")
     .order("id", { ascending: true });
 
   if (error) {
@@ -48,7 +48,6 @@ async function loadUsers() {
       <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
       <td style="color:${user.coins < 0 ? "red" : "black"}">${user.coins ?? 0}</td>
-      <td>${user.traffic ?? 0}</td>
       <td>${new Date(user.created_at).toLocaleString()}</td>
       <td class="action-btns">
         <button onclick="updateCoins(${user.id}, 'add')">➕ Add</button>
@@ -204,7 +203,6 @@ function switchPage(page) {
             <th>Password</th>
             <th>Platform Account</th>
             <th>Coins</th>
-            <th>Traffic</th>
             <th>Register Time</th>
             <th>Actions</th>
           </tr>

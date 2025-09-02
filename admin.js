@@ -29,7 +29,7 @@ function checkAdmin() {
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, username, password, coins, platform_account, created_at")
+    .select("id, username, password, coins, balance, platform_account, created_at")
     .order("id", { ascending: true });
 
   if (error) {
@@ -48,10 +48,13 @@ async function loadUsers() {
       <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
       <td style="color:${user.coins < 0 ? "red" : "black"}">${user.coins ?? 0}</td>
+      <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toLocaleString()}</td>
       <td class="action-btns">
-        <button onclick="updateCoins(${user.id}, 'add')">➕ Add</button>
-        <button onclick="updateCoins(${user.id}, 'sub')">➖ Sub</button>
+        <button onclick="updateField(${user.id}, 'coins', 'add')">➕ Coins</button>
+        <button onclick="updateField(${user.id}, 'coins', 'sub')">➖ Coins</button>
+        <button onclick="updateField(${user.id}, 'balance', 'add')">➕ Balance</button>
+        <button onclick="updateField(${user.id}, 'balance', 'sub')">➖ Balance</button>
         <button onclick="deleteUser(${user.id})">🗑 Delete</button>
       </td>
     `;
@@ -60,31 +63,31 @@ async function loadUsers() {
 }
 
 // ======================
-// 修改 Coins
+// 修改 Coins / Balance（合并版）
 // ======================
-async function updateCoins(userId, action) {
-  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"}:`);
+async function updateField(userId, field, action) {
+  let amount = prompt(`Enter amount to ${action === "add" ? "add" : "subtract"} ${field}:`);
   if (!amount || isNaN(amount)) return;
   amount = parseFloat(amount);
 
   const { data: user } = await supabaseClient
     .from("users")
-    .select("coins")
+    .select(field)
     .eq("id", userId)
     .single();
   if (!user) return alert("User not found");
 
-  let newCoins = action === "add" ? user.coins + amount : user.coins - amount;
+  let newValue = action === "add" ? user[field] + amount : user[field] - amount;
 
   const { error } = await supabaseClient
     .from("users")
-    .update({ coins: newCoins })
+    .update({ [field]: newValue })
     .eq("id", userId);
 
   if (error) {
-    alert("❌ Error updating coins: " + error.message);
+    alert(`❌ Error updating ${field}: ` + error.message);
   } else {
-    alert(`✅ Coins updated! New coins = ${newCoins}`);
+    alert(`✅ ${field} updated! New ${field} = ${newValue}`);
     loadUsers();
   }
 }
@@ -203,6 +206,7 @@ function switchPage(page) {
             <th>Password</th>
             <th>Platform Account</th>
             <th>Coins</th>
+            <th>Balance</th>
             <th>Register Time</th>
             <th>Actions</th>
           </tr>

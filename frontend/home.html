@@ -4,23 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>后台首页</title>
-  <link rel="stylesheet" href="home.css">
+  <!-- ✅ 正确路径 -->
+  <link rel="stylesheet" href="./home.css">
 </head>
 <body>
   <!-- 页面容器 -->
   <main id="page-container">
-    <iframe id="content-frame" src="user.html"></iframe>
+    <!-- 默认显示 user.html -->
+    <iframe id="content-frame" src="./user.html"></iframe>
   </main>
 
   <!-- 底部导航栏 -->
   <nav class="bottom-nav">
-    <button onclick="navigateTo('user.html')">用户</button>
-    <button onclick="navigateTo('product.html')">商品</button>
-    <button onclick="navigateTo('order.html')">订单</button>
-    <button onclick="navigateTo('message.html')">消息</button>
-    <button onclick="navigateTo('w-d.html')">W-D</button>
+    <button onclick="navigateTo('./user.html')">用户</button>
+    <button onclick="navigateTo('./product.html')">商品</button>
+    <button onclick="navigateTo('./order.html')">订单</button>
+    <button onclick="navigateTo('./message.html')">消息</button>
+    <button onclick="navigateTo('./w-d.html')">W-D</button>
   </nav>
 
-  <script src="home.js"></script>
+  <!-- ✅ 正确路径 -->
+  <script src="./home.js"></script>
 </body>
 </html>

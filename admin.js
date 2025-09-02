@@ -6,7 +6,7 @@ function checkAdmin() {
   const input = document.getElementById("adminPassword").value;
   if (input === ADMIN_PASSWORD) {
     // ✅ 跳转到 Admin/user.html
-    window.location.href = "Admin/user.html";
+    window.location.href = "Admin/USER.html";
   } else {
     alert("❌ Wrong password!");
   }

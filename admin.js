@@ -10,3 +10,16 @@ function checkAdmin() {
     alert("❌ Wrong password!");
   }
 }
+
+// 管理员登录验证 // 3
+function checkAdmin() {
+  const input = document.getElementById("adminPassword").value;
+  if (input === ADMIN_PASSWORD) {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("adminSection").style.display = "block";
+    document.getElementById("bottomNav").style.display = "flex"; 
+    switchPage("users");
+  } else {
+    alert("❌ Wrong password!");
+  }
+}

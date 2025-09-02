@@ -1,8 +1,5 @@
+@import url("base.css");
+
 body {
-  background: #f4f6f8;
-  font-family: Arial, sans-serif;
-}
-h1 {
-  text-align: center;
-  color: #0077cc;
+  background: #f0f8ff;
 }

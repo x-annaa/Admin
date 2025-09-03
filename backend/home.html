@@ -18,9 +18,7 @@
   <!-- 用户页面 -->
   <div id="userPage" class="page active">
     <h2>👥 用户管理</h2>
-
     <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
-
     <table id="usersTable">
       <thead>
         <tr>
@@ -38,7 +36,7 @@
     </table>
   </div>
 
-  <!-- Edit1 弹窗 -->
+  <!-- 用户编辑弹窗 -->
   <div id="editModal" class="modal" style="display:none;">
     <div class="modal-content">
       <p id="editUserName"></p>
@@ -54,21 +52,13 @@
     </div>
   </div>
 
-  <!-- Edit2 手动匹配产品弹窗 -->
+  <!-- 手动匹配产品弹窗 -->
   <div id="ruleModal" class="modal" style="display:none;">
     <div class="modal-content">
       <h3 id="ruleUserName">手动匹配产品</h3>
-      <label>
-        第几单:
-        <input type="number" id="ruleOrderNumber" min="1">
-      </label><br>
-      <label>
-        产品ID:
-        <input type="number" id="ruleProductId" min="1">
-      </label><br>
-      <label>
-        <input type="checkbox" id="ruleEnabled" checked> 开启规则
-      </label>
+      <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
+      <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
+      <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
       <div class="modal-actions">
         <button id="saveRuleBtn">确认匹配</button>
         <button id="closeRuleModal">取消</button>
@@ -76,12 +66,10 @@
     </div>
   </div>
 
-  <!-- 产品页面 -->
+  <!-- 产品管理页面 -->
   <div id="productPage" class="page">
     <h2>📦 产品管理</h2>
-    
     <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
-
     <table id="productsTable">
       <thead>
         <tr>
@@ -105,13 +93,6 @@
       <label>价格: <input type="number" id="editPrice"></label><br>
       <label>描述: <input type="text" id="editDescription"></label><br>
       <label>利润: <input type="number" id="editProfit"></label><br>
-      <!-- 产品匹配开关 -->
-      <label>
-        <input type="checkbox" id="productEnabledCheckbox" checked> 可匹配
-      </label><br>
-      <label>
-        <input type="checkbox" id="productManualOnlyCheckbox"> 仅手动匹配
-      </label><br>
       <div class="modal-actions">
         <button id="saveProductBtn">保存</button>
         <button id="closeProductModal">取消</button>
@@ -119,23 +100,25 @@
     </div>
   </div>
 
+  <!-- 产品匹配开关弹窗 -->
+  <div id="productMatchModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3>产品匹配设置</h3>
+      <label><input type="checkbox" id="productEnabledCheckbox" checked> 开启匹配</label><br>
+      <label><input type="checkbox" id="productManualOnlyCheckbox"> 手动专属</label><br>
+      <div class="modal-actions">
+        <button id="saveProductMatchBtn">确认保存</button>
+        <button id="closeProductMatchModal">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 页面3 -->
-  <div id="page3" class="page">
-    <h2>📊 页面 3</h2>
-    <p>这里暂时为空白</p>
-  </div>
-
+  <div id="page3" class="page"><h2>📊 页面 3</h2><p>这里暂时为空白</p></div>
   <!-- 页面4 -->
-  <div id="page4" class="page">
-    <h2>⚙️ 页面 4</h2>
-    <p>这里暂时为空白</p>
-  </div>
-
+  <div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
   <!-- 页面5 -->
-  <div id="page5" class="page">
-    <h2>🔧 页面 5</h2>
-    <p>这里暂时为空白</p>
-  </div>
+  <div id="page5" class="page"><h2>🔧 页面 5</h2><p>这里暂时为空白</p></div>
 
   <!-- 底部导航 -->
   <div class="bottom-nav">
@@ -148,8 +131,6 @@
 
   <!-- Supabase SDK -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <!-- 初始化 Supabase -->
   <script src="User/supabaseClient.js"></script>
 
   <!-- JS 各页面 -->

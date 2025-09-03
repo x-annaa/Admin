@@ -65,29 +65,31 @@ function openEditModal(userId, username, orderCount) {
 function openRuleModal(userId, username) {
   currentRuleUserId = userId;
   document.getElementById("ruleUserName").textContent = `手动匹配产品 - ${username}`;
+  document.getElementById("ruleOrderNumber").value = "";
+  document.getElementById("ruleProductId").value = "";
+  document.getElementById("ruleEnabled").checked = false;
   document.getElementById("ruleModal").style.display = "flex";
 }
 
 // ======================
-// 保存规则
+// 保存规则 (Edit2)
 // ======================
 async function saveRule() {
   const orderNumber = parseInt(document.getElementById("ruleOrderNumber").value);
   const productId = parseInt(document.getElementById("ruleProductId").value);
   const enabled = document.getElementById("ruleEnabled").checked;
 
-  if (!orderNumber || !productId) {
-    return alert("请输入订单数和产品ID");
-  }
+  if (!currentRuleUserId) return alert("❌ 未选择用户");
+  if (!orderNumber || !productId) return alert("请输入订单数和产品ID");
 
-  const { error } = await supabaseClient.from("user_product_rules").insert([
-    {
+  const { error } = await supabaseClient
+    .from("user_product_rules")
+    .upsert({
       user_id: currentRuleUserId,
       order_number: orderNumber,
       product_id: productId,
       enabled: enabled,
-    },
-  ]);
+    });
 
   if (error) {
     alert("❌ 保存规则失败: " + error.message);
@@ -98,10 +100,13 @@ async function saveRule() {
 }
 
 // ======================
-// 关闭弹窗 (Edit1)
+// 关闭弹窗 (Edit1 / Edit2)
 // ======================
 document.getElementById("closeEditModal").addEventListener("click", () => {
   document.getElementById("editModal").style.display = "none";
+});
+document.getElementById("closeRuleModal").addEventListener("click", () => {
+  document.getElementById("ruleModal").style.display = "none";
 });
 
 // ======================
@@ -113,6 +118,11 @@ document.getElementById("addBalanceBtn").addEventListener("click", () => updateF
 document.getElementById("subBalanceBtn").addEventListener("click", () => updateField(currentEditUserId, 'balance', 'sub'));
 document.getElementById("changePasswordBtn").addEventListener("click", () => changePasswordPrompt(currentEditUserId));
 document.getElementById("deleteUserBtn").addEventListener("click", () => deleteUserPrompt(currentEditUserId));
+
+// ======================
+// 保存规则按钮绑定 (Edit2)
+// ======================
+document.getElementById("saveRuleBtn").addEventListener("click", saveRule);
 
 // ======================
 // 修改 Coins / Balance

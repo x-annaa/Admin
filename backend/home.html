@@ -19,11 +19,7 @@
   <!-- 用户页面 -->
   <div id="userPage" class="page active">
     <h2>👥 用户管理</h2>
-
-    <!-- 搜索 -->
     <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
-
-    <!-- 用户表格 -->
     <table id="usersTable">
       <thead>
         <tr>
@@ -74,15 +70,18 @@
     <button data-page="page5">Page5</button>
   </div>
 
+  <!-- Supabase SDK -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- 初始化 Supabase -->
+  <script src="User/supabaseClient.js"></script>
+
   <!-- JS 各页面 -->
   <script src="User/user.js"></script>
   <script src="Product/product.js"></script>
   <script src="Page3/page3.js"></script>
   <script src="Page4/page4.js"></script>
   <script src="Page5/page5.js"></script>
-  <!-- 底部按钮 JS -->
   <script src="Button/button.js"></script>
-  <!-- 数据库 JS -->
-  <script src="User/supabaseClient.js"></script>
 </body>
 </html>

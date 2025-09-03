@@ -1,33 +1,60 @@
-// ======================
-// 编辑产品信息
-// ======================
-async function editProduct(id, name, price, description, profit) {
-  const newName = prompt("Enter new name:", name);
-  if (newName === null) return;
+let editingProductId = null;
 
-  const newPrice = prompt("Enter new price:", price);
-  if (newPrice === null || isNaN(newPrice)) return;
+// 打开编辑弹窗
+function openProductModal(id = null, name = "", price = 0, description = "", profit = 0) {
+  editingProductId = id;
+  document.getElementById("editName").value = name;
+  document.getElementById("editPrice").value = price;
+  document.getElementById("editDescription").value = description;
+  document.getElementById("editProfit").value = profit;
 
-  const newDesc = prompt("Enter new description:", description);
-  if (newDesc === null) return;
-
-  const newProfit = prompt("Enter new profit:", profit);
-  if (newProfit === null || isNaN(newProfit)) return;
-
-  const { error } = await supabaseClient
-    .from("products")
-    .update({
-      name: newName,
-      price: parseFloat(newPrice),
-      description: newDesc,
-      profit: parseFloat(newProfit),
-    })
-    .eq("id", id);
-
-  if (error) {
-    alert("❌ Error updating product: " + error.message);
-  } else {
-    alert("✅ Product updated successfully!");
-    loadProducts();
-  }
+  document.getElementById("productModalTitle").textContent = id ? "编辑产品" : "添加产品";
+  document.getElementById("productModal").style.display = "flex";
 }
+
+// 关闭弹窗
+document.getElementById("closeProductModal").onclick = () => {
+  document.getElementById("productModal").style.display = "none";
+};
+
+// 保存修改/添加
+document.getElementById("saveProductBtn").onclick = async () => {
+  const name = document.getElementById("editName").value;
+  const price = parseFloat(document.getElementById("editPrice").value);
+  const description = document.getElementById("editDescription").value;
+  const profit = parseFloat(document.getElementById("editProfit").value);
+
+  if (!name || isNaN(price) || !description || isNaN(profit)) {
+    return alert("❌ 请填写完整且合法的产品信息！");
+  }
+
+  if (editingProductId) {
+    // 编辑产品
+    const { error } = await supabaseClient
+      .from("products")
+      .update({ name, price, description, profit })
+      .eq("id", editingProductId);
+
+    if (error) return alert("❌ 更新产品失败: " + error.message);
+    alert("✅ 产品更新成功!");
+  } else {
+    // 添加产品
+    const { error } = await supabaseClient
+      .from("products")
+      .insert([{ name, price, description, profit }]);
+
+    if (error) return alert("❌ 添加产品失败: " + error.message);
+    alert("✅ 产品添加成功!");
+  }
+
+  document.getElementById("productModal").style.display = "none";
+  loadProducts();
+};
+
+// 点击添加产品按钮
+document.getElementById("addProductBtn").onclick = () => {
+  openProductModal(); // 不传 id，即添加模式
+};
+
+// 页面加载时执行
+document.addEventListener("DOMContentLoaded", loadProducts);

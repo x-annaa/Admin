@@ -1,20 +1,41 @@
+/* ======================
+   全局样式
+   ====================== */
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  background-color: #fafafa;
+  color: #333;
 }
 
 h2 {
   margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: bold;
 }
 
+/* ======================
+   搜索框
+   ====================== */
 #searchInput {
   width: 100%;
   padding: 8px;
   margin-bottom: 15px;
   font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   box-sizing: border-box;
+  outline: none;
 }
 
+#searchInput:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0,123,255,0.4);
+}
+
+/* ======================
+   表格
+   ====================== */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -30,21 +51,62 @@ table th, table td {
 
 table th {
   background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* ======================
+   操作按钮组
+   ====================== */
+.action-btns {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
 
 .action-btns button {
   margin: 2px;
-  padding: 4px 6px;
+  padding: 4px 8px;
   font-size: 12px;
   cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  transition: all 0.2s ease;
 }
 
 .action-btns button:hover {
-  background-color: #eee;
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Edit1 按钮 */
+.edit1-btn {
+  background-color: #e9ecef;
+}
+.edit1-btn:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+/* Edit2 按钮 */
+.edit2-btn {
+  background-color: #e9ecef;
+}
+.edit2-btn:hover {
+  background-color: #ffc107;
+  color: #fff;
 }
 
 /* ======================
-   编辑用户弹窗
+   弹窗（公共）
    ====================== */
 .modal {
   position: fixed;
@@ -63,11 +125,17 @@ table th {
   background-color: #fff;
   padding: 20px 30px;
   border-radius: 12px;
-  width: 320px;
+  width: 340px;
   max-width: 90%;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .modal-content h3 {
@@ -82,6 +150,9 @@ table th {
   color: #333;
 }
 
+/* ======================
+   Edit1 弹窗按钮
+   ====================== */
 .edit-actions {
   display: flex;
   flex-wrap: wrap;
@@ -106,16 +177,57 @@ table th {
   color: #fff;
 }
 
-#closeEditModal {
-  padding: 6px 12px;
+/* ======================
+   Edit2 弹窗（手动匹配）
+   ====================== */
+#matchModal label {
+  display: block;
+  margin: 8px 0;
+  font-size: 14px;
+  text-align: left;
+}
+
+#matchModal input[type="number"],
+#matchModal input[type="text"] {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 3px;
+}
+
+#matchModal input[type="checkbox"] {
+  margin-left: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.modal-actions button {
+  flex: 1 1 45%;
+  padding: 8px 12px;
   border: none;
   border-radius: 6px;
-  background-color: #ccc;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-#closeEditModal:hover {
+#saveMatchBtn {
+  background-color: #007bff;
+  color: #fff;
+}
+#saveMatchBtn:hover {
+  background-color: #0056b3;
+}
+
+#closeMatchModal, #closeEditModal {
+  background-color: #ccc;
+  color: #333;
+}
+#closeMatchModal:hover, #closeEditModal:hover {
   background-color: #999;
   color: #fff;
 }

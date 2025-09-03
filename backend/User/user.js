@@ -38,8 +38,8 @@ async function loadUsers() {
       <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
       <td>${orderCountMap[user.id] ?? 0}</td>
       <td>
-        <button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Edit1</button>
-        <button onclick="openRuleModal(${user.id}, '${user.username}')">Edit2</button>
+        <button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Setting</button>
+        <button onclick="openRuleModal(${user.id}, '${user.username}')">Mark</button>
       </td>
     `;
     tbody.appendChild(tr);

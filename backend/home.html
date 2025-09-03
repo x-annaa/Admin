@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="Page3/page3.css">
   <link rel="stylesheet" href="Page4/page4.css">
   <link rel="stylesheet" href="Page5/page5.css">
-  <!-- 底部按钮 CSS -->
   <link rel="stylesheet" href="Button/button.css">
 </head>
 <body>
@@ -20,10 +19,8 @@
   <div id="userPage" class="page active">
     <h2>👥 用户管理</h2>
 
-    <!-- 搜索 -->
     <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
 
-    <!-- 用户表格 -->
     <table id="usersTable">
       <thead>
         <tr>
@@ -70,8 +67,7 @@
         <input type="number" id="ruleProductId" min="1">
       </label><br>
       <label>
-        <input type="checkbox" id="ruleEnabled" checked>
-        
+        <input type="checkbox" id="ruleEnabled" checked> 开启规则
       </label>
       <div class="modal-actions">
         <button id="saveRuleBtn">确认匹配</button>
@@ -84,19 +80,17 @@
   <div id="productPage" class="page">
     <h2>📦 产品管理</h2>
     
-    <!-- 添加产品按钮 -->
     <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
 
-    <!-- 产品表格 -->
     <table id="productsTable">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Description</th>
-          <th>Profit</th>
-          <th>Actions</th>
+          <th>名称</th>
+          <th>价格</th>
+          <th>描述</th>
+          <th>利润</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -111,6 +105,13 @@
       <label>价格: <input type="number" id="editPrice"></label><br>
       <label>描述: <input type="text" id="editDescription"></label><br>
       <label>利润: <input type="number" id="editProfit"></label><br>
+      <!-- 产品匹配开关 -->
+      <label>
+        <input type="checkbox" id="productEnabledCheckbox" checked> 可匹配
+      </label><br>
+      <label>
+        <input type="checkbox" id="productManualOnlyCheckbox"> 仅手动匹配
+      </label><br>
       <div class="modal-actions">
         <button id="saveProductBtn">保存</button>
         <button id="closeProductModal">取消</button>

@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>U9 管理后台</title>
 
+  <!-- CSS 各页面 -->
+  <link rel="stylesheet" href="User/user.css">
+  <link rel="stylesheet" href="Product/product.css">
+  <link rel="stylesheet" href="Page3/page3.css">
+  <link rel="stylesheet" href="Page4/page4.css">
+  <link rel="stylesheet" href="Page5/page5.css">
+  <!-- 底部按钮 CSS -->
+  <link rel="stylesheet" href="Button/button.css">
+</head>
+<body>
+  <!-- 用户页面 -->
+  <div id="userPage" class="page active">
+    <h2>👥 用户管理</h2>
+  </div>
+
+  <!-- 产品页面 -->
+  <div id="productPage" class="page">
+    <h2>📦 产品管理</h2>
+  </div>
+
+  <!-- 页面3 -->
+  <div id="page3" class="page">
+    <h2>📊 页面 3</h2>
+  </div>
+
+  <!-- 页面4 -->
+  <div id="page4" class="page">
+    <h2>⚙️ 页面 4</h2>
+  </div>
+
+  <!-- 页面5 -->
+  <div id="page5" class="page">
+    <h2>🔧 页面 5</h2>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="bottom-nav">
+    <button data-page="userPage" class="active">Users</button>
+    <button data-page="productPage">Products</button>
+    <button data-page="page3">Page3</button>
+    <button data-page="page4">Page4</button>
+    <button data-page="page5">Page5</button>
+  </div>
+
+  <!-- JS 各页面 -->
+  <script src="User/user.js"></script>
+  <script src="Product/product.js"></script>
+  <script src="Page3/page3.js"></script>
+  <script src="Page4/page4.js"></script>
+  <script src="Page5/page5.js"></script>
+  <!-- 底部按钮 JS -->
+  <script src="Button/button.js"></script>
+</body>
+</html>

@@ -1,44 +1,41 @@
-/* 底部导航容器 */
+/* 页面样式 */
+.page {
+  display: none; /* 默认隐藏 */
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+/* 当前显示页面 */
+.page.active {
+  display: block;
+}
+
+/* 底部导航栏 */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 60px;
-  background-color: #ffffff;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid #ddd;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
-  z-index: 100;
+  background: #f1f1f1;
+  border-top: 1px solid #ccc;
 }
 
-/* 底部按钮 */
 .bottom-nav button {
-  background: none;
+  flex: 1;
+  padding: 15px 0;
   border: none;
-  font-size: 14px;
-  color: #888;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background: none;
+  font-size: 16px;
   cursor: pointer;
-  transition: color 0.2s;
-}
-
-.bottom-nav button.active {
-  color: #4e54c8;
-  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
 }
 
 .bottom-nav button:hover {
-  color: #4e54c8;
+  background: #ddd;
 }
 
-/* 可加图标样式 */
-.bottom-nav button span.icon {
-  font-size: 18px;
-  margin-bottom: 2px;
+.bottom-nav button.active {
+  background: #4CAF50;
+  color: white;
 }

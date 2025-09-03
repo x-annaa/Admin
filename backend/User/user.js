@@ -1,20 +1,36 @@
 let currentEditUserId = null;
 
 // ======================
-// 加载用户数据（表格只显示 Edit 按钮）
+// 加载用户数据（包含订单数量）
 // ======================
 async function loadUsers() {
-  const { data, error } = await supabaseClient
+  // 获取用户数据
+  const { data: users, error: userError } = await supabaseClient
     .from("users")
     .select("id, username, coins, balance, platform_account, created_at")
     .order("id", { ascending: true });
 
-  if (error) return alert("❌ 加载用户失败: " + error.message);
+  if (userError) return alert("❌ 加载用户失败: " + userError.message);
 
+  // 获取订单数据
+  const { data: orders, error: orderError } = await supabaseClient
+    .from("orders")
+    .select("user_id");
+
+  if (orderError) return alert("❌ 加载订单失败: " + orderError.message);
+
+  // 统计每个用户的订单数量
+  const orderCountMap = {};
+  orders.forEach(order => {
+    if (!orderCountMap[order.user_id]) orderCountMap[order.user_id] = 0;
+    orderCountMap[order.user_id]++;
+  });
+
+  // 渲染表格
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
 
-  data.forEach((user) => {
+  users.forEach(user => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${user.id}</td>
@@ -23,7 +39,8 @@ async function loadUsers() {
       <td style="color:${user.coins < 0 ? "red" : "black"}">${user.coins ?? 0}</td>
       <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
-      <td><button onclick="openEditModal(${user.id}, '${user.username}')">Edit</button></td>
+      <td>${orderCountMap[user.id] ?? 0}</td>
+      <td><button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Edit</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -32,9 +49,9 @@ async function loadUsers() {
 // ======================
 // 打开编辑弹窗
 // ======================
-function openEditModal(userId, username) {
+function openEditModal(userId, username, orderCount) {
   currentEditUserId = userId;
-  document.getElementById("editUserName").textContent = `编辑用户: ${username}`;
+  document.getElementById("editUserName").textContent = `编辑用户: ${username} （订单: ${orderCount} 单）`;
   document.getElementById("editModal").style.display = "flex";
 }
 

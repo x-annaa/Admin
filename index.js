@@ -15,7 +15,7 @@ loginBtn.addEventListener("click", () => {
 
   if (inputPwd === ADMIN_PASSWORD) {
     // 密码正确，跳转到 home.html
-    window.location.href = "home.html";
+    window.location.href = "backend/home.html";
   } else {
     // 密码错误
     errorMsg.textContent = "密码错误，请重试！";

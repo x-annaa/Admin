@@ -42,3 +42,80 @@ table th {
 .action-btns button:hover {
   background-color: #eee;
 }
+
+/* ======================
+   编辑用户弹窗
+   ====================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none; /* 默认隐藏 */
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明遮罩 */
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  width: 320px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.modal-content p {
+  margin: 10px 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.edit-actions button {
+  flex: 1 1 45%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.edit-actions button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+#closeEditModal {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#closeEditModal:hover {
+  background-color: #999;
+  color: #fff;
+}

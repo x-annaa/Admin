@@ -15,10 +15,32 @@
   <link rel="stylesheet" href="Button/button.css">
 </head>
 <body>
+
   <!-- 用户页面 -->
-  <div id="userPage" class="page active">
-    <h2>👥 用户管理</h2>
-  </div>
+<div id="userPage" class="page active">
+  <h2>👥 用户管理</h2>
+
+  <!-- 搜索 -->
+  <input type="text" id="searchInput" placeholder="Search username..." onkeyup="searchUsers()">
+
+  <!-- 用户表格 -->
+  <table id="usersTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Password</th>
+        <th>Platform Account</th>
+        <th>Coins</th>
+        <th>Balance</th>
+        <th>Register Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 
   <!-- 产品页面 -->
   <div id="productPage" class="page">

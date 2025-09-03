@@ -1,6 +1,6 @@
-/* 页面样式 */
+/* 页面默认隐藏 */
 .page {
-  display: none; /* 默认隐藏 */
+  display: none;
   padding: 20px;
   font-family: sans-serif;
 }
@@ -15,27 +15,24 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
+  right: 0;
+  height: 60px;
   display: flex;
-  background: #f1f1f1;
-  border-top: 1px solid #ccc;
+  background: #fff;
+  border-top: 1px solid #ddd;
 }
 
 .bottom-nav button {
   flex: 1;
-  padding: 15px 0;
   border: none;
   background: none;
-  font-size: 16px;
+  font-size: 14px;
+  color: #666;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: color 0.2s, font-weight 0.2s;
 }
 
-.bottom-nav button:hover {
-  background: #ddd;
-}
-
-.bottom-nav button.active {
-  background: #4CAF50;
-  color: white;
+.bottom-nav button.active { 
+  color: #007bff; 
+  font-weight: bold; 
 }

@@ -1,42 +1,44 @@
-/* 用户管理页面表格 */
-#usersTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-family: sans-serif;
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
-#usersTable th,
-#usersTable td {
+h2 {
+  margin-bottom: 10px;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table th, table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
   font-size: 14px;
 }
 
-#usersTable th {
-  background-color: #f8f8f8;
+table th {
+  background-color: #f4f4f4;
 }
 
-#usersTable tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-#usersTable tbody tr:hover {
-  background-color: #eaeaea;
-}
-
-/* 操作按钮 */
-#usersTable button {
+.action-btns button {
   margin: 2px;
   padding: 4px 6px;
   font-size: 12px;
   cursor: pointer;
 }
 
-#searchInput {
-  width: 200px;
-  padding: 6px 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
+.action-btns button:hover {
+  background-color: #eee;
 }

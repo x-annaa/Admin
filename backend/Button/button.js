@@ -1,14 +1,14 @@
-// 底部导航按钮点击切换页面
+// 底部导航切换
 const bottomButtons = document.querySelectorAll(".bottom-nav button");
 const pages = document.querySelectorAll(".page");
 
 bottomButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    // 1️⃣ 按钮高亮
+    // 1️⃣ 切换按钮高亮
     bottomButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
-    // 2️⃣ 页面显示切换
+    // 2️⃣ 切换页面显示
     const pageId = btn.dataset.page;
     pages.forEach(p => p.classList.remove("active"));
     const activePage = document.getElementById(pageId);

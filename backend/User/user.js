@@ -1,4 +1,5 @@
 let currentEditUserId = null;
+let currentRuleUserId = null;
 
 // ======================
 // 加载用户数据（包含订单数量）
@@ -40,14 +41,17 @@ async function loadUsers() {
       <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
       <td>${orderCountMap[user.id] ?? 0}</td>
-      <td><button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Edit</button></td>
+      <td>
+        <button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Edit1</button>
+        <button onclick="openRuleModal(${user.id}, '${user.username}')">Edit2</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
 // ======================
-// 打开编辑弹窗
+// 打开编辑弹窗 (Edit1)
 // ======================
 function openEditModal(userId, username, orderCount) {
   currentEditUserId = userId;
@@ -56,14 +60,52 @@ function openEditModal(userId, username, orderCount) {
 }
 
 // ======================
-// 关闭弹窗
+// 打开规则弹窗 (Edit2)
+// ======================
+function openRuleModal(userId, username) {
+  currentRuleUserId = userId;
+  document.getElementById("ruleUserName").textContent = `手动匹配产品 - ${username}`;
+  document.getElementById("ruleModal").style.display = "flex";
+}
+
+// ======================
+// 保存规则
+// ======================
+async function saveRule() {
+  const orderNumber = parseInt(document.getElementById("ruleOrderNumber").value);
+  const productId = parseInt(document.getElementById("ruleProductId").value);
+  const enabled = document.getElementById("ruleEnabled").checked;
+
+  if (!orderNumber || !productId) {
+    return alert("请输入订单数和产品ID");
+  }
+
+  const { error } = await supabaseClient.from("user_product_rules").insert([
+    {
+      user_id: currentRuleUserId,
+      order_number: orderNumber,
+      product_id: productId,
+      enabled: enabled,
+    },
+  ]);
+
+  if (error) {
+    alert("❌ 保存规则失败: " + error.message);
+  } else {
+    alert("✅ 规则已保存");
+    document.getElementById("ruleModal").style.display = "none";
+  }
+}
+
+// ======================
+// 关闭弹窗 (Edit1)
 // ======================
 document.getElementById("closeEditModal").addEventListener("click", () => {
   document.getElementById("editModal").style.display = "none";
 });
 
 // ======================
-// 弹窗按钮功能绑定
+// 弹窗按钮功能绑定 (Edit1)
 // ======================
 document.getElementById("addCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'add'));
 document.getElementById("subCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'sub'));

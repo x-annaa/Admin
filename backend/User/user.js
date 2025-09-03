@@ -5,7 +5,6 @@ let currentRuleUserId = null;
 // 加载用户数据（包含订单数量）
 // ======================
 async function loadUsers() {
-  // 获取用户数据
   const { data: users, error: userError } = await supabaseClient
     .from("users")
     .select("id, username, coins, balance, platform_account, created_at")
@@ -13,21 +12,18 @@ async function loadUsers() {
 
   if (userError) return alert("❌ 加载用户失败: " + userError.message);
 
-  // 获取订单数据
   const { data: orders, error: orderError } = await supabaseClient
     .from("orders")
     .select("user_id");
 
   if (orderError) return alert("❌ 加载订单失败: " + orderError.message);
 
-  // 统计每个用户的订单数量
   const orderCountMap = {};
   orders.forEach(order => {
     if (!orderCountMap[order.user_id]) orderCountMap[order.user_id] = 0;
     orderCountMap[order.user_id]++;
   });
 
-  // 渲染表格
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
 
@@ -67,7 +63,7 @@ function openRuleModal(userId, username) {
   document.getElementById("ruleUserName").textContent = `手动匹配产品 - ${username}`;
   document.getElementById("ruleOrderNumber").value = "";
   document.getElementById("ruleProductId").value = "";
-  document.getElementById("ruleEnabled").checked = false;
+  document.getElementById("ruleEnabled").checked = true;
   document.getElementById("ruleModal").style.display = "flex";
 }
 
@@ -84,7 +80,7 @@ async function saveRule() {
 
   const { error } = await supabaseClient
     .from("user_product_rules")
-    .upsert({
+    .insert({
       user_id: currentRuleUserId,
       order_number: orderNumber,
       product_id: productId,
@@ -100,7 +96,7 @@ async function saveRule() {
 }
 
 // ======================
-// 关闭弹窗 (Edit1 / Edit2)
+// 关闭弹窗
 // ======================
 document.getElementById("closeEditModal").addEventListener("click", () => {
   document.getElementById("editModal").style.display = "none";

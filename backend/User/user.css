@@ -1,1 +1,42 @@
+/* 用户管理页面表格 */
+#usersTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-family: sans-serif;
+}
 
+#usersTable th,
+#usersTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+#usersTable th {
+  background-color: #f8f8f8;
+}
+
+#usersTable tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#usersTable tbody tr:hover {
+  background-color: #eaeaea;
+}
+
+/* 操作按钮 */
+#usersTable button {
+  margin: 2px;
+  padding: 4px 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#searchInput {
+  width: 200px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}

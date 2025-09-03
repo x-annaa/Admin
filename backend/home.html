@@ -17,84 +17,100 @@
 <body>
 
   <!-- 用户页面 -->
-<div id="userPage" class="page active">
-  <h2>👥 用户管理</h2>
+  <div id="userPage" class="page active">
+    <h2>👥 用户管理</h2>
 
-  <!-- 搜索 -->
-  <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
+    <!-- 搜索 -->
+    <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
 
-  <!-- 用户表格 -->
-  <table id="usersTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>用户名</th>
-        <th>平台账号</th>
-        <th>Coins</th>
-        <th>Balance</th>
-        <th>注册时间</th>
-        <th>订单数</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- 编辑弹窗 -->
-<div id="editModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <p id="editUserName"></p>
-    <div class="edit-actions">
-      <button id="addCoinsBtn">➕ Coins</button>
-      <button id="subCoinsBtn">➖ Coins</button>
-      <button id="addBalanceBtn">➕ Balance</button>
-      <button id="subBalanceBtn">➖ Balance</button>
-      <button id="changePasswordBtn">🔑 Password</button>
-      <button id="deleteUserBtn">🗑 Delete</button>
-    </div>
-    <button id="closeEditModal">关闭</button>
+    <!-- 用户表格 -->
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>用户名</th>
+          <th>平台账号</th>
+          <th>Coins</th>
+          <th>Balance</th>
+          <th>注册时间</th>
+          <th>订单数</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-</div>
 
+  <!-- Edit1 弹窗 -->
+  <div id="editModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <p id="editUserName"></p>
+      <div class="edit-actions">
+        <button id="addCoinsBtn">➕ Coins</button>
+        <button id="subCoinsBtn">➖ Coins</button>
+        <button id="addBalanceBtn">➕ Balance</button>
+        <button id="subBalanceBtn">➖ Balance</button>
+        <button id="changePasswordBtn">🔑 Password</button>
+        <button id="deleteUserBtn">🗑 Delete</button>
+      </div>
+      <button id="closeEditModal">关闭</button>
+    </div>
+  </div>
+
+  <!-- Edit2 手动匹配产品弹窗 -->
+  <div id="matchModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3>手动匹配产品</h3>
+      <label>第几单: <input type="number" id="matchOrderNumber" min="1"></label><br>
+      <label>产品ID: <input type="number" id="matchProductId" min="1"></label><br>
+      <label>
+        是否启用: 
+        <input type="checkbox" id="matchEnabled">
+      </label><br>
+      <div class="modal-actions">
+        <button id="saveMatchBtn">确认匹配</button>
+        <button id="closeMatchModal">取消</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 产品页面 -->
   <div id="productPage" class="page">
-  <h2>📦 产品管理</h2>
-  
-  <!-- 添加产品按钮 -->
-  <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
+    <h2>📦 产品管理</h2>
+    
+    <!-- 添加产品按钮 -->
+    <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
 
-  <!-- 产品表格 -->
-  <table id="productsTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Description</th>
-        <th>Profit</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <!-- 产品表格 -->
+    <table id="productsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Description</th>
+          <th>Profit</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<!-- 编辑/添加产品弹窗（共用同一个弹窗） -->
-<div id="productModal" class="modal">
-  <div class="modal-content">
-    <h3 id="productModalTitle">编辑产品</h3>
-    <label>名称: <input type="text" id="editName"></label><br>
-    <label>价格: <input type="number" id="editPrice"></label><br>
-    <label>描述: <input type="text" id="editDescription"></label><br>
-    <label>利润: <input type="number" id="editProfit"></label><br>
-    <div class="modal-actions">
-      <button id="saveProductBtn">保存</button>
-      <button id="closeProductModal">取消</button>
+  <!-- 编辑/添加产品弹窗 -->
+  <div id="productModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3 id="productModalTitle">编辑产品</h3>
+      <label>名称: <input type="text" id="editName"></label><br>
+      <label>价格: <input type="number" id="editPrice"></label><br>
+      <label>描述: <input type="text" id="editDescription"></label><br>
+      <label>利润: <input type="number" id="editProfit"></label><br>
+      <div class="modal-actions">
+        <button id="saveProductBtn">保存</button>
+        <button id="closeProductModal">取消</button>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- 页面3 -->
   <div id="page3" class="page">

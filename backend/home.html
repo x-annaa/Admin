@@ -58,18 +58,24 @@
   </div>
 
   <!-- Edit2 手动匹配产品弹窗 -->
-  <div id="matchModal" class="modal" style="display:none;">
+  <div id="ruleModal" class="modal" style="display:none;">
     <div class="modal-content">
-      <h3>手动匹配产品</h3>
-      <label>第几单: <input type="number" id="matchOrderNumber" min="1"></label><br>
-      <label>产品ID: <input type="number" id="matchProductId" min="1"></label><br>
+      <h3 id="ruleUserName">手动匹配规则</h3>
       <label>
-        是否启用: 
-        <input type="checkbox" id="matchEnabled">
+        第几单:
+        <input type="number" id="orderNumberInput" min="1">
       </label><br>
+      <label>
+        产品ID:
+        <input type="number" id="productIdInput" min="1">
+      </label><br>
+      <label>
+        <input type="checkbox" id="ruleEnabled">
+        开启规则
+      </label>
       <div class="modal-actions">
-        <button id="saveMatchBtn">确认匹配</button>
-        <button id="closeMatchModal">取消</button>
+        <button id="saveRuleBtn">确认匹配</button>
+        <button id="closeRuleModal">取消</button>
       </div>
     </div>
   </div>

@@ -1,16 +1,15 @@
+let currentEditUserId = null;
+
 // ======================
-// 加载用户数据
+// 加载用户数据（表格只显示 Edit 按钮）
 // ======================
 async function loadUsers() {
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, username, password, coins, balance, platform_account, created_at")
+    .select("id, username, coins, balance, platform_account, created_at")
     .order("id", { ascending: true });
 
-  if (error) {
-    alert("❌ 加载用户失败: " + error.message);
-    return;
-  }
+  if (error) return alert("❌ 加载用户失败: " + error.message);
 
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
@@ -20,23 +19,41 @@ async function loadUsers() {
     tr.innerHTML = `
       <td>${user.id}</td>
       <td>${user.username}</td>
-      <td>${user.password || "-"}</td>
       <td>${user.platform_account || "-"}</td>
       <td style="color:${user.coins < 0 ? "red" : "black"}">${user.coins ?? 0}</td>
       <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
-      <td class="action-btns">
-        <button onclick="updateField(${user.id}, 'coins', 'add')">➕ Coins</button>
-        <button onclick="updateField(${user.id}, 'coins', 'sub')">➖ Coins</button>
-        <button onclick="updateField(${user.id}, 'balance', 'add')">➕ Balance</button>
-        <button onclick="updateField(${user.id}, 'balance', 'sub')">➖ Balance</button>
-        <button onclick="changePassword(${user.id}, '${user.password || ""}')">🔑 Password</button>
-        <button onclick="deleteUser(${user.id})">🗑 Delete</button>
-      </td>
+      <td><button onclick="openEditModal(${user.id}, '${user.username}')">Edit</button></td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+// ======================
+// 打开编辑弹窗
+// ======================
+function openEditModal(userId, username) {
+  currentEditUserId = userId;
+  document.getElementById("editUserName").textContent = `编辑用户: ${username}`;
+  document.getElementById("editModal").style.display = "flex";
+}
+
+// ======================
+// 关闭弹窗
+// ======================
+document.getElementById("closeEditModal").addEventListener("click", () => {
+  document.getElementById("editModal").style.display = "none";
+});
+
+// ======================
+// 弹窗按钮功能绑定
+// ======================
+document.getElementById("addCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'add'));
+document.getElementById("subCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'sub'));
+document.getElementById("addBalanceBtn").addEventListener("click", () => updateField(currentEditUserId, 'balance', 'add'));
+document.getElementById("subBalanceBtn").addEventListener("click", () => updateField(currentEditUserId, 'balance', 'sub'));
+document.getElementById("changePasswordBtn").addEventListener("click", () => changePasswordPrompt(currentEditUserId));
+document.getElementById("deleteUserBtn").addEventListener("click", () => deleteUserPrompt(currentEditUserId));
 
 // ======================
 // 修改 Coins / Balance
@@ -60,19 +77,15 @@ async function updateField(userId, field, action) {
     .update({ [field]: newValue })
     .eq("id", userId);
 
-  if (error) {
-    alert(`❌ 更新 ${field} 失败: ` + error.message);
-  } else {
-    alert(`✅ ${field} 已更新，当前值 = ${newValue}`);
-    loadUsers();
-  }
+  if (error) alert(`❌ 更新 ${field} 失败: ` + error.message);
+  loadUsers();
 }
 
 // ======================
 // 修改密码
 // ======================
-async function changePassword(userId, oldPassword) {
-  const newPassword = prompt("请输入新密码:", oldPassword);
+async function changePasswordPrompt(userId) {
+  const newPassword = prompt("请输入新密码:");
   if (newPassword === null) return;
 
   const { error } = await supabaseClient
@@ -80,28 +93,20 @@ async function changePassword(userId, oldPassword) {
     .update({ password: newPassword })
     .eq("id", userId);
 
-  if (error) {
-    alert("❌ 更新密码失败: " + error.message);
-  } else {
-    alert("✅ 密码已更新！");
-    loadUsers();
-  }
+  if (error) alert("❌ 更新密码失败: " + error.message);
+  loadUsers();
 }
 
 // ======================
 // 删除用户
 // ======================
-async function deleteUser(userId) {
+function deleteUserPrompt(userId) {
   if (!confirm(`⚠️ 确定删除用户 #${userId} 吗？`)) return;
 
-  const { error } = await supabaseClient.from("users").delete().eq("id", userId);
-
-  if (error) {
-    alert("❌ 删除用户失败: " + error.message);
-  } else {
-    alert("✅ 用户删除成功！");
+  supabaseClient.from("users").delete().eq("id", userId).then(({ error }) => {
+    if (error) alert("❌ 删除用户失败: " + error.message);
     loadUsers();
-  }
+  });
 }
 
 // ======================
@@ -109,15 +114,13 @@ async function deleteUser(userId) {
 // ======================
 function searchUsers() {
   const filter = document.getElementById("searchInput").value.toLowerCase();
-  const rows = document.querySelectorAll("#usersTable tbody tr");
-
-  rows.forEach((row) => {
+  document.querySelectorAll("#usersTable tbody tr").forEach((row) => {
     const username = row.cells[1].textContent.toLowerCase();
     row.style.display = username.includes(filter) ? "" : "none";
   });
 }
 
 // ======================
-// 页面加载时执行
+// 页面加载
 // ======================
 document.addEventListener("DOMContentLoaded", loadUsers);

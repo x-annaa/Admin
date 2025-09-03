@@ -1,1 +1,44 @@
+/* 底部导航容器 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  z-index: 100;
+}
 
+/* 底部按钮 */
+.bottom-nav button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.bottom-nav button.active {
+  color: #4e54c8;
+  font-weight: bold;
+}
+
+.bottom-nav button:hover {
+  color: #4e54c8;
+}
+
+/* 可加图标样式 */
+.bottom-nav button span.icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+}

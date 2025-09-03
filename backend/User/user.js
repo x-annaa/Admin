@@ -116,3 +116,8 @@ function searchUsers() {
     row.style.display = username.includes(filter) ? "" : "none";
   });
 }
+
+// ======================
+// 页面加载时执行
+// ======================
+document.addEventListener("DOMContentLoaded", loadUsers);

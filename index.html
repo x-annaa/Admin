@@ -1,43 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>Admin</title>
-  <link rel="stylesheet" href="admin.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>U9 管理后台登录</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
-  <h1>U9 管理后台</h1>
-
-  <!-- 管理员登录 -->
-  <div id="loginSection">
-    <input type="password" id="adminPassword" placeholder="Enter admin password">
-    <button onclick="checkAdmin()">Login</button>
+  <div class="login-container">
+    <h1>管理员登录</h1>
+    <input type="password" id="adminPassword" placeholder="请输入管理员密码">
+    <button id="loginBtn">登录</button>
+    <p id="errorMsg" class="error"></p>
   </div>
 
-  <!-- 后台管理区 -->
-  <div id="adminSection" style="display:none;">
-    <!-- 顶部工具栏 -->
-    <div style="text-align:right; margin-bottom:10px;">
-      <button onclick="refreshPage()">🔄 Refresh</button>
-    </div>
-
-    <!-- 页面区 -->
-    <div id="pageContent">
-      <!-- 页面内容会动态切换 -->
-    </div>
-  </div>
-
-  <!-- 底部导航栏 -->
-  <div id="bottomNav" class="bottom-nav" style="display:none;">
-    <button onclick="switchPage('users')">Users</button>
-    <button onclick="switchPage('coins')">Coins</button>
-    <button onclick="switchPage('orders')">Orders</button>
-    <button onclick="switchPage('stats')">Stats</button>
-    <button onclick="switchPage('settings')">Settings</button>
-  </div>
-
-  <!-- Supabase SDK -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <script src="admin.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>

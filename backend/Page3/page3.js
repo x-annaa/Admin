@@ -7,11 +7,21 @@
     .getElementsByTagName("tbody")[0];
   const searchInput = document.getElementById("searchWithdrawalInput");
 
-  // 获取提现记录
+  // 获取提现记录（带用户信息）
   async function fetchWithdrawals() {
     let { data, error } = await supabaseClient
       .from("withdrawals")
-      .select("*")
+      .select(`
+        id,
+        amount,
+        wallet_address,
+        status,
+        created_at,
+        users (
+          username,
+          platform_account
+        )
+      `)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -29,8 +39,8 @@
     withdrawals.forEach((item) => {
       const row = withdrawalsTable.insertRow();
 
-      row.insertCell(0).textContent = item.id;
-      row.insertCell(1).textContent = item.user_id;
+      row.insertCell(0).textContent = item.users?.username || "未知用户";
+      row.insertCell(1).textContent = item.users?.platform_account || "-";
       row.insertCell(2).textContent = item.amount;
       row.insertCell(3).textContent = item.wallet_address;
 
@@ -42,7 +52,7 @@
       } else if (item.status === "已完成") {
         statusCell.style.color = "green";
       } else {
-        statusCell.style.color = "orange"; // 默认状态（例如 pending）
+        statusCell.style.color = "orange"; // 默认状态
       }
 
       row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
@@ -71,15 +81,32 @@
     });
   }
 
-  // 搜索功能
+  // 搜索功能（支持 用户名 / 平台账号 / 钱包地址）
   searchInput.addEventListener("keyup", async () => {
     const keyword = searchInput.value.trim();
 
-    let { data, error } = await supabaseClient
+    let query = supabaseClient
       .from("withdrawals")
-      .select("*")
-      .or(`user_id.ilike.%${keyword}%,wallet_address.ilike.%${keyword}%`)
+      .select(`
+        id,
+        amount,
+        wallet_address,
+        status,
+        created_at,
+        users (
+          username,
+          platform_account
+        )
+      `)
       .order("created_at", { ascending: false });
+
+    if (keyword) {
+      query = query.or(
+        `users.username.ilike.%${keyword}%,users.platform_account.ilike.%${keyword}%,wallet_address.ilike.%${keyword}%`
+      );
+    }
+
+    let { data, error } = await query;
 
     if (error) {
       console.error("搜索失败:", error);

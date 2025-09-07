@@ -7,6 +7,17 @@
     .getElementsByTagName("tbody")[0];
   const searchInput = document.getElementById("searchWithdrawalInput");
 
+  // 格式化时间为 YYYY-MM-DD HH:mm:ss
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0") + " " +
+      String(date.getHours()).padStart(2, "0") + ":" +
+      String(date.getMinutes()).padStart(2, "0") + ":" +
+      String(date.getSeconds()).padStart(2, "0");
+  }
+
   // 获取提现记录（带用户信息）
   async function fetchWithdrawals() {
     let { data, error } = await supabaseClient
@@ -55,7 +66,8 @@
         statusCell.style.color = "orange"; // 默认状态
       }
 
-      row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
+      // 时间列使用格式化函数
+      row.insertCell(5).textContent = formatDate(item.created_at);
 
       // 操作按钮
       const actionsCell = row.insertCell(6);

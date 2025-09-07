@@ -1,122 +1,106 @@
+// 使用已经初始化的 supabaseClient
+// const supabaseClient 已经在 backend/User/supabaseClient.js 中创建
 
-let editingProductId = null;
-let currentMatchProductId = null;
+const withdrawalsTable = document.getElementById("withdrawalsTable").getElementsByTagName("tbody")[0];
+const searchInput = document.getElementById("searchWithdrawalInput");
 
-document.addEventListener("DOMContentLoaded", () => {
+// 获取提现记录
+async function fetchWithdrawals() {
+    let { data, error } = await supabaseClient
+        .from('withdrawals')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  // ----------------------
-  // 加载产品列表
-  // ----------------------
-  async function loadProducts() {
-    const { data, error } = await supabaseClient
-      .from("products")
-      .select("id, name, price, description, profit, enabled, manual_only")
-      .order("id", { ascending: true });
-    if (error) return alert("❌ 加载产品失败: " + error.message);
-
-    const tbody = document.querySelector("#productsTable tbody");
-    tbody.innerHTML = "";
-    data.forEach(product => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${product.id}</td>
-        <td>${product.name}</td>
-        <td>${product.price}</td>
-        <td>${product.description}</td>
-        <td>${product.profit}</td>
-        <td>
-          <button onclick="openProductModal(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ 编辑</button>
-          <button onclick="openProductMatchModal(${product.id}, ${product.enabled}, ${product.manual_only})">🎯 匹配</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // ----------------------
-  // 编辑/添加产品弹窗
-  // ----------------------
-  window.openProductModal = function(id=null, name="", price=0, description="", profit=0) {
-    editingProductId = id;
-    document.getElementById("editName").value = name;
-    document.getElementById("editPrice").value = price;
-    document.getElementById("editDescription").value = description;
-    document.getElementById("editProfit").value = profit;
-    document.getElementById("productModalTitle").textContent = id ? "编辑产品" : "添加产品";
-    document.getElementById("productModal").style.display = "flex";
-  }
-
-  // ----------------------
-  // 匹配设置弹窗
-  // ----------------------
-  window.openProductMatchModal = function(id, enabled, manual_only) {
-    currentMatchProductId = id;
-    document.getElementById("productEnabledCheckbox").checked = enabled;
-    document.getElementById("productManualOnlyCheckbox").checked = manual_only;
-    document.getElementById("productMatchModal").style.display = "flex";
-  }
-
-  // ----------------------
-  // 弹窗关闭事件
-  // ----------------------
-  document.getElementById("closeProductModal").onclick = () => document.getElementById("productModal").style.display = "none";
-  document.getElementById("closeProductMatchModal").onclick = () => document.getElementById("productMatchModal").style.display = "none";
-
-  // ----------------------
-  // 保存产品
-  // ----------------------
-  document.getElementById("saveProductBtn").onclick = async () => {
-    const name = document.getElementById("editName").value;
-    const price = parseFloat(document.getElementById("editPrice").value);
-    const description = document.getElementById("editDescription").value;
-    const profit = parseFloat(document.getElementById("editProfit").value);
-    if (!name || isNaN(price) || !description || isNaN(profit)) return alert("❌ 请填写完整信息");
-
-    if(editingProductId){
-      const { error } = await supabaseClient.from("products").update({name, price, description, profit}).eq("id", editingProductId);
-      if(error) return alert("❌ 更新失败: "+error.message);
-      alert("✅ 更新成功");
-    } else {
-      const { error } = await supabaseClient.from("products").insert([{name, price, description, profit, enabled:true, manual_only:false}]);
-      if(error) return alert("❌ 添加失败: "+error.message);
-      alert("✅ 添加成功");
+    if (error) {
+        console.error("获取提现记录失败:", error);
+        return;
     }
-    document.getElementById("productModal").style.display = "none";
-    loadProducts();
-  }
 
-  // ----------------------
-  // 删除产品
-  // ----------------------
-  document.getElementById("deleteProductBtn").onclick = async () => {
-    if(!editingProductId) return;
-    if(!confirm("⚠️ 确定删除吗？")) return;
-    const { error } = await supabaseClient.from("products").delete().eq("id", editingProductId);
-    if(error) return alert("❌ 删除失败: "+error.message);
-    alert("✅ 删除成功");
-    document.getElementById("productModal").style.display = "none";
-    loadProducts();
-  }
+    displayWithdrawals(data);
+}
 
-  // ----------------------
-  // 保存匹配设置
-  // ----------------------
-  document.getElementById("saveProductMatchBtn").onclick = async () => {
-    if(!currentMatchProductId) return;
-    const enabled = document.getElementById("productEnabledCheckbox").checked;
-    const manual_only = document.getElementById("productManualOnlyCheckbox").checked;
-    const { error } = await supabaseClient.from("products").update({enabled, manual_only}).eq("id", currentMatchProductId);
-    if(error) return alert("❌ 保存失败: "+error.message);
-    alert("✅ 保存成功");
-    document.getElementById("productMatchModal").style.display = "none";
-    loadProducts();
-  }
+// 渲染提现记录
+function displayWithdrawals(withdrawals) {
+    withdrawalsTable.innerHTML = "";
 
-  // ----------------------
-  // 添加产品按钮
-  // ----------------------
-  document.getElementById("addProductBtn").onclick = () => openProductModal();
+    withdrawals.forEach(item => {
+        const row = withdrawalsTable.insertRow();
 
-  // 页面初始加载
-  loadProducts();
+        row.insertCell(0).textContent = item.id;
+        row.insertCell(1).textContent = item.user_id;
+        row.insertCell(2).textContent = item.amount;
+        row.insertCell(3).textContent = item.wallet_address;
+        row.insertCell(4).textContent = item.status;
+        row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
+
+        // 操作按钮
+        const actionsCell = row.insertCell(6);
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.textContent = "拒绝";
+        rejectBtn.onclick = () => updateStatus(item.id, "拒绝");
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = "已完成";
+        completeBtn.onclick = () => updateStatus(item.id, "已完成");
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "删除";
+        deleteBtn.onclick = () => deleteWithdrawal(item.id);
+
+        actionsCell.appendChild(rejectBtn);
+        actionsCell.appendChild(completeBtn);
+        actionsCell.appendChild(deleteBtn);
+    });
+}
+
+// 搜索功能
+searchInput.addEventListener("keyup", async () => {
+    const keyword = searchInput.value.trim();
+
+    let { data, error } = await supabaseClient
+        .from('withdrawals')
+        .select('*')
+        .or(`user_id.ilike.%${keyword}%,wallet_address.ilike.%${keyword}%`)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("搜索失败:", error);
+        return;
+    }
+
+    displayWithdrawals(data);
 });
+
+// 更新状态
+async function updateStatus(id, status) {
+    const { error } = await supabaseClient
+        .from('withdrawals')
+        .update({ status })
+        .eq('id', id);
+
+    if (error) {
+        alert("更新状态失败：" + error.message);
+    } else {
+        fetchWithdrawals();
+    }
+}
+
+// 删除记录
+async function deleteWithdrawal(id) {
+    if (!confirm("确定要删除这条记录吗？")) return;
+
+    const { error } = await supabaseClient
+        .from('withdrawals')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        alert("删除失败：" + error.message);
+    } else {
+        fetchWithdrawals();
+    }
+}
+
+// 初始化页面
+fetchWithdrawals();

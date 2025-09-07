@@ -1,4 +1,20 @@
-/* 页面样式 */
+#page3 {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+#page3 h2 {
+  margin-bottom: 10px;
+}
+
+#page3 input[type="text"] {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 #depositsTable {
   width: 100%;
   border-collapse: collapse;
@@ -6,21 +22,26 @@
 }
 
 #depositsTable th, #depositsTable td {
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
 
 #depositsTable th {
-  background-color: #f2f2f2;
+  background-color: #f5f5f5;
 }
 
 .action-btn {
   padding: 4px 8px;
-  margin: 0 2px;
+  margin: 2px;
   border: none;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
+}
+
+.action-btn.view {
+  background-color: #2196F3;
+  color: white;
 }
 
 .action-btn.approve {
@@ -33,20 +54,13 @@
   color: white;
 }
 
-.action-btn.view {
-  background-color: #2196F3;
-  color: white;
-}
-
-/* 弹窗样式 */
+/* 查看截图弹窗 */
 .modal {
   display: none;
   position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   overflow: auto;
   background-color: rgba(0,0,0,0.5);
 }
@@ -55,16 +69,20 @@
   background-color: #fff;
   margin: 10% auto;
   padding: 20px;
-  border-radius: 8px;
   width: 400px;
   text-align: center;
+  border-radius: 6px;
 }
 
 .modal-content img {
   max-width: 100%;
-  max-height: 300px;
+  margin: 10px 0;
 }
 
 .modal-content button {
+  padding: 6px 12px;
   margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }

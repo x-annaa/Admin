@@ -49,36 +49,28 @@
 #withdrawalsTable button {
   margin: 0 4px;
   padding: 5px 10px;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  background: #f9f9f9;
   transition: all 0.2s ease;
 }
 
-/* 拒绝按钮 */
-#withdrawalsTable button:nth-child(1) {
-  background: #e74c3c;
-  color: white;
-}
-#withdrawalsTable button:nth-child(1):hover {
-  background: #c0392b;
+/* hover 效果 */
+#withdrawalsTable button:hover {
+  background: #e6e6e6;
 }
 
-/* 已完成按钮 */
-#withdrawalsTable button:nth-child(2) {
-  background: #27ae60;
-  color: white;
-}
-#withdrawalsTable button:nth-child(2):hover {
-  background: #1e8449;
+/* 字体颜色区分 */
+#withdrawalsTable button.reject {
+  color: red;
 }
 
-/* 删除按钮 */
-#withdrawalsTable button:nth-child(3) {
-  background: #7f8c8d;
-  color: white;
+#withdrawalsTable button.complete {
+  color: green;
 }
-#withdrawalsTable button:nth-child(3):hover {
-  background: #606868;
+
+#withdrawalsTable button.delete {
+  color: black;
 }

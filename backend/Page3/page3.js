@@ -1,106 +1,116 @@
-// 初始化 Supabase 客户端
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(() => {
+  // 使用已经初始化的 supabaseClient
+  // const supabaseClient 已经在 backend/User/supabaseClient.js 中创建
 
-const withdrawalsTable = document.getElementById("withdrawalsTable").getElementsByTagName("tbody")[0];
-const searchInput = document.getElementById("searchWithdrawalInput");
+  const withdrawalsTable = document
+    .getElementById("withdrawalsTable")
+    .getElementsByTagName("tbody")[0];
+  const searchInput = document.getElementById("searchWithdrawalInput");
 
-// 获取提现记录
-async function fetchWithdrawals() {
-    let { data, error } = await supabase
-        .from('withdrawals')
-        .select('*')
-        .order('created_at', { ascending: false });
+  // 获取提现记录
+  async function fetchWithdrawals() {
+    let { data, error } = await supabaseClient
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) {
-        console.error("获取提现记录失败:", error);
-        return;
+      console.error("获取提现记录失败:", error);
+      return;
     }
 
     displayWithdrawals(data);
-}
+  }
 
-// 渲染提现记录
-function displayWithdrawals(withdrawals) {
+  // 渲染提现记录
+  function displayWithdrawals(withdrawals) {
     withdrawalsTable.innerHTML = "";
 
-    withdrawals.forEach(item => {
-        const row = withdrawalsTable.insertRow();
+    withdrawals.forEach((item) => {
+      const row = withdrawalsTable.insertRow();
 
-        row.insertCell(0).textContent = item.id;
-        row.insertCell(1).textContent = item.user_id;
-        row.insertCell(2).textContent = item.amount;
-        row.insertCell(3).textContent = item.wallet_address;
-        row.insertCell(4).textContent = item.status;
-        row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
+      row.insertCell(0).textContent = item.id;
+      row.insertCell(1).textContent = item.user_id;
+      row.insertCell(2).textContent = item.amount;
+      row.insertCell(3).textContent = item.wallet_address;
+      row.insertCell(4).textContent = item.status;
+      row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
 
-        // 操作按钮
-        const actionsCell = row.insertCell(6);
+      // 操作按钮
+      const actionsCell = row.insertCell(6);
 
-        const rejectBtn = document.createElement("button");
-        rejectBtn.textContent = "拒绝";
-        rejectBtn.onclick = () => updateStatus(item.id, "拒绝");
+      const rejectBtn = document.createElement("button");
+      rejectBtn.textContent = "拒绝";
+      rejectBtn.style.color = "white";
+      rejectBtn.style.backgroundColor = "red";
+      rejectBtn.onclick = () => updateStatus(item.id, "拒绝");
 
-        const completeBtn = document.createElement("button");
-        completeBtn.textContent = "已完成";
-        completeBtn.onclick = () => updateStatus(item.id, "已完成");
+      const completeBtn = document.createElement("button");
+      completeBtn.textContent = "已完成";
+      completeBtn.style.color = "white";
+      completeBtn.style.backgroundColor = "green";
+      completeBtn.onclick = () => updateStatus(item.id, "已完成");
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "删除";
-        deleteBtn.onclick = () => deleteWithdrawal(item.id);
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "删除";
+      deleteBtn.style.backgroundColor = "#555";
+      deleteBtn.style.color = "white";
+      deleteBtn.onclick = () => deleteWithdrawal(item.id);
 
-        actionsCell.appendChild(rejectBtn);
-        actionsCell.appendChild(completeBtn);
-        actionsCell.appendChild(deleteBtn);
+      actionsCell.appendChild(rejectBtn);
+      actionsCell.appendChild(completeBtn);
+      actionsCell.appendChild(deleteBtn);
     });
-}
+  }
 
-// 搜索功能
-searchInput.addEventListener("keyup", async () => {
+  // 搜索功能
+  searchInput.addEventListener("keyup", async () => {
     const keyword = searchInput.value.trim();
 
-    let { data, error } = await supabase
-        .from('withdrawals')
-        .select('*')
-        .or(`user_id.ilike.%${keyword}%,wallet_address.ilike.%${keyword}%`)
-        .order('created_at', { ascending: false });
+    let { data, error } = await supabaseClient
+      .from("withdrawals")
+      .select("*")
+      .or(`user_id.ilike.%${keyword}%,wallet_address.ilike.%${keyword}%`)
+      .order("created_at", { ascending: false });
 
     if (error) {
-        console.error("搜索失败:", error);
-        return;
+      console.error("搜索失败:", error);
+      return;
     }
 
     displayWithdrawals(data);
-});
+  });
 
-// 更新状态
-async function updateStatus(id, status) {
-    const { error } = await supabase
-        .from('withdrawals')
-        .update({ status })
-        .eq('id', id);
+  // 更新状态
+  async function updateStatus(id, status) {
+    const { error } = await supabaseClient
+      .from("withdrawals")
+      .update({ status })
+      .eq("id", id);
 
     if (error) {
-        alert("更新状态失败：" + error.message);
+      alert("更新状态失败：" + error.message);
     } else {
-        fetchWithdrawals();
+      fetchWithdrawals();
     }
-}
+  }
 
-// 删除记录
-async function deleteWithdrawal(id) {
+  // 删除记录
+  async function deleteWithdrawal(id) {
     if (!confirm("确定要删除这条记录吗？")) return;
 
-    const { error } = await supabase
-        .from('withdrawals')
-        .delete()
-        .eq('id', id);
+    const { error } = await supabaseClient
+      .from("withdrawals")
+      .delete()
+      .eq("id", id);
 
     if (error) {
-        alert("删除失败：" + error.message);
+      alert("删除失败：" + error.message);
     } else {
-        fetchWithdrawals();
+      fetchWithdrawals();
     }
-}
+  }
 
-// 初始化页面
-fetchWithdrawals();
+  // 初始化页面
+  fetchWithdrawals();
+})();

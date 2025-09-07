@@ -1,6 +1,6 @@
 const page3 = document.getElementById("page3");
 
-// 创建充值表格
+// 创建充值表格 HTML
 page3.innerHTML = `
   <h2>📥 用户充值管理</h2>
   <input type="text" id="searchDeposit" placeholder="搜索用户名..." />
@@ -33,6 +33,7 @@ viewModal.innerHTML = `
   </div>
 `;
 document.body.appendChild(viewModal);
+
 document.getElementById("closeViewModal").addEventListener("click", () => viewModal.style.display = "none");
 
 // 加载充值记录
@@ -40,7 +41,7 @@ async function loadDeposits() {
   try {
     const { data, error } = await supabaseClient
       .from("deposits")
-      .select("id, user_id, amount, network, proof_url, description, status, created_at, users(username)")
+      .select("id,user_id,amount,network,proof_url,description,status,created_at,users(username)")
       .order("created_at", { ascending: false });
 
     if (error) return alert("加载充值记录失败：" + error.message);
@@ -117,5 +118,5 @@ document.getElementById("searchDeposit").addEventListener("keyup", (e) => {
   });
 });
 
-// 初始加载
+// 页面初始加载
 loadDeposits();

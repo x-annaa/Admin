@@ -33,7 +33,18 @@
       row.insertCell(1).textContent = item.user_id;
       row.insertCell(2).textContent = item.amount;
       row.insertCell(3).textContent = item.wallet_address;
-      row.insertCell(4).textContent = item.status;
+
+      // 状态列加颜色
+      const statusCell = row.insertCell(4);
+      statusCell.textContent = item.status;
+      if (item.status === "拒绝") {
+        statusCell.style.color = "red";
+      } else if (item.status === "已完成") {
+        statusCell.style.color = "green";
+      } else {
+        statusCell.style.color = "orange"; // 默认状态（例如 pending）
+      }
+
       row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();
 
       // 操作按钮
@@ -41,20 +52,17 @@
 
       const rejectBtn = document.createElement("button");
       rejectBtn.textContent = "拒绝";
-      rejectBtn.style.color = "white";
-      rejectBtn.style.backgroundColor = "red";
+      rejectBtn.className = "reject";
       rejectBtn.onclick = () => updateStatus(item.id, "拒绝");
 
       const completeBtn = document.createElement("button");
       completeBtn.textContent = "已完成";
-      completeBtn.style.color = "white";
-      completeBtn.style.backgroundColor = "green";
+      completeBtn.className = "complete";
       completeBtn.onclick = () => updateStatus(item.id, "已完成");
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "删除";
-      deleteBtn.style.backgroundColor = "#555";
-      deleteBtn.style.color = "white";
+      deleteBtn.className = "delete";
       deleteBtn.onclick = () => deleteWithdrawal(item.id);
 
       actionsCell.appendChild(rejectBtn);

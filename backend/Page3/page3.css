@@ -64,11 +64,11 @@
 
 /* 字体颜色区分 */
 #withdrawalsTable button.reject {
-  color: red;
+  color: rgb(0, 0, 0);
 }
 
 #withdrawalsTable button.complete {
-  color: green;
+  color: rgb(0, 0, 0);
 }
 
 #withdrawalsTable button.delete {

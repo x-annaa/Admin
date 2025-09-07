@@ -52,7 +52,7 @@
       } else if (item.status === "已完成") {
         statusCell.style.color = "green";
       } else {
-        statusCell.style.color = "orange"; // 默认状态
+        statusCell.style.color = "yellow"; // 默认状态
       }
 
       row.insertCell(5).textContent = new Date(item.created_at).toLocaleString();

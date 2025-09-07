@@ -1,1 +1,84 @@
+/* ===== 提现管理 Page3 样式 ===== */
 
+/* 页面整体 */
+#page3 {
+  padding: 20px;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+
+/* 搜索框 */
+#searchWithdrawalInput {
+  width: 300px;
+  padding: 8px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+#searchWithdrawalInput:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.4);
+}
+
+/* 表格 */
+#withdrawalsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+#withdrawalsTable thead {
+  background: #f4f6f9;
+}
+
+#withdrawalsTable th, 
+#withdrawalsTable td {
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 14px;
+}
+
+#withdrawalsTable tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* ===== 操作按钮样式 ===== */
+#withdrawalsTable button {
+  margin: 0 4px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+/* 拒绝按钮 */
+#withdrawalsTable button:nth-child(1) {
+  background: #e74c3c;
+  color: white;
+}
+#withdrawalsTable button:nth-child(1):hover {
+  background: #c0392b;
+}
+
+/* 已完成按钮 */
+#withdrawalsTable button:nth-child(2) {
+  background: #27ae60;
+  color: white;
+}
+#withdrawalsTable button:nth-child(2):hover {
+  background: #1e8449;
+}
+
+/* 删除按钮 */
+#withdrawalsTable button:nth-child(3) {
+  background: #7f8c8d;
+  color: white;
+}
+#withdrawalsTable button:nth-child(3):hover {
+  background: #606868;
+}

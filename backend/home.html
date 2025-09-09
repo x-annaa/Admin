@@ -52,6 +52,20 @@
   </div>
 </div>
 
+<!-- 手动匹配产品弹窗 -->
+<div id="ruleModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3 id="ruleUserName">手动匹配产品</h3>
+    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
+    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
+    <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
+    <div class="modal-actions">
+      <button id="saveRuleBtn">确认匹配</button>
+      <button id="closeRuleModal">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- 产品管理页面 -->
 <div id="productPage" class="page">
   <h2>📦 产品管理</h2>
@@ -96,19 +110,6 @@
     <div class="modal-actions">
       <button id="saveProductMatchBtn">确认保存</button>
       <button id="closeProductMatchModal">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- 产品规则弹窗 -->
-<div id="productRuleModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>设置产品规则</h3>
-    <label>最大订单数: <input type="number" id="ruleMaxOrders" min="1" value="2"></label><br>
-    <label>周期分钟数: <input type="number" id="rulePeriodMinutes" min="1" value="2"></label><br>
-    <div class="modal-actions">
-      <button id="saveProductRuleBtn">保存</button>
-      <button id="closeProductRuleModalBtn">取消</button>
     </div>
   </div>
 </div>

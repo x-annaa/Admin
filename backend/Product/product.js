@@ -1,6 +1,5 @@
 let editingProductId = null;
 let currentMatchProductId = null;
-let currentRuleProductId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -10,12 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadProducts() {
     const { data, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, description, profit, enabled, manual_only, max_orders, period_minutes")
+      .select("*")
       .order("id", { ascending: true });
     if (error) return alert("❌ 加载产品失败: " + error.message);
 
     const tbody = document.querySelector("#productsTable tbody");
     tbody.innerHTML = "";
+
     data.forEach(product => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -26,8 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${product.profit}</td>
         <td>
           <button onclick="openProductModal(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ 编辑</button>
-          <button onclick="openProductMatchModal(${product.id}, ${product.enabled}, ${product.manual_only})">🎯 匹配</button>
-          <button onclick="openProductRuleModal(${product.id}, ${product.max_orders||2}, ${product.period_minutes||2})">⚙️ 产品规则</button>
+          <button onclick="openProductMatchModal(${product.id}, ${product.enabled}, ${product.manual_only}, ${product.max_orders || 2}, ${product.period_minutes || 2})">🎯 产品规则</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -35,9 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------
-  // 编辑/添加产品弹窗
+  // 打开添加/编辑产品弹窗
   // ----------------------
-  window.openProductModal = function(id=null, name="", price=0, description="", profit=0) {
+  window.openProductModal = function(id = null, name = "", price = 0, description = "", profit = 0) {
     editingProductId = id;
     document.getElementById("editName").value = name;
     document.getElementById("editPrice").value = price;
@@ -48,51 +47,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------
-  // 匹配设置弹窗
+  // 打开产品匹配设置弹窗
   // ----------------------
-  window.openProductMatchModal = function(id, enabled, manual_only) {
+  window.openProductMatchModal = function(id, enabled, manual_only, max_orders = 2, period_minutes = 2) {
     currentMatchProductId = id;
     document.getElementById("productEnabledCheckbox").checked = enabled;
     document.getElementById("productManualOnlyCheckbox").checked = manual_only;
+    document.getElementById("productMaxOrders").value = max_orders;
+    document.getElementById("productPeriodMinutes").value = period_minutes;
     document.getElementById("productMatchModal").style.display = "flex";
   }
 
   // ----------------------
-  // 产品规则弹窗
-  // ----------------------
-  window.openProductRuleModal = function(id, maxOrders=2, periodMinutes=2) {
-    currentRuleProductId = id;
-    document.getElementById("ruleMaxOrders").value = maxOrders;
-    document.getElementById("rulePeriodMinutes").value = periodMinutes;
-    document.getElementById("productRuleModal").style.display = "flex";
-  }
-
-  // ----------------------
-  // 弹窗关闭事件
+  // 弹窗关闭按钮
   // ----------------------
   document.getElementById("closeProductModal").onclick = () => document.getElementById("productModal").style.display = "none";
   document.getElementById("closeProductMatchModal").onclick = () => document.getElementById("productMatchModal").style.display = "none";
-  document.getElementById("closeProductRuleModalBtn").onclick = () => document.getElementById("productRuleModal").style.display = "none";
 
   // ----------------------
   // 保存产品
   // ----------------------
   document.getElementById("saveProductBtn").onclick = async () => {
-    const name = document.getElementById("editName").value;
+    const name = document.getElementById("editName").value.trim();
     const price = parseFloat(document.getElementById("editPrice").value);
-    const description = document.getElementById("editDescription").value;
+    const description = document.getElementById("editDescription").value.trim();
     const profit = parseFloat(document.getElementById("editProfit").value);
+
     if (!name || isNaN(price) || !description || isNaN(profit)) return alert("❌ 请填写完整信息");
 
-    if(editingProductId){
-      const { error } = await supabaseClient.from("products").update({name, price, description, profit}).eq("id", editingProductId);
-      if(error) return alert("❌ 更新失败: "+error.message);
-      alert("✅ 更新成功");
-    } else {
-      const { error } = await supabaseClient.from("products").insert([{name, price, description, profit, enabled:true, manual_only:false, max_orders:2, period_minutes:2}]);
-      if(error) return alert("❌ 添加失败: "+error.message);
-      alert("✅ 添加成功");
+    try {
+      if (editingProductId) {
+        const { error } = await supabaseClient
+          .from("products")
+          .update({ name, price, description, profit })
+          .eq("id", editingProductId);
+        if (error) throw error;
+        alert("✅ 更新成功");
+      } else {
+        const { error } = await supabaseClient
+          .from("products")
+          .insert([{ name, price, description, profit, enabled: true, manual_only: false }]);
+        if (error) throw error;
+        alert("✅ 添加成功");
+      }
+    } catch (e) {
+      return alert("❌ 操作失败: " + e.message);
     }
+
     document.getElementById("productModal").style.display = "none";
     loadProducts();
   }
@@ -101,49 +102,47 @@ document.addEventListener("DOMContentLoaded", () => {
   // 删除产品
   // ----------------------
   document.getElementById("deleteProductBtn").onclick = async () => {
-    if(!editingProductId) return;
-    if(!confirm("⚠️ 确定删除吗？")) return;
-    const { error } = await supabaseClient.from("products").delete().eq("id", editingProductId);
-    if(error) return alert("❌ 删除失败: "+error.message);
-    alert("✅ 删除成功");
+    if (!editingProductId) return;
+    if (!confirm("⚠️ 确定删除吗？")) return;
+
+    try {
+      const { error } = await supabaseClient
+        .from("products")
+        .delete()
+        .eq("id", editingProductId);
+      if (error) throw error;
+      alert("✅ 删除成功");
+    } catch (e) {
+      return alert("❌ 删除失败: " + e.message);
+    }
+
     document.getElementById("productModal").style.display = "none";
     loadProducts();
   }
 
   // ----------------------
-  // 保存匹配设置
+  // 保存产品匹配规则
   // ----------------------
   document.getElementById("saveProductMatchBtn").onclick = async () => {
-    if(!currentMatchProductId) return;
+    if (!currentMatchProductId) return;
+
     const enabled = document.getElementById("productEnabledCheckbox").checked;
     const manual_only = document.getElementById("productManualOnlyCheckbox").checked;
-    const { error } = await supabaseClient.from("products").update({enabled, manual_only}).eq("id", currentMatchProductId);
-    if(error) return alert("❌ 保存失败: "+error.message);
-    alert("✅ 保存成功");
-    document.getElementById("productMatchModal").style.display = "none";
-    loadProducts();
-  }
+    const max_orders = parseInt(document.getElementById("productMaxOrders").value) || 2;
+    const period_minutes = parseInt(document.getElementById("productPeriodMinutes").value) || 2;
 
-  // ----------------------
-  // 保存产品规则
-  // ----------------------
-  document.getElementById("saveProductRuleBtn").onclick = async () => {
-    if(!currentRuleProductId) return;
-
-    const maxOrders = parseInt(document.getElementById("ruleMaxOrders").value);
-    const periodMinutes = parseInt(document.getElementById("rulePeriodMinutes").value);
-    if(isNaN(maxOrders) || maxOrders < 1 || isNaN(periodMinutes) || periodMinutes < 1){
-      return alert("请输入有效数字");
+    try {
+      const { error } = await supabaseClient
+        .from("products")
+        .update({ enabled, manual_only, max_orders, period_minutes })
+        .eq("id", currentMatchProductId);
+      if (error) throw error;
+      alert("✅ 保存成功");
+    } catch (e) {
+      return alert("❌ 保存失败: " + e.message);
     }
 
-    const { error } = await supabaseClient
-      .from("products")
-      .update({ max_orders: maxOrders, period_minutes: periodMinutes })
-      .eq("id", currentRuleProductId);
-
-    if(error) return alert("❌ 保存失败: " + error.message);
-    alert("✅ 保存成功");
-    document.getElementById("productRuleModal").style.display = "none";
+    document.getElementById("productMatchModal").style.display = "none";
     loadProducts();
   }
 
@@ -152,6 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----------------------
   document.getElementById("addProductBtn").onclick = () => openProductModal();
 
-  // 页面初始加载
+  // 页面初始化加载
   loadProducts();
 });

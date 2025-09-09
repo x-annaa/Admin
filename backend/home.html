@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="User/user.css">
   <link rel="stylesheet" href="Product/product.css">
   <link rel="stylesheet" href="Page3/page3.css">
@@ -15,61 +13,12 @@
 </head>
 <body>
 
-<!-- 用户管理页面 -->
-<div id="userPage" class="page active">
-  <h2>👥 用户管理</h2>
-  <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
-  <table id="usersTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>用户名</th>
-        <th>平台账号</th>
-        <th>Coins</th>
-        <th>Balance</th>
-        <th>注册时间</th>
-        <th>订单数</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- 用户编辑弹窗 -->
-<div id="editModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <p id="editUserName"></p>
-    <div class="edit-actions">
-      <button id="addCoinsBtn">➕ Coins</button>
-      <button id="subCoinsBtn">➖ Coins</button>
-      <button id="addBalanceBtn">➕ Balance</button>
-      <button id="subBalanceBtn">➖ Balance</button>
-      <button id="changePasswordBtn">🔑 Password</button>
-      <button id="deleteUserBtn">🗑 Delete</button>
-    </div>
-    <button id="closeEditModal">关闭</button>
-  </div>
-</div>
-
-<!-- 手动匹配产品弹窗 -->
-<div id="ruleModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3 id="ruleUserName">手动匹配产品</h3>
-    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
-    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
-    <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
-    <div class="modal-actions">
-      <button id="saveRuleBtn">确认匹配</button>
-      <button id="closeRuleModal">取消</button>
-    </div>
-  </div>
-</div>
-
 <!-- 产品管理页面 -->
 <div id="productPage" class="page">
   <h2>📦 产品管理</h2>
-  <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
+  <div style="margin-bottom:10px;">
+    <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
+  </div>
   <table id="productsTable">
     <thead>
       <tr>
@@ -117,9 +66,9 @@
 <!-- 产品规则弹窗 -->
 <div id="productRuleModal" class="modal" style="display:none;">
   <div class="modal-content">
-    <h3>设置产品规则</h3>
-    <label>最大订单数: <input type="number" id="productMaxOrders" min="0"></label><br>
-    <label>周期分钟数: <input type="number" id="productPeriodMinutes" min="0"></label><br>
+    <h3>产品规则设置</h3>
+    <label>最大订单数: <input type="number" id="productMaxOrders" min="1"></label><br>
+    <label>周期分钟数: <input type="number" id="productPeriodMinutes" min="1"></label><br>
     <div class="modal-actions">
       <button id="saveProductRuleBtn">保存</button>
       <button id="closeProductRuleModal">取消</button>
@@ -127,47 +76,9 @@
   </div>
 </div>
 
-<!-- 提现管理页面 (Page3) -->
-<div id="page3" class="page">
-  <h2>📊 提现管理</h2>
-  <input type="text" id="searchWithdrawalInput" placeholder="搜索 User ID 或 Wallet Address...">
-  <table id="withdrawalsTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Account</th>
-        <th>Amount</th>
-        <th>Wallet Address</th>
-        <th>Status</th>
-        <th>Created At</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<!-- 页面4~5 -->
-<div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
-<div id="page5" class="page"><h2>🔧 页面 5</h2><p>这里暂时为空白</p></div>
-
-<!-- 底部导航 -->
-<div class="bottom-nav">
-  <button data-page="userPage" class="active">Users</button>
-  <button data-page="productPage">Products</button>
-  <button data-page="page3">Withdrawals</button>
-  <button data-page="page4">Page4</button>
-  <button data-page="page5">Page5</button>
-</div>
-
 <!-- JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="User/supabaseClient.js"></script>
-<script src="User/user.js"></script>
 <script src="Product/product.js"></script>
-<script src="Page3/page3.js"></script>
-<script src="Page4/page4.js"></script>
-<script src="Page5/page5.js"></script>
-<script src="Button/button.js"></script>
 </body>
 </html>

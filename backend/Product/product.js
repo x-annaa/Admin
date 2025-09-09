@@ -1,6 +1,6 @@
-
 let editingProductId = null;
 let currentMatchProductId = null;
+let currentRuleProductId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadProducts() {
     const { data, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, description, profit, enabled, manual_only")
+      .select("id, name, price, description, profit, enabled, manual_only, max_orders, period_minutes")
       .order("id", { ascending: true });
     if (error) return alert("❌ 加载产品失败: " + error.message);
 
@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>
           <button onclick="openProductModal(${product.id}, '${product.name}', ${product.price}, '${product.description}', ${product.profit})">✏ 编辑</button>
           <button onclick="openProductMatchModal(${product.id}, ${product.enabled}, ${product.manual_only})">🎯 匹配</button>
+          <button onclick="openProductRuleModal(${product.id}, ${product.max_orders || 0}, ${product.period_minutes || 0})">⚙️ 产品规则</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -57,10 +58,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------
+  // 产品规则弹窗
+  // ----------------------
+  window.openProductRuleModal = function(id, max_orders, period_minutes) {
+    currentRuleProductId = id;
+    document.getElementById("ruleMaxOrders").value = max_orders || 0;
+    document.getElementById("rulePeriodMinutes").value = period_minutes || 0;
+    document.getElementById("productRuleModal").style.display = "flex";
+  }
+
+  // ----------------------
   // 弹窗关闭事件
   // ----------------------
   document.getElementById("closeProductModal").onclick = () => document.getElementById("productModal").style.display = "none";
   document.getElementById("closeProductMatchModal").onclick = () => document.getElementById("productMatchModal").style.display = "none";
+  document.getElementById("closeProductRuleModal").onclick = () => document.getElementById("productRuleModal").style.display = "none";
 
   // ----------------------
   // 保存产品
@@ -77,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if(error) return alert("❌ 更新失败: "+error.message);
       alert("✅ 更新成功");
     } else {
-      const { error } = await supabaseClient.from("products").insert([{name, price, description, profit, enabled:true, manual_only:false}]);
+      const { error } = await supabaseClient.from("products").insert([{name, price, description, profit, enabled:true, manual_only:false, max_orders:0, period_minutes:0}]);
       if(error) return alert("❌ 添加失败: "+error.message);
       alert("✅ 添加成功");
     }
@@ -109,6 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if(error) return alert("❌ 保存失败: "+error.message);
     alert("✅ 保存成功");
     document.getElementById("productMatchModal").style.display = "none";
+    loadProducts();
+  }
+
+  // ----------------------
+  // 保存产品规则
+  // ----------------------
+  document.getElementById("saveProductRuleBtn").onclick = async () => {
+    if(!currentRuleProductId) return;
+    const max_orders = parseInt(document.getElementById("ruleMaxOrders").value) || 0;
+    const period_minutes = parseInt(document.getElementById("rulePeriodMinutes").value) || 0;
+    const { error } = await supabaseClient.from("products").update({max_orders, period_minutes}).eq("id", currentRuleProductId);
+    if(error) return alert("❌ 保存失败: "+error.message);
+    alert("✅ 保存成功");
+    document.getElementById("productRuleModal").style.display = "none";
     loadProducts();
   }
 

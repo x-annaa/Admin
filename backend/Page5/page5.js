@@ -14,6 +14,7 @@ const adminChatUserInfo = document.getElementById("adminChatUserInfo");
 const page5UnreadEl = document.getElementById("page5Unread");
 
 const notificationSound = new Audio("https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3");
+let soundUnlocked = false;
 
 // =======================
 // 数据结构
@@ -30,7 +31,7 @@ async function fetchUsersWithUnread() {
     const { data, error } = await supabaseClient
       .from("messages")
       .select("*")
-      .eq("receiver_id", 1) // 客服ID
+      .eq("receiver_id", 1)
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -86,14 +87,11 @@ function openChat(userId) {
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
-  // 显示历史消息
   user.messages.forEach(msg => {
     appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content);
   });
 
   adminChatWindow.style.display = "flex";
-
-  // 标记已读
   markMessagesAsRead(userId);
 }
 
@@ -125,11 +123,9 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
-  // 先在界面显示
   appendMessage("me", content);
   adminChatInput.value = "";
 
-  // 添加到本地缓存
   if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
   users[currentChatUserId].messages.push({
     sender_id: 1,
@@ -139,7 +135,6 @@ adminSendBtn.addEventListener("click", async () => {
     created_at: new Date().toISOString()
   });
 
-  // 异步发送到 Supabase
   try {
     const { data, error } = await supabaseClient
       .from("messages")
@@ -150,10 +145,8 @@ adminSendBtn.addEventListener("click", async () => {
         is_read: false
       }]);
 
-    if (error) {
-      console.error("发送消息失败", error);
-    } else if (data?.[0]) {
-      // 更新本地缓存（可选）
+    if (error) console.error("发送消息失败", error);
+    else if (data?.[0]) {
       users[currentChatUserId].messages[users[currentChatUserId].messages.length-1] = data[0];
     }
   } catch (err) {
@@ -186,9 +179,7 @@ async function markMessagesAsRead(userId) {
 // =======================
 function updatePage5Unread() {
   let totalUnread = 0;
-  for (const user of Object.values(users)) {
-    totalUnread += user.unreadCount;
-  }
+  for (const user of Object.values(users)) totalUnread += user.unreadCount;
 
   if (totalUnread > 0) {
     page5UnreadEl.textContent = totalUnread;
@@ -216,9 +207,12 @@ function listenForMessages() {
         if (!users[userId]) users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
         users[userId].messages.push(msg);
 
+        // 如果不是当前聊天用户，增加未读并播放音效
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
-          try { notificationSound.play(); } catch(e) {}
+          if (soundUnlocked) {
+            try { notificationSound.play(); } catch(e) {}
+          }
         }
 
         renderUserList();
@@ -240,8 +234,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
 
-  // 尝试解锁声音播放（首次点击任意按钮即可）
+  // 全局解锁音效（仅第一次交互）
   document.body.addEventListener("click", () => {
-    notificationSound.play().catch(() => {});
+    if (!soundUnlocked) {
+      notificationSound.play().catch(() => {});
+      notificationSound.pause();
+      notificationSound.currentTime = 0;
+      soundUnlocked = true;
+    }
   }, { once: true });
 });

@@ -1,75 +1,100 @@
-/* 页面5用户列表 & 聊天窗口 */
+/* 整体布局 */
+#page5 {
+  display: flex;
+  height: 100%;
+  background: #f5f5f5;
+}
+
+/* 用户列表 */
 #userChatList {
-  width: 25%;
-  float: left;
+  width: 220px;
   border-right: 1px solid #ddd;
-  height: 500px;
+  background: #fff;
   overflow-y: auto;
 }
 
-#userChatList .user-item {
-  padding: 10px;
+.user-item {
+  padding: 12px;
   cursor: pointer;
   border-bottom: 1px solid #eee;
 }
 
-#userChatList .user-item.active {
-  background-color: #e6f0ff;
+.user-item:hover {
+  background: #f0f0f0;
 }
 
+.user-item.active {
+  background: #4e9cff;
+  color: #fff;
+}
+
+/* 未读高亮动画 */
+.user-item.unread {
+  background: #ffe0e0;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { background-color: #ffe0e0; }
+  50% { background-color: #ffbaba; }
+  100% { background-color: #ffe0e0; }
+}
+
+/* 聊天窗口 */
 #userChatWindow {
-  width: 74%;
-  float: right;
-  height: 500px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #ddd;
-  background-color: #f8f8f8;
+  background: #fafafa;
 }
 
 #userChatHeader {
-  padding: 10px;
-  background-color: #4e9cff;
-  color: white;
+  padding: 12px;
+  background: #4e9cff;
+  color: #fff;
   font-weight: bold;
 }
 
 #userChatMessages {
   flex: 1;
   padding: 10px;
-  overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse; /* 消息从下往上显示 */
+  flex-direction: column-reverse;
+  overflow-y: auto;
   gap: 6px;
-  background-color: #f0f0f0;
+  background: #f0f0f0;
 }
 
+/* 消息气泡 */
 .user-message {
   max-width: 70%;
   padding: 8px 12px;
   border-radius: 16px;
   word-wrap: break-word;
   font-size: 14px;
+  line-height: 1.4;
 }
 
 .user-message.me {
-  background-color: #4e9cff;
-  color: white;
+  background: #4e9cff;
+  color: #fff;
   align-self: flex-end;
+  border-bottom-right-radius: 4px;
 }
 
 .user-message.bot {
-  background-color: #e0e0e0;
+  background: #e0e0e0;
   color: #333;
   align-self: flex-start;
+  border-bottom-left-radius: 4px;
 }
 
+/* 输入框 */
 #userChatInput {
-  flex: 0 0 auto;
   display: flex;
   padding: 8px;
   border-top: 1px solid #ddd;
-  background-color: #fafafa;
+  background: #fff;
 }
 
 #userChatInput input {
@@ -77,6 +102,8 @@
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
 }
 
 #userChatInput button {
@@ -84,8 +111,8 @@
   padding: 6px 12px;
   border-radius: 20px;
   border: none;
-  background-color: #4e9cff;
-  color: white;
+  background: #4e9cff;
+  color: #fff;
   cursor: pointer;
   font-weight: bold;
 }

@@ -1,101 +1,70 @@
-/* 用户列表 */
-#chatUsersContainer {
-  margin-bottom: 20px;
-}
-
-#chatUsersList {
-  list-style: none;
-  padding: 0;
-}
-
-#chatUsersList li {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  margin-bottom: 6px;
-  cursor: pointer;
-  border-radius: 8px;
-  background-color: #f8f8f8;
-}
-
-#chatUsersList li:hover {
-  background-color: #e0e0e0;
-}
-
-/* 聊天窗口 */
-.admin-chat-window {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
+/* 页面5用户列表 & 聊天窗口 */
+#userChatList {
+  width: 25%;
+  float: left;
+  border-right: 1px solid #ddd;
   height: 500px;
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 12px;
+  overflow-y: auto;
+}
+
+#userChatList .user-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+#userChatList .user-item.active {
+  background-color: #e6f0ff;
+}
+
+#userChatWindow {
+  width: 74%;
+  float: right;
+  height: 500px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  z-index: 1000;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  font-family: "Helvetica", sans-serif;
+  border-left: 1px solid #ddd;
+  background-color: #f8f8f8;
 }
 
-/* 顶部 */
-.admin-chat-header {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
+#userChatHeader {
+  padding: 10px;
   background-color: #4e9cff;
   color: white;
   font-weight: bold;
 }
 
-.admin-chat-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-/* 消息列表 */
-.admin-chat-messages {
-  flex: 1 1 auto;
+#userChatMessages {
+  flex: 1;
   padding: 10px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column-reverse; /* 消息从下往上显示 */
-  overflow-y: auto;
   gap: 6px;
   background-color: #f0f0f0;
 }
 
-/* 单条消息 */
-.admin-message-item {
+.user-message {
   max-width: 70%;
   padding: 8px 12px;
   border-radius: 16px;
   word-wrap: break-word;
   font-size: 14px;
-  line-height: 1.4;
-  display: inline-block;
 }
 
-.admin-message-item.user {
-  background-color: #e0e0e0;
-  color: #333;
-  align-self: flex-start;
-}
-
-.admin-message-item.admin {
+.user-message.me {
   background-color: #4e9cff;
   color: white;
   align-self: flex-end;
 }
 
-/* 输入框区域 */
-.admin-chat-input {
+.user-message.bot {
+  background-color: #e0e0e0;
+  color: #333;
+  align-self: flex-start;
+}
+
+#userChatInput {
   flex: 0 0 auto;
   display: flex;
   padding: 8px;
@@ -103,16 +72,14 @@
   background-color: #fafafa;
 }
 
-.admin-chat-input input {
+#userChatInput input {
   flex: 1;
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #ccc;
-  outline: none;
-  font-size: 14px;
 }
 
-.admin-chat-input button {
+#userChatInput button {
   margin-left: 6px;
   padding: 6px 12px;
   border-radius: 20px;

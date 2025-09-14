@@ -11,6 +11,7 @@ const adminChatMessages = document.getElementById("adminChatMessages");
 const adminChatInput = document.getElementById("adminChatInput");
 const adminSendBtn = document.getElementById("adminSendBtn");
 const adminChatUserInfo = document.getElementById("adminChatUserInfo");
+const page5UnreadEl = document.getElementById("page5Unread");
 
 const notificationSound = new Audio("https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3");
 
@@ -22,7 +23,7 @@ let currentChatUserId = null;
 let chatSubscription = null;
 
 // =======================
-// 获取当前用户消息（客服端）
+// 获取用户消息并初始化列表
 // =======================
 async function fetchUsersWithUnread() {
   const { data, error } = await supabaseClient
@@ -45,6 +46,7 @@ async function fetchUsersWithUnread() {
   });
 
   renderUserList();
+  updatePage5Unread();
 }
 
 // =======================
@@ -57,8 +59,8 @@ function renderUserList() {
     div.classList.add("user-item");
     if (userId == currentChatUserId) div.classList.add("active");
     div.dataset.userId = userId;
-    div.textContent = `${user.username}`;
-    
+    div.textContent = user.username;
+
     if (user.unreadCount > 0) {
       const dot = document.createElement("span");
       dot.classList.add("unread-dot");
@@ -79,7 +81,7 @@ function openChat(userId) {
   const user = users[userId];
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
-  
+
   // 显示历史消息
   user.messages.forEach(msg => {
     appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content);
@@ -151,10 +153,28 @@ async function markMessagesAsRead(userId) {
 
   if (!error) users[userId].unreadCount = 0;
   renderUserList();
+  updatePage5Unread();
 }
 
 // =======================
-// 实时监听
+// 更新底部导航红点
+// =======================
+function updatePage5Unread() {
+  let totalUnread = 0;
+  for (const user of Object.values(users)) {
+    totalUnread += user.unreadCount;
+  }
+
+  if (totalUnread > 0) {
+    page5UnreadEl.textContent = totalUnread;
+    page5UnreadEl.classList.remove("hidden");
+  } else {
+    page5UnreadEl.classList.add("hidden");
+  }
+}
+
+// =======================
+// 实时监听新消息
 // =======================
 function listenForMessages() {
   if (chatSubscription) supabaseClient.removeChannel(chatSubscription);
@@ -173,10 +193,11 @@ function listenForMessages() {
 
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
-          notificationSound.play();
+          try { notificationSound.play(); } catch(e) {} // 避免未交互报错
         }
 
         renderUserList();
+        updatePage5Unread();
 
         if (currentChatUserId === userId) {
           appendMessage("user", msg.content);
@@ -188,9 +209,14 @@ function listenForMessages() {
 }
 
 // =======================
-// 初始化
+// 页面初始化
 // =======================
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
+
+  // 尝试解锁声音播放（首次点击任意按钮即可）
+  document.body.addEventListener("click", () => {
+    notificationSound.play().catch(() => {});
+  }, { once: true });
 });

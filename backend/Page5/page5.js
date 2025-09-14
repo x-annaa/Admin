@@ -1,128 +1,129 @@
-// DOM 元素
 const chatUsersList = document.getElementById("chatUsersList");
 const adminChatWindow = document.getElementById("adminChatWindow");
+const adminBackBtn = document.getElementById("adminBackBtn");
 const adminChatUserInfo = document.getElementById("adminChatUserInfo");
 const adminChatMessages = document.getElementById("adminChatMessages");
 const adminChatInput = document.getElementById("adminChatInput");
 const adminSendBtn = document.getElementById("adminSendBtn");
-const adminBackBtn = document.getElementById("adminBackBtn");
 
-let currentChatUser = null;
-let chatSubscription = null;
+let currentChatUserId = null;
+let adminChatSubscription = null;
 
-// 获取所有有消息的用户
+// =======================
+// 加载所有发消息的用户
+// =======================
 async function loadChatUsers() {
   const { data, error } = await supabaseClient
     .from("messages")
-    .select(`sender_id, users(username)`)
-    .eq("receiver_id", 1)
+    .select(`sender_id, sender:users(username)`)
+    .eq("receiver_id", 1) // 客服ID
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("加载用户列表失败:", error);
-    return;
-  }
+  if (error) return console.error(error);
 
-  // 用 Map 去重用户
-  const userMap = new Map();
+  // 去重用户
+  const uniqueUsersMap = {};
   data.forEach(msg => {
-    if (!userMap.has(msg.sender_id)) {
-      userMap.set(msg.sender_id, msg.users.username);
-    }
+    uniqueUsersMap[msg.sender_id] = msg.sender?.username || "用户" + msg.sender_id;
   });
 
   chatUsersList.innerHTML = "";
-  userMap.forEach((username, userId) => {
+  Object.entries(uniqueUsersMap).forEach(([id, name]) => {
     const li = document.createElement("li");
-    li.textContent = `ID: ${userId} - ${username}`;
-    li.dataset.userId = userId;
-    li.dataset.username = username;
-    li.addEventListener("click", () => openChat(userId, username, li));
+    li.textContent = `ID: ${id} - ${name}`;
+    li.dataset.userid = id;
+    li.dataset.username = name;
+    li.addEventListener("click", () => openAdminChat(id, name));
     chatUsersList.appendChild(li);
   });
 }
 
+// =======================
 // 打开聊天窗口
-async function openChat(userId, username, liElement) {
-  currentChatUser = { id: userId, username };
+// =======================
+async function openAdminChat(userId, username) {
+  currentChatUserId = userId;
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${username}`;
-  adminChatWindow.style.display = "flex";
   adminChatMessages.innerHTML = "";
+  adminChatWindow.style.display = "flex";
 
-  // 高亮选中
-  document.querySelectorAll("#chatUsersList li").forEach(li => li.classList.remove("active"));
-  liElement.classList.add("active");
-
-  await loadMessages(userId);
-  listenForMessages(userId);
+  await loadAdminMessages(userId);
+  listenAdminMessages(userId);
 }
 
-// 返回用户列表
+// =======================
+// 关闭聊天窗口
+// =======================
 adminBackBtn.addEventListener("click", () => {
   adminChatWindow.style.display = "none";
-  currentChatUser = null;
-  if (chatSubscription) {
-    supabaseClient.removeChannel(chatSubscription);
-    chatSubscription = null;
+  if (adminChatSubscription) {
+    supabaseClient.removeChannel(adminChatSubscription);
+    adminChatSubscription = null;
   }
-  document.querySelectorAll("#chatUsersList li").forEach(li => li.classList.remove("active"));
 });
 
-// 加载聊天消息
-async function loadMessages(userId) {
+// =======================
+// 发送消息
+// =======================
+adminSendBtn.addEventListener("click", async () => {
+  const content = adminChatInput.value.trim();
+  if (!content || !currentChatUserId) return;
+
+  const { data, error } = await supabaseClient
+    .from("messages")
+    .insert([
+      {
+        sender_id: 1, // 管理员/客服
+        receiver_id: currentChatUserId,
+        content: content
+      }
+    ]);
+
+  if (error) return console.error(error);
+
+  appendAdminMessage("admin", content);
+  adminChatInput.value = "";
+});
+
+// =======================
+// 显示消息
+// =======================
+function appendAdminMessage(sender, text) {
+  const msg = document.createElement("div");
+  msg.classList.add("admin-message-item");
+  msg.classList.add(sender);
+  msg.textContent = text;
+  adminChatMessages.prepend(msg);
+  adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+}
+
+// =======================
+// 加载历史消息
+// =======================
+async function loadAdminMessages(userId) {
   const { data, error } = await supabaseClient
     .from("messages")
     .select("*")
     .or(`and(sender_id.eq.${userId},receiver_id.eq.1),and(sender_id.eq.1,receiver_id.eq.${userId})`)
     .order("created_at", { ascending: true });
 
-  if (error) {
-    console.error("加载聊天消息失败:", error);
-    return;
-  }
+  if (error) return console.error(error);
 
   data.forEach(msg => {
-    appendMessage(msg.sender_id === 1 ? "admin" : "user", msg.content);
+    appendAdminMessage(msg.sender_id === 1 ? "admin" : "user", msg.content);
   });
 }
 
-// 显示消息
-function appendMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.classList.add("admin-message", sender);
-  msg.textContent = text;
-  adminChatMessages.prepend(msg); // flex-direction: column-reverse
-  adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-}
-
-// 发送消息
-adminSendBtn.addEventListener("click", async () => {
-  const text = adminChatInput.value.trim();
-  if (!text || !currentChatUser) return;
-
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .insert([
-      { sender_id: 1, receiver_id: currentChatUser.id, content: text }
-    ]);
-
-  if (error) {
-    console.error("发送失败:", error);
-    return;
+// =======================
+// 实时监听用户消息
+// =======================
+function listenAdminMessages(userId) {
+  if (adminChatSubscription) {
+    supabaseClient.removeChannel(adminChatSubscription);
   }
 
-  appendMessage("admin", text);
-  adminChatInput.value = "";
-});
-
-// 实时监听
-async function listenForMessages(userId) {
-  if (chatSubscription) {
-    supabaseClient.removeChannel(chatSubscription);
-  }
-
-  chatSubscription = supabaseClient
-    .channel("realtime-admin-messages")
+  adminChatSubscription = supabaseClient
+    .channel("admin-realtime")
     .on(
       "postgres_changes",
       {
@@ -133,11 +134,13 @@ async function listenForMessages(userId) {
       },
       (payload) => {
         const msg = payload.new;
-        appendMessage("user", msg.content);
+        if (msg.receiver_id === 1) appendAdminMessage("user", msg.content);
       }
     )
     .subscribe();
 }
 
-// 页面初始化加载用户列表
+// =======================
+// 初始化
+// =======================
 loadChatUsers();

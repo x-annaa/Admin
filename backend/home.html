@@ -137,8 +137,26 @@
 <!-- 页面4 -->
 <div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
 
-<!-- 页面5 -->
+<!-- 页面5: 客服聊天 -->
 <div id="page5" class="page">
+  <h2>🔧 客服聊天管理</h2>
+  <div id="chatUsersContainer">
+    <h3>用户列表</h3>
+    <ul id="chatUsersList"></ul>
+  </div>
+
+  <!-- 聊天窗口 -->
+  <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
+    <div class="admin-chat-header">
+      <button id="adminBackBtn">⬅ 返回</button>
+      <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>
+    </div>
+    <div id="adminChatMessages" class="admin-chat-messages"></div>
+    <div class="admin-chat-input">
+      <input type="text" id="adminChatInput" placeholder="输入消息...">
+      <button id="adminSendBtn">发送</button>
+    </div>
+  </div>
 </div>
 
 <!-- 底部导航 -->

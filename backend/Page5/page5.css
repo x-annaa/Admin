@@ -169,7 +169,7 @@
 }
 
 /* =====================
-   用户列表 & 页面红点
+   红点样式
    ===================== */
 .unread-dot {
   position: absolute;
@@ -189,22 +189,15 @@
 }
 
 /* =====================
-   底部导航按钮红点（Page5）
+   底部导航红点支持
    ===================== */
-.bottom-nav button[data-page="page5"] {
+.bottom-nav button {
   position: relative;
 }
 
-.bottom-nav button[data-page="page5"] .unread-dot {
-  position: absolute;
-  top: 2px;      /* 紧贴按钮顶部 */
-  right: 2px;    /* 紧贴按钮右侧 */
-  width: 10px;   /* 小圆点 */
-  height: 10px;  /* 小圆点 */
-  background-color: red;
-  border-radius: 50%;
-  padding: 0;
-  font-size: 0;  /* 不显示数字 */
-  line-height: 0;
-  box-shadow: 0 0 2px rgba(0,0,0,0.3);
+.bottom-nav button .unread-dot {
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  padding: 2px 6px;
 }

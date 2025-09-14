@@ -1,85 +1,122 @@
-/* 页面5用户列表 & 聊天窗口 */
-#userChatList {
-  width: 25%;
+/* ===========================
+   Page5: 客服聊天管理
+   =========================== */
+
+/* 用户列表 */
+#chatUsersContainer {
+  width: 250px;
   float: left;
   border-right: 1px solid #ddd;
+  padding: 10px;
   height: 500px;
   overflow-y: auto;
 }
 
-#userChatList .user-item {
-  padding: 10px;
+#chatUsersList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#chatUsersList li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background-color: #f0f0f0;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-radius: 8px;
 }
 
-#userChatList .user-item.active {
-  background-color: #e6f0ff;
+#chatUsersList li.active {
+  background-color: #4e9cff;
+  color: white;
 }
 
-#userChatWindow {
-  width: 74%;
-  float: right;
+/* 聊天窗口 */
+.admin-chat-window {
+  margin-left: 260px;
+  width: calc(100% - 270px);
   height: 500px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #ddd;
-  background-color: #f8f8f8;
+  overflow: hidden;
+  background-color: #fafafa;
 }
 
-#userChatHeader {
+.admin-chat-header {
+  display: flex;
+  align-items: center;
   padding: 10px;
   background-color: #4e9cff;
   color: white;
   font-weight: bold;
 }
 
-#userChatMessages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column-reverse; /* 消息从下往上显示 */
-  gap: 6px;
-  background-color: #f0f0f0;
+.admin-chat-header button {
+  margin-right: 10px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-.user-message {
+.admin-chat-messages {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  gap: 6px;
+  background-color: #f5f5f5;
+}
+
+/* 消息样式 */
+.admin-message {
   max-width: 70%;
   padding: 8px 12px;
   border-radius: 16px;
   word-wrap: break-word;
   font-size: 14px;
+  line-height: 1.4;
+  display: inline-block;
 }
 
-.user-message.me {
-  background-color: #4e9cff;
-  color: white;
-  align-self: flex-end;
-}
-
-.user-message.bot {
+/* 用户消息 */
+.admin-message.user {
   background-color: #e0e0e0;
   color: #333;
   align-self: flex-start;
+  border-bottom-left-radius: 4px;
 }
 
-#userChatInput {
-  flex: 0 0 auto;
+/* 客服消息 */
+.admin-message.admin {
+  background-color: #4e9cff;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+/* 输入区域 */
+.admin-chat-input {
   display: flex;
   padding: 8px;
   border-top: 1px solid #ddd;
-  background-color: #fafafa;
+  background-color: #fff;
 }
 
-#userChatInput input {
+.admin-chat-input input {
   flex: 1;
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
 }
 
-#userChatInput button {
+.admin-chat-input button {
   margin-left: 6px;
   padding: 6px 12px;
   border-radius: 20px;

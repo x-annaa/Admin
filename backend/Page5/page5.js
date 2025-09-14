@@ -14,7 +14,6 @@ const adminChatUserInfo = document.getElementById("adminChatUserInfo");
 const page5UnreadEl = document.getElementById("page5Unread");
 
 const notificationSound = new Audio("https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3");
-let soundUnlocked = false;
 
 // =======================
 // 数据结构
@@ -34,15 +33,11 @@ async function fetchUsersWithUnread() {
       .eq("receiver_id", 1)
       .order("created_at", { ascending: true });
 
-    if (error) {
-      console.error("获取用户消息失败", error);
-      return;
-    }
+    if (error) return console.error("获取用户消息失败", error);
 
+    users = {}; // 重置
     data.forEach(msg => {
-      if (!users[msg.sender_id]) {
-        users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
-      }
+      if (!users[msg.sender_id]) users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
       users[msg.sender_id].messages.push(msg);
       if (!msg.is_read) users[msg.sender_id].unreadCount++;
     });
@@ -87,9 +82,10 @@ function openChat(userId) {
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
-  user.messages.forEach(msg => {
-    appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content);
-  });
+  // 按时间顺序显示历史消息
+  user.messages
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
 
   adminChatWindow.style.display = "flex";
   markMessagesAsRead(userId);
@@ -111,7 +107,7 @@ function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("message-item", sender);
   msg.textContent = text;
-  adminChatMessages.prepend(msg);
+  adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }
 
@@ -126,15 +122,7 @@ adminSendBtn.addEventListener("click", async () => {
   appendMessage("me", content);
   adminChatInput.value = "";
 
-  if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
-  users[currentChatUserId].messages.push({
-    sender_id: 1,
-    receiver_id: Number(currentChatUserId),
-    content,
-    is_read: false,
-    created_at: new Date().toISOString()
-  });
-
+  // 异步发送到 Supabase
   try {
     const { data, error } = await supabaseClient
       .from("messages")
@@ -147,7 +135,7 @@ adminSendBtn.addEventListener("click", async () => {
 
     if (error) console.error("发送消息失败", error);
     else if (data?.[0]) {
-      users[currentChatUserId].messages[users[currentChatUserId].messages.length-1] = data[0];
+      users[currentChatUserId].messages.push(data[0]);
     }
   } catch (err) {
     console.error("发送消息异常", err);
@@ -207,12 +195,10 @@ function listenForMessages() {
         if (!users[userId]) users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
         users[userId].messages.push(msg);
 
-        // 如果不是当前聊天用户，增加未读并播放音效
+        // 只有当聊天窗口不是当前用户时才播放声音
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
-          if (soundUnlocked) {
-            try { notificationSound.play(); } catch(e) {}
-          }
+          try { notificationSound.play(); } catch(e) {}
         }
 
         renderUserList();
@@ -233,14 +219,4 @@ function listenForMessages() {
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
-
-  // 全局解锁音效（仅第一次交互）
-  document.body.addEventListener("click", () => {
-    if (!soundUnlocked) {
-      notificationSound.play().catch(() => {});
-      notificationSound.pause();
-      notificationSound.currentTime = 0;
-      soundUnlocked = true;
-    }
-  }, { once: true });
 });

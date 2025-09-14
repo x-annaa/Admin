@@ -1,70 +1,117 @@
-/* 页面5用户列表 & 聊天窗口 */
-#userChatList {
-  width: 25%;
-  float: left;
-  border-right: 1px solid #ddd;
-  height: 500px;
-  overflow-y: auto;
+/* =====================
+   页面整体
+   ===================== */
+#page5 {
+  padding: 12px;
+  font-family: "Helvetica", sans-serif;
 }
 
-#userChatList .user-item {
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-
-#userChatList .user-item.active {
-  background-color: #e6f0ff;
-}
-
-#userChatWindow {
-  width: 74%;
-  float: right;
-  height: 500px;
+/* 用户列表 */
+#userList {
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #ddd;
-  background-color: #f8f8f8;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
 }
 
-#userChatHeader {
-  padding: 10px;
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.user-item.active {
   background-color: #4e9cff;
   color: white;
+}
+
+.user-item .unread-dot {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+/* 聊天窗口 */
+.admin-chat-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 500px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+/* 聊天头部 */
+.admin-chat-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: #4e9cff;
+  color: white;
+  padding: 10px;
   font-weight: bold;
 }
 
-#userChatMessages {
-  flex: 1;
+.admin-chat-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* 消息列表 */
+.admin-chat-messages {
+  flex: 1 1 auto;
   padding: 10px;
-  overflow-y: auto;
   display: flex;
-  flex-direction: column-reverse; /* 消息从下往上显示 */
+  flex-direction: column-reverse;
+  overflow-y: auto;
   gap: 6px;
   background-color: #f0f0f0;
 }
 
-.user-message {
+/* 单条消息 */
+.message-item {
   max-width: 70%;
   padding: 8px 12px;
   border-radius: 16px;
   word-wrap: break-word;
   font-size: 14px;
+  line-height: 1.4;
 }
 
-.user-message.me {
+.message-item.me {
   background-color: #4e9cff;
   color: white;
   align-self: flex-end;
 }
 
-.user-message.bot {
+.message-item.user {
   background-color: #e0e0e0;
   color: #333;
   align-self: flex-start;
 }
 
-#userChatInput {
+/* 输入框 */
+.admin-chat-input {
   flex: 0 0 auto;
   display: flex;
   padding: 8px;
@@ -72,14 +119,16 @@
   background-color: #fafafa;
 }
 
-#userChatInput input {
+.admin-chat-input input {
   flex: 1;
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
 }
 
-#userChatInput button {
+.admin-chat-input button {
   margin-left: 6px;
   padding: 6px 12px;
   border-radius: 20px;
@@ -90,11 +139,11 @@
   font-weight: bold;
 }
 
-.badge {
-  background: red;
-  color: white;
-  font-size: 12px;
-  border-radius: 10px;
-  padding: 2px 6px;
-  margin-left: 4px;
+/* 滚动条美化 */
+.admin-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
 }

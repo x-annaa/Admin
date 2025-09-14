@@ -59,15 +59,17 @@ function updatePage5Badge() {
 }
 
 // ======================
-// 显示消息（最新消息在下方）
+// 显示消息（左/右对齐，最新消息在下面）
 // ======================
 function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("user-message");
   msg.classList.add(sender);
   msg.textContent = text;
-  userChatMessages.appendChild(msg); // appendChild 最新消息在下面
-  userChatMessages.scrollTop = userChatMessages.scrollHeight; // 自动滚动到底部
+  msg.style.textAlign = sender === "me" ? "right" : "left"; // 后台消息右，用户消息左
+  msg.style.margin = "5px 0";
+  userChatMessages.appendChild(msg);
+  userChatMessages.scrollTop = userChatMessages.scrollHeight;
 }
 
 // ======================

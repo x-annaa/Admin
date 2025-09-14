@@ -26,27 +26,28 @@ let chatSubscription = null;
 // 获取用户消息并初始化列表
 // =======================
 async function fetchUsersWithUnread() {
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .select("*")
-    .eq("receiver_id", 1) // 客服ID
-    .order("created_at", { ascending: true });
+  try {
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .select("*")
+      .eq("receiver_id", 1)
+      .order("created_at", { ascending: true });
 
-  if (error) {
-    console.error("获取用户消息失败", error);
-    return;
+    if (error) throw error;
+
+    data?.forEach(msg => {
+      if (!users[msg.sender_id]) {
+        users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
+      }
+      users[msg.sender_id].messages.push(msg);
+      if (!msg.is_read) users[msg.sender_id].unreadCount++;
+    });
+
+    renderUserList();
+    updatePage5Unread();
+  } catch (err) {
+    console.error("获取用户消息失败", err);
   }
-
-  data.forEach(msg => {
-    if (!users[msg.sender_id]) {
-      users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
-    }
-    users[msg.sender_id].messages.push(msg);
-    if (!msg.is_read) users[msg.sender_id].unreadCount++;
-  });
-
-  renderUserList();
-  updatePage5Unread();
 }
 
 // =======================
@@ -54,7 +55,7 @@ async function fetchUsersWithUnread() {
 // =======================
 function renderUserList() {
   userListEl.innerHTML = "";
-  for (const [userId, user] of Object.entries(users)) {
+  Object.entries(users).forEach(([userId, user]) => {
     const div = document.createElement("div");
     div.classList.add("user-item");
     if (userId == currentChatUserId) div.classList.add("active");
@@ -70,7 +71,7 @@ function renderUserList() {
 
     div.addEventListener("click", () => openChat(userId));
     userListEl.appendChild(div);
-  }
+  });
 }
 
 // =======================
@@ -79,6 +80,8 @@ function renderUserList() {
 function openChat(userId) {
   currentChatUserId = userId;
   const user = users[userId];
+  if (!user) return;
+
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
@@ -121,39 +124,46 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .insert([{
-      sender_id: 1, // 客服
-      receiver_id: Number(currentChatUserId),
-      content,
-      is_read: false
-    }]);
+  try {
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .insert([{
+        sender_id: 1,
+        receiver_id: Number(currentChatUserId),
+        content,
+        is_read: false
+      }]);
 
-  if (error) {
-    console.error("发送失败", error);
-    return;
+    if (error) throw error;
+    const insertedMessage = data?.[0];
+    if (!insertedMessage) return;
+
+    users[currentChatUserId].messages.push(insertedMessage);
+    appendMessage("me", content);
+    adminChatInput.value = "";
+  } catch (err) {
+    console.error("发送消息失败", err);
   }
-
-  appendMessage("me", content);
-  users[currentChatUserId].messages.push(data[0]);
-  adminChatInput.value = "";
 });
 
 // =======================
 // 标记已读
 // =======================
 async function markMessagesAsRead(userId) {
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .update({ is_read: true })
-    .eq("receiver_id", 1)
-    .eq("sender_id", userId)
-    .eq("is_read", false);
+  try {
+    await supabaseClient
+      .from("messages")
+      .update({ is_read: true })
+      .eq("receiver_id", 1)
+      .eq("sender_id", userId)
+      .eq("is_read", false);
 
-  if (!error) users[userId].unreadCount = 0;
-  renderUserList();
-  updatePage5Unread();
+    if (users[userId]) users[userId].unreadCount = 0;
+    renderUserList();
+    updatePage5Unread();
+  } catch (err) {
+    console.error("标记已读失败", err);
+  }
 }
 
 // =======================
@@ -161,9 +171,7 @@ async function markMessagesAsRead(userId) {
 // =======================
 function updatePage5Unread() {
   let totalUnread = 0;
-  for (const user of Object.values(users)) {
-    totalUnread += user.unreadCount;
-  }
+  Object.values(users).forEach(user => totalUnread += user.unreadCount);
 
   if (totalUnread > 0) {
     page5UnreadEl.textContent = totalUnread;
@@ -184,7 +192,7 @@ function listenForMessages() {
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.1` },
-      (payload) => {
+      payload => {
         const msg = payload.new;
         const userId = msg.sender_id;
 
@@ -193,7 +201,7 @@ function listenForMessages() {
 
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
-          try { notificationSound.play(); } catch(e) {} // 避免未交互报错
+          try { notificationSound.play(); } catch(e) {}
         }
 
         renderUserList();

@@ -17,13 +17,8 @@ const userChatInputDiv = document.createElement("div");
 userChatInputDiv.id = "userChatInput";
 
 const userChatInput = document.createElement("input");
-userChatInput.id = "chatInput";          // ✅ 给 input 加 id
-userChatInput.name = "chat-message";     // ✅ 给 input 加 name
 userChatInput.placeholder = "输入消息...";
-userChatInput.setAttribute("autocomplete", "off");
-
-const sendBtn = document.createElement("button"); // ✅ 在这里创建
-sendBtn.id = "sendBtn";
+const sendBtn = document.createElement("button");
 sendBtn.textContent = "发送";
 
 userChatInputDiv.appendChild(userChatInput);
@@ -35,10 +30,6 @@ userChatWindow.appendChild(userChatInputDiv);
 
 page5.appendChild(userChatList);
 page5.appendChild(userChatWindow);
-
-// =============================
-// 逻辑部分
-// =============================
 
 // 当前聊天用户 id
 let currentChatUserId = null;
@@ -118,7 +109,7 @@ async function loadChatMessages(userId) {
   }
 
   data.forEach(msg => {
-    appendMessage(msg.sender_id === 1 ? "me" : "bot", msg.content);
+    appendMessage(msg.sender_id === 1 ? "我" : "bot", msg.content);
   });
 }
 
@@ -127,7 +118,7 @@ sendBtn.addEventListener("click", async () => {
   const content = userChatInput.value.trim();
   if (!content || !currentChatUserId) return;
 
-  const { error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("messages")
     .insert([
       {
@@ -152,7 +143,7 @@ function appendMessage(sender, text) {
   msg.classList.add("user-message");
   msg.classList.add(sender);
   msg.textContent = text;
-  userChatMessages.appendChild(msg);
+  userChatMessages.prepend(msg);
   userChatMessages.scrollTop = userChatMessages.scrollHeight;
 }
 

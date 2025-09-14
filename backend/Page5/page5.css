@@ -6,7 +6,9 @@
   font-family: "Helvetica", sans-serif;
 }
 
-/* 用户列表 */
+/* =====================
+   用户列表
+   ===================== */
 #userList {
   display: flex;
   flex-direction: column;
@@ -24,6 +26,7 @@
   background-color: #f0f0f0;
   border-radius: 8px;
   cursor: pointer;
+  position: relative;
 }
 
 .user-item.active {
@@ -32,6 +35,9 @@
 }
 
 .user-item .unread-dot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
   background-color: red;
   color: white;
   border-radius: 50%;
@@ -40,7 +46,9 @@
   display: inline-block;
 }
 
-/* 聊天窗口 */
+/* =====================
+   聊天窗口
+   ===================== */
 .admin-chat-window {
   position: fixed;
   top: 50%;
@@ -67,6 +75,7 @@
   color: white;
   padding: 10px;
   font-weight: bold;
+  font-size: 16px;
 }
 
 .admin-chat-header button {
@@ -102,12 +111,20 @@
   background-color: #4e9cff;
   color: white;
   align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-left-radius: 16px;
 }
 
 .message-item.user {
   background-color: #e0e0e0;
   color: #333;
   align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 /* 输入框 */
@@ -140,18 +157,24 @@
 }
 
 /* 滚动条美化 */
-.admin-chat-messages::-webkit-scrollbar {
+.admin-chat-messages::-webkit-scrollbar,
+#userList::-webkit-scrollbar {
   width: 6px;
 }
-.admin-chat-messages::-webkit-scrollbar-thumb {
+
+.admin-chat-messages::-webkit-scrollbar-thumb,
+#userList::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.2);
   border-radius: 3px;
 }
 
+/* =====================
+   红点样式
+   ===================== */
 .unread-dot {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -4px;
+  right: -4px;
   display: inline-block;
   background-color: red;
   color: white;
@@ -165,3 +188,16 @@
   display: none;
 }
 
+/* =====================
+   底部导航红点支持
+   ===================== */
+.bottom-nav button {
+  position: relative;
+}
+
+.bottom-nav button .unread-dot {
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  padding: 2px 6px;
+}

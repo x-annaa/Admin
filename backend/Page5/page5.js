@@ -41,7 +41,7 @@ page5.appendChild(userChatWindow);
 // ======================
 let currentChatUserId = null;
 let chatSubscription = null;
-const unreadCounts = {};
+const unreadCounts = {}; 
 let totalUnread = 0;
 
 // ======================
@@ -49,6 +49,7 @@ let totalUnread = 0;
 // ======================
 function playNotificationSound() {
   const audio = new Audio("https://freesound.org/data/previews/256/256113_3263906-lq.mp3");
+  audio.volume = 0.5;
   audio.play().catch(err => console.warn("声音播放失败:", err));
 }
 
@@ -56,9 +57,7 @@ function updatePage5Badge() {
   if (totalUnread > 0) {
     page5Badge.style.display = "inline-block";
     page5Badge.textContent = totalUnread;
-  } else {
-    page5Badge.style.display = "none";
-  }
+  } else page5Badge.style.display = "none";
 }
 
 // ======================
@@ -115,6 +114,7 @@ async function openChat(userId) {
       { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.1` },
       payload => {
         const msg = payload.new;
+
         if (msg.sender_id == currentChatUserId) appendMessage("bot", msg.content);
         else {
           unreadCounts[msg.sender_id] = (unreadCounts[msg.sender_id] || 0) + 1;

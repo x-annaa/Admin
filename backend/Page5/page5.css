@@ -147,3 +147,21 @@
   background: rgba(0,0,0,0.2);
   border-radius: 3px;
 }
+
+.unread-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: inline-block;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.hidden {
+  display: none;
+}
+

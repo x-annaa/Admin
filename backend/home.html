@@ -36,36 +36,6 @@
   </table>
 </div>
 
-<!-- 用户编辑弹窗 -->
-<div id="editModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <p id="editUserName"></p>
-    <div class="edit-actions">
-      <button id="addCoinsBtn">➕ Coins</button>
-      <button id="subCoinsBtn">➖ Coins</button>
-      <button id="addBalanceBtn">➕ Balance</button>
-      <button id="subBalanceBtn">➖ Balance</button>
-      <button id="changePasswordBtn">🔑 Password</button>
-      <button id="deleteUserBtn">🗑 Delete</button>
-    </div>
-    <button id="closeEditModal">关闭</button>
-  </div>
-</div>
-
-<!-- 手动匹配产品弹窗 -->
-<div id="ruleModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3 id="ruleUserName">手动匹配产品</h3>
-    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
-    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
-    <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
-    <div class="modal-actions">
-      <button id="saveRuleBtn">确认匹配</button>
-      <button id="closeRuleModal">取消</button>
-    </div>
-  </div>
-</div>
-
 <!-- 产品管理页面 -->
 <div id="productPage" class="page">
   <h2>📦 产品管理</h2>
@@ -85,36 +55,7 @@
   </table>
 </div>
 
-<!-- 编辑/添加产品弹窗 -->
-<div id="productModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3 id="productModalTitle">编辑产品</h3>
-    <label>名称: <input type="text" id="editName"></label><br>
-    <label>价格: <input type="number" id="editPrice"></label><br>
-    <label>描述: <input type="text" id="editDescription"></label><br>
-    <label>利润: <input type="number" id="editProfit"></label><br>
-    <div class="modal-actions">
-      <button id="saveProductBtn">保存</button>
-      <button id="deleteProductBtn">删除</button>
-      <button id="closeProductModal">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- 匹配设置弹窗 -->
-<div id="productMatchModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>产品匹配设置</h3>
-    <label><input type="checkbox" id="productEnabledCheckbox" checked> 开启匹配</label><br>
-    <label><input type="checkbox" id="productManualOnlyCheckbox"> 手动专属</label><br>
-    <div class="modal-actions">
-      <button id="saveProductMatchBtn">确认保存</button>
-      <button id="closeProductMatchModal">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- 提现管理页面 (Page3) -->
+<!-- 提现管理页面 -->
 <div id="page3" class="page">
   <h2>📊 提现管理</h2>
   <input type="text" id="searchWithdrawalInput" placeholder="搜索 User ID 或 Wallet Address...">
@@ -139,12 +80,13 @@
 
 <!-- 页面5: 客服聊天 -->
 <div id="page5" class="page">
+  <!-- 用户列表 -->
   <div id="chatUsersContainer">
     <ul id="chatUsersList"></ul>
   </div>
 
   <!-- 聊天窗口 -->
-  <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
+  <div id="adminChatWindow" class="admin-chat-window">
     <div class="admin-chat-header">
       <button id="adminBackBtn">⬅ 返回</button>
       <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>

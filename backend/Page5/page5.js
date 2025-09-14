@@ -28,10 +28,11 @@ let chatSubscription = null;
 // =======================
 async function fetchUsersWithUnread() {
   try {
+    // 拉取所有与客服相关的消息（发送或接收）
     const { data, error } = await supabaseClient
       .from("messages")
       .select("*")
-      .eq("receiver_id", 1)
+      .or(`receiver_id.eq.1,sender_id.eq.1`)
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -40,11 +41,19 @@ async function fetchUsersWithUnread() {
     }
 
     data.forEach(msg => {
-      if (!users[msg.sender_id]) {
-        users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
+      // 确定另一方的 userId
+      const userId = msg.sender_id === 1 ? msg.receiver_id : msg.sender_id;
+
+      if (!users[userId]) {
+        users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
       }
-      users[msg.sender_id].messages.push(msg);
-      if (!msg.is_read) users[msg.sender_id].unreadCount++;
+
+      users[userId].messages.push(msg);
+
+      // 只有接收的消息且未读才算未读
+      if (msg.receiver_id === 1 && !msg.is_read) {
+        users[userId].unreadCount++;
+      }
     });
 
     renderUserList();
@@ -87,15 +96,11 @@ function openChat(userId) {
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
-  // 按时间顺序显示历史消息（旧→新）
-  user.messages
-    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-    .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
+  // 按时间顺序显示历史消息
+  user.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
+               .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
 
   adminChatWindow.style.display = "flex";
-
-  // 滚动到底部
-  adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 
   // 标记已读
   markMessagesAsRead(userId);
@@ -117,7 +122,7 @@ function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("message-item", sender);
   msg.textContent = text;
-  adminChatMessages.appendChild(msg); // 保持顺序
+  adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }
 
@@ -213,6 +218,7 @@ function listenForMessages() {
         if (!users[userId]) users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
         users[userId].messages.push(msg);
 
+        // 如果不是当前聊天用户，增加未读并播放音效
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
           if (soundUnlocked) {
@@ -239,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
 
-  // 全局解锁音效（仅第一次交互）
+  // 全局解锁音效（首次用户交互）
   document.body.addEventListener("click", () => {
     if (!soundUnlocked) {
       notificationSound.play().catch(() => {});

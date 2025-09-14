@@ -28,11 +28,9 @@ sendBtn.textContent = "发送";
 
 userChatInputDiv.appendChild(userChatInput);
 userChatInputDiv.appendChild(sendBtn);
-
 userChatWindow.appendChild(userChatHeader);
 userChatWindow.appendChild(userChatMessages);
 userChatWindow.appendChild(userChatInputDiv);
-
 page5.appendChild(userChatList);
 page5.appendChild(userChatWindow);
 
@@ -47,9 +45,18 @@ let totalUnread = 0;
 // ======================
 // 工具函数
 // ======================
+let audio;
+document.addEventListener("click", () => {
+  if (!audio) {
+    audio = new Audio("https://freesound.org/data/previews/256/256113_3263906-lq.mp3");
+    audio.volume = 0.5;
+    audio.play().catch(()=>{});
+  }
+}, { once: true });
+
 function playNotificationSound() {
-  const audio = new Audio("https://freesound.org/data/previews/256/256113_3263906-lq.mp3");
-  audio.volume = 0.5;
+  if (!audio) return;
+  audio.currentTime = 0;
   audio.play().catch(err => console.warn("声音播放失败:", err));
 }
 
@@ -58,15 +65,12 @@ function updatePage5Badge() {
   page5Badge.textContent = totalUnread;
 }
 
-// ======================
-// 显示消息
-// ======================
 function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("user-message");
   msg.classList.add(sender);
   msg.textContent = text;
-  userChatMessages.appendChild(msg);
+  userChatMessages.appendChild(msg); // 最新消息在下
   userChatMessages.scrollTop = userChatMessages.scrollHeight;
 }
 
@@ -105,7 +109,6 @@ async function openChat(userId) {
     item.classList.toggle("active", item.dataset.userid == userId);
   });
 
-  // 清空未读
   if (unreadCounts[userId]) {
     totalUnread -= unreadCounts[userId];
     delete unreadCounts[userId];
@@ -160,7 +163,6 @@ if (!chatSubscription) {
       payload => {
         const msg = payload.new;
 
-        // 如果当前聊天窗口打开且消息来自该用户
         if (currentChatUserId === msg.sender_id) {
           appendMessage("bot", msg.content);
         } else {
@@ -168,7 +170,7 @@ if (!chatSubscription) {
           totalUnread++;
           updatePage5Badge();
           playNotificationSound();
-          // 更新用户列表
+
           const userItem = document.querySelector(`#userChatList .user-item[data-userid="${msg.sender_id}"]`);
           if (userItem) userItem.textContent = `用户ID: ${msg.sender_id} (${unreadCounts[msg.sender_id]})`;
           else {

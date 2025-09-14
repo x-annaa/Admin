@@ -24,9 +24,10 @@ const userChatInputDiv = document.createElement("div");
 userChatInputDiv.id = "userChatInput";
 
 const userChatInput = document.createElement("input");
+userChatInput.id = "chatInput";
+userChatInput.name = "chat-message";
 userChatInput.placeholder = "输入消息...";
-const sendBtn = document.createElement("button");
-sendBtn.textContent = "发送";
+userChatInput.setAttribute("autocomplete", "off"); // 防止浏览器乱填
 
 userChatInputDiv.appendChild(userChatInput);
 userChatInputDiv.appendChild(sendBtn);

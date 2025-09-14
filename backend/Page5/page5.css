@@ -1,24 +1,203 @@
 /* =====================
-   底部导航红点支持（优化后）
+   页面整体
    ===================== */
-.bottom-nav button {
-  position: relative; /* 必须 */
-  padding-right: 20px; /* 给红点留空间，避免文字覆盖 */
+#page5 {
+  padding: 12px;
+  font-family: "Helvetica", sans-serif;
 }
 
-.bottom-nav button .unread-dot {
+/* =====================
+   用户列表
+   ===================== */
+#userList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-item.active {
+  background-color: #4e9cff;
+  color: white;
+}
+
+.user-item .unread-dot {
   position: absolute;
-  top: 2px;      /* 靠近按钮顶部 */
-  right: 2px;    /* 靠近按钮右侧 */
-  width: 16px;
-  height: 16px;
-  font-size: 10px;
-  padding: 0;
-  line-height: 16px;
-  text-align: center;
+  top: 4px;
+  right: 6px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+/* =====================
+   聊天窗口
+   ===================== */
+.admin-chat-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 500px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+/* 聊天头部 */
+.admin-chat-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: #4e9cff;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.admin-chat-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* 消息列表 */
+.admin-chat-messages {
+  flex: 1 1 auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  gap: 6px;
+  background-color: #f0f0f0;
+}
+
+/* 单条消息 */
+.message-item {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message-item.me {
+  background-color: #4e9cff;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.message-item.user {
+  background-color: #e0e0e0;
+  color: #333;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* 输入框 */
+.admin-chat-input {
+  flex: 0 0 auto;
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  background-color: #fafafa;
+}
+
+.admin-chat-input input {
+  flex: 1;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+
+.admin-chat-input button {
+  margin-left: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: none;
+  background-color: #4e9cff;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* 滚动条美化 */
+.admin-chat-messages::-webkit-scrollbar,
+#userList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-chat-messages::-webkit-scrollbar-thumb,
+#userList::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+/* =====================
+   红点样式
+   ===================== */
+.unread-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
   display: inline-block;
   background-color: red;
   color: white;
   border-radius: 50%;
-  box-sizing: border-box;
+  font-size: 12px;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.hidden {
+  display: none;
+}
+
+/* =====================
+   底部导航红点支持
+   ===================== */
+.bottom-nav button {
+  position: relative;
+}
+
+.bottom-nav button .unread-dot {
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  padding: 2px 6px;
 }

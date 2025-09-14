@@ -18,7 +18,7 @@ const notificationSound = new Audio("https://cdn.freesound.org/previews/256/2561
 // =======================
 // 数据结构
 // =======================
-let users = {};   // key: userId, value: { username, unreadCount, messages: [] }
+let users = {}; // key: userId, value: { username, unreadCount, messages: [] }
 let currentChatUserId = null;
 let chatSubscription = null;
 
@@ -30,12 +30,15 @@ async function fetchUsersWithUnread() {
     const { data, error } = await supabaseClient
       .from("messages")
       .select("*")
-      .eq("receiver_id", 1)
+      .eq("receiver_id", 1) // 客服ID
       .order("created_at", { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error("获取用户消息失败", error);
+      return;
+    }
 
-    data?.forEach(msg => {
+    data.forEach(msg => {
       if (!users[msg.sender_id]) {
         users[msg.sender_id] = { username: `User ${msg.sender_id}`, unreadCount: 0, messages: [] };
       }
@@ -46,7 +49,7 @@ async function fetchUsersWithUnread() {
     renderUserList();
     updatePage5Unread();
   } catch (err) {
-    console.error("获取用户消息失败", err);
+    console.error("fetchUsersWithUnread 异常:", err);
   }
 }
 
@@ -55,7 +58,7 @@ async function fetchUsersWithUnread() {
 // =======================
 function renderUserList() {
   userListEl.innerHTML = "";
-  Object.entries(users).forEach(([userId, user]) => {
+  for (const [userId, user] of Object.entries(users)) {
     const div = document.createElement("div");
     div.classList.add("user-item");
     if (userId == currentChatUserId) div.classList.add("active");
@@ -71,7 +74,7 @@ function renderUserList() {
 
     div.addEventListener("click", () => openChat(userId));
     userListEl.appendChild(div);
-  });
+  }
 }
 
 // =======================
@@ -80,8 +83,6 @@ function renderUserList() {
 function openChat(userId) {
   currentChatUserId = userId;
   const user = users[userId];
-  if (!user) return;
-
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
@@ -124,6 +125,21 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
+  // 先在界面显示
+  appendMessage("me", content);
+  adminChatInput.value = "";
+
+  // 添加到本地缓存
+  if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
+  users[currentChatUserId].messages.push({
+    sender_id: 1,
+    receiver_id: Number(currentChatUserId),
+    content,
+    is_read: false,
+    created_at: new Date().toISOString()
+  });
+
+  // 异步发送到 Supabase
   try {
     const { data, error } = await supabaseClient
       .from("messages")
@@ -134,15 +150,14 @@ adminSendBtn.addEventListener("click", async () => {
         is_read: false
       }]);
 
-    if (error) throw error;
-    const insertedMessage = data?.[0];
-    if (!insertedMessage) return;
-
-    users[currentChatUserId].messages.push(insertedMessage);
-    appendMessage("me", content);
-    adminChatInput.value = "";
+    if (error) {
+      console.error("发送消息失败", error);
+    } else if (data?.[0]) {
+      // 更新本地缓存（可选）
+      users[currentChatUserId].messages[users[currentChatUserId].messages.length-1] = data[0];
+    }
   } catch (err) {
-    console.error("发送消息失败", err);
+    console.error("发送消息异常", err);
   }
 });
 
@@ -151,18 +166,18 @@ adminSendBtn.addEventListener("click", async () => {
 // =======================
 async function markMessagesAsRead(userId) {
   try {
-    await supabaseClient
+    const { data, error } = await supabaseClient
       .from("messages")
       .update({ is_read: true })
       .eq("receiver_id", 1)
       .eq("sender_id", userId)
       .eq("is_read", false);
 
-    if (users[userId]) users[userId].unreadCount = 0;
+    if (!error) users[userId].unreadCount = 0;
     renderUserList();
     updatePage5Unread();
   } catch (err) {
-    console.error("标记已读失败", err);
+    console.error("markMessagesAsRead 异常:", err);
   }
 }
 
@@ -171,7 +186,9 @@ async function markMessagesAsRead(userId) {
 // =======================
 function updatePage5Unread() {
   let totalUnread = 0;
-  Object.values(users).forEach(user => totalUnread += user.unreadCount);
+  for (const user of Object.values(users)) {
+    totalUnread += user.unreadCount;
+  }
 
   if (totalUnread > 0) {
     page5UnreadEl.textContent = totalUnread;
@@ -192,7 +209,7 @@ function listenForMessages() {
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.1` },
-      payload => {
+      (payload) => {
         const msg = payload.new;
         const userId = msg.sender_id;
 

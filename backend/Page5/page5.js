@@ -121,39 +121,51 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .insert([{
-      sender_id: 1, // 客服
-      receiver_id: Number(currentChatUserId),
-      content,
-      is_read: false
-    }]);
+  try {
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .insert([{
+        sender_id: 1, // 客服
+        receiver_id: Number(currentChatUserId),
+        content,
+        is_read: false
+      }]);
 
-  if (error) {
-    console.error("发送失败", error);
-    return;
+    if (error) {
+      console.error("发送失败", error);
+      return;
+    }
+
+    const insertedMessage = data?.[0];
+    if (!insertedMessage) return;
+
+    users[currentChatUserId].messages.push(insertedMessage);
+    appendMessage("me", content);
+    adminChatInput.value = "";
+
+  } catch (err) {
+    console.error("发送消息异常:", err);
   }
-
-  appendMessage("me", content);
-  users[currentChatUserId].messages.push(data[0]);
-  adminChatInput.value = "";
 });
 
 // =======================
 // 标记已读
 // =======================
 async function markMessagesAsRead(userId) {
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .update({ is_read: true })
-    .eq("receiver_id", 1)
-    .eq("sender_id", userId)
-    .eq("is_read", false);
+  try {
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .update({ is_read: true })
+      .eq("receiver_id", 1)
+      .eq("sender_id", userId)
+      .eq("is_read", false);
 
-  if (!error) users[userId].unreadCount = 0;
-  renderUserList();
-  updatePage5Unread();
+    if (!error) users[userId].unreadCount = 0;
+    renderUserList();
+    updatePage5Unread();
+  } catch (err) {
+    console.error("标记已读异常:", err);
+  }
 }
 
 // =======================
@@ -215,7 +227,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
 
-  // 尝试解锁声音播放（首次点击任意按钮即可）
+  // 尝试解锁声音播放（首次点击任意按钮即可触发声音）
   document.body.addEventListener("click", () => {
     notificationSound.play().catch(() => {});
   }, { once: true });

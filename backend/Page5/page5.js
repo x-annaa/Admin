@@ -35,6 +35,9 @@ page5.appendChild(userChatWindow);
 let currentChatUserId = null;
 let chatSubscription = null;
 
+// 保存用户是否有未读消息
+const newMessageFlag = {};
+
 // 获取用户列表（有给客服发过消息的用户）
 async function loadUserList() {
   const { data, error } = await supabaseClient
@@ -56,6 +59,11 @@ async function loadUserList() {
     div.classList.add("user-item");
     div.textContent = `用户ID: ${id}`;
     div.dataset.userid = id;
+
+    if (newMessageFlag[id]) {
+      div.classList.add("unread");
+    }
+
     div.addEventListener("click", () => openChat(id));
     userChatList.appendChild(div);
   });
@@ -68,7 +76,13 @@ async function openChat(userId) {
 
   document.querySelectorAll("#userChatList .user-item").forEach(item => {
     item.classList.toggle("active", item.dataset.userid == userId);
+    if (item.dataset.userid == userId) {
+      item.classList.remove("unread");
+    }
   });
+
+  // 清除未读标记
+  delete newMessageFlag[userId];
 
   userChatMessages.innerHTML = "";
   await loadChatMessages(userId);
@@ -85,11 +99,24 @@ async function openChat(userId) {
         event: "INSERT",
         schema: "public",
         table: "messages",
-        filter: `sender_id=eq.${userId},receiver_id=eq.1` // 用户发给客服
+        filter: `receiver_id=eq.1`
       },
       payload => {
         const msg = payload.new;
-        appendMessage("bot", msg.content);
+
+        // 当前窗口用户，直接显示
+        if (msg.sender_id == currentChatUserId) {
+          appendMessage("bot", msg.content);
+        } else {
+          // 其他用户，标记未读
+          newMessageFlag[msg.sender_id] = true;
+          const userItem = document.querySelector(
+            `#userChatList .user-item[data-userid="${msg.sender_id}"]`
+          );
+          if (userItem) {
+            userItem.classList.add("unread");
+          }
+        }
       }
     )
     .subscribe();
@@ -100,7 +127,9 @@ async function loadChatMessages(userId) {
   const { data, error } = await supabaseClient
     .from("messages")
     .select("*")
-    .or(`and(sender_id.eq.${userId},receiver_id.eq.1),and(sender_id.eq.1,receiver_id.eq.${userId})`)
+    .or(
+      `and(sender_id.eq.${userId},receiver_id.eq.1),and(sender_id.eq.1,receiver_id.eq.${userId})`
+    )
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -109,7 +138,7 @@ async function loadChatMessages(userId) {
   }
 
   data.forEach(msg => {
-    appendMessage(msg.sender_id === 1 ? "我" : "bot", msg.content);
+    appendMessage(msg.sender_id === 1 ? "me" : "bot", msg.content);
   });
 }
 
@@ -118,15 +147,13 @@ sendBtn.addEventListener("click", async () => {
   const content = userChatInput.value.trim();
   if (!content || !currentChatUserId) return;
 
-  const { data, error } = await supabaseClient
-    .from("messages")
-    .insert([
-      {
-        sender_id: 1, // 客服ID
-        receiver_id: currentChatUserId,
-        content: content
-      }
-    ]);
+  const { error } = await supabaseClient.from("messages").insert([
+    {
+      sender_id: 1, // 客服ID
+      receiver_id: currentChatUserId,
+      content: content
+    }
+  ]);
 
   if (error) {
     console.error(error);

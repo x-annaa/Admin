@@ -120,3 +120,52 @@ document.addEventListener("DOMContentLoaded", () => {
   // 页面初始加载
   loadProducts();
 });
+
+  // ----------------------
+  // 打开订单限制设置
+  // ----------------------
+  document.getElementById("openLimitSettingsBtn").onclick = async () => {
+    const { data, error } = await supabaseClient
+      .from("order_limit_settings")
+      .select("max_orders, cooldown_seconds")
+      .order("id", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (error) return alert("❌ 获取配置失败: " + error.message);
+
+    document.getElementById("limitMaxOrders").value = data?.max_orders || 3;
+    document.getElementById("limitCooldownSeconds").value = data?.cooldown_seconds || 30;
+
+    document.getElementById("limitSettingsModal").style.display = "flex";
+  };
+
+  // ----------------------
+  // 保存订单限制设置
+  // ----------------------
+  document.getElementById("saveLimitSettingsBtn").onclick = async () => {
+    const max_orders = parseInt(document.getElementById("limitMaxOrders").value);
+    const cooldown_seconds = parseInt(document.getElementById("limitCooldownSeconds").value);
+
+    if (isNaN(max_orders) || isNaN(cooldown_seconds)) {
+      return alert("❌ 请输入正确的数字");
+    }
+
+    // 更新第一行配置（只用一行）
+    const { error } = await supabaseClient
+      .from("order_limit_settings")
+      .update({ max_orders, cooldown_seconds, updated_at: new Date() })
+      .eq("id", 1); 
+
+    if (error) return alert("❌ 保存失败: " + error.message);
+
+    alert("✅ 保存成功");
+    document.getElementById("limitSettingsModal").style.display = "none";
+  };
+
+  // ----------------------
+  // 关闭订单限制设置弹窗
+  // ----------------------
+  document.getElementById("closeLimitSettingsModal").onclick = () => {
+    document.getElementById("limitSettingsModal").style.display = "none";
+  };
+

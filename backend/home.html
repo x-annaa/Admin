@@ -115,6 +115,19 @@
   </div>
 </div>
 
+<!-- 订单限制设置弹窗 -->
+<div id="limitSettingsModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>订单限制设置</h3>
+    <label>最大订单数: <input type="number" id="limitMaxOrders" min="1"></label><br>
+    <label>冷却时间(秒): <input type="number" id="limitCooldownSeconds" min="1"></label><br>
+    <div class="modal-actions">
+      <button id="saveLimitSettingsBtn">保存</button>
+      <button id="closeLimitSettingsModal">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- 提现管理页面 (Page3) -->
 <div id="page3" class="page">
   <h2>📊 提现管理</h2>
@@ -139,10 +152,7 @@
 <div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
 
 <!-- 页面5: 客服聊天 -->
-<div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
-<div id="page5" class="page"><h2>
-
-  <!-- 聊天窗口 -->
+<div id="page5" class="page"><h2>💬 客服聊天</h2>
   <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
     <div class="admin-chat-header">
       <button id="adminBackBtn">⬅ 返回</button>
@@ -152,19 +162,6 @@
     <div class="admin-chat-input">
       <input type="text" id="adminChatInput" placeholder="输入消息...">
       <button id="adminSendBtn">发送</button>
-    </div>
-  </div>
-</div>
-
-<!-- A1 限制配置弹窗 -->
-<div id="configLimitModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>订单限制配置</h3>
-    <label>限制单数: <input type="number" id="limitOrdersInput" min="1"></label><br>
-    <label>冷却时间(秒): <input type="number" id="cooldownSecondsInput" min="1"></label><br>
-    <div class="modal-actions">
-      <button id="saveConfigBtn">保存</button>
-      <button id="closeConfigBtn">取消</button>
     </div>
   </div>
 </div>

@@ -129,7 +129,7 @@ function openRuleModal(userId, username) {
 }
 
 // ======================
-// 保存规则 (Edit2) - 使用 upsert 避免覆盖其他用户
+// 保存规则 (Edit2)
 // ======================
 async function saveRule() {
   const modal = document.getElementById("ruleModal");
@@ -148,12 +148,13 @@ async function saveRule() {
         user_id: userId,
         order_number: orderNumber,
         product_id: productId,
-        enabled: enabled,
+        enabled: enabled
       }, { onConflict: ['user_id', 'order_number'] });
 
     if (error) throw error;
     alert("✅ 规则已保存");
     modal.style.display = "none";
+    loadUsers();
   } catch (e) {
     alert("❌ 保存规则失败: " + e.message);
   }
@@ -255,3 +256,4 @@ function searchUsers() {
 // 页面加载
 // ======================
 document.addEventListener("DOMContentLoaded", loadUsers);
+document.getElementById("saveRuleBtn").addEventListener("click", saveRule);

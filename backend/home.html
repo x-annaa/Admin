@@ -156,6 +156,19 @@
   </div>
 </div>
 
+<!-- A1 限制配置弹窗 -->
+<div id="configLimitModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>订单限制配置</h3>
+    <label>限制单数: <input type="number" id="limitOrdersInput" min="1"></label><br>
+    <label>冷却时间(秒): <input type="number" id="cooldownSecondsInput" min="1"></label><br>
+    <div class="modal-actions">
+      <button id="saveConfigBtn">保存</button>
+      <button id="closeConfigBtn">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- 底部导航 -->
 <div class="bottom-nav">
   <button data-page="userPage" class="active">Users</button>

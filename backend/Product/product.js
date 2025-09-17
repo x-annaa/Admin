@@ -1,6 +1,12 @@
 let editingProductId = null;
 let currentMatchProductId = null;
 
+// 存储订单限制配置
+let orderLimitSettings = {
+  max_orders: 5,
+  cooldown_seconds: 180
+};
+
 document.addEventListener("DOMContentLoaded", () => {
 
   // ----------------------
@@ -33,6 +39,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------
+  // 加载订单限制配置
+  // ----------------------
+  async function loadOrderLimitSettings() {
+    const { data, error } = await supabaseClient
+      .from("order_limit_settings")
+      .select("*")
+      .limit(1)
+      .single();
+    if(error){
+      console.error("加载订单限制配置失败:", error.message);
+      return;
+    }
+    orderLimitSettings.max_orders = data.max_orders;
+    orderLimitSettings.cooldown_seconds = data.cooldown_seconds;
+
+    // 弹窗里面也更新值
+    const maxEl = document.getElementById("limitMaxOrders");
+    const cdEl = document.getElementById("limitCooldownSeconds");
+    if(maxEl) maxEl.value = data.max_orders;
+    if(cdEl) cdEl.value = data.cooldown_seconds;
+  }
+
+  // ----------------------
   // 编辑/添加产品弹窗
   // ----------------------
   window.openProductModal = function(id=null, name="", price=0, description="", profit=0) {
@@ -46,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ----------------------
-  // 匹配设置弹窗
+  // 产品匹配设置弹窗
   // ----------------------
   window.openProductMatchModal = function(id, enabled, manual_only) {
     currentMatchProductId = id;
@@ -60,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----------------------
   document.getElementById("closeProductModal").onclick = () => document.getElementById("productModal").style.display = "none";
   document.getElementById("closeProductMatchModal").onclick = () => document.getElementById("productMatchModal").style.display = "none";
+  document.getElementById("closeLimitSettingsModal").onclick = () => document.getElementById("limitSettingsModal").style.display = "none";
 
   // ----------------------
   // 保存产品
@@ -72,16 +102,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!name || isNaN(price) || !description || isNaN(profit)) return alert("❌ 请填写完整信息");
 
     if(editingProductId){
-      const { error } = await supabaseClient
-        .from("products")
-        .update({name, price, description, profit})
-        .eq("id", editingProductId);
+      const { error } = await supabaseClient.from("products").update({name, price, description, profit}).eq("id", editingProductId);
       if(error) return alert("❌ 更新失败: "+error.message);
       alert("✅ 更新成功");
     } else {
-      const { error } = await supabaseClient
-        .from("products")
-        .insert([{name, price, description, profit, enabled:true, manual_only:false}]);
+      const { error } = await supabaseClient.from("products").insert([{name, price, description, profit, enabled:true, manual_only:false}]);
       if(error) return alert("❌ 添加失败: "+error.message);
       alert("✅ 添加成功");
     }
@@ -95,10 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("deleteProductBtn").onclick = async () => {
     if(!editingProductId) return;
     if(!confirm("⚠️ 确定删除吗？")) return;
-    const { error } = await supabaseClient
-      .from("products")
-      .delete()
-      .eq("id", editingProductId);
+    const { error } = await supabaseClient.from("products").delete().eq("id", editingProductId);
     if(error) return alert("❌ 删除失败: "+error.message);
     alert("✅ 删除成功");
     document.getElementById("productModal").style.display = "none";
@@ -112,38 +134,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if(!currentMatchProductId) return;
     const enabled = document.getElementById("productEnabledCheckbox").checked;
     const manual_only = document.getElementById("productManualOnlyCheckbox").checked;
-    const { error } = await supabaseClient
-      .from("products")
-      .update({enabled, manual_only})
-      .eq("id", currentMatchProductId);
+    const { error } = await supabaseClient.from("products").update({enabled, manual_only}).eq("id", currentMatchProductId);
     if(error) return alert("❌ 保存失败: "+error.message);
     alert("✅ 保存成功");
     document.getElementById("productMatchModal").style.display = "none";
     loadProducts();
   }
-
-  // ----------------------
-  // 添加产品按钮
-  // ----------------------
-  document.getElementById("addProductBtn").onclick = () => openProductModal();
-
-  // ----------------------
-  // 打开订单限制设置 (A1 按钮)
-  // ----------------------
-  document.getElementById("openLimitSettingsBtn").onclick = async () => {
-    const { data, error } = await supabaseClient
-      .from("order_limit_settings")
-      .select("max_orders, cooldown_seconds")
-      .order("id", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (error) return alert("❌ 获取配置失败: " + error.message);
-
-    document.getElementById("limitMaxOrders").value = data?.max_orders || 3;
-    document.getElementById("limitCooldownSeconds").value = data?.cooldown_seconds || 30;
-
-    document.getElementById("limitSettingsModal").style.display = "flex";
-  };
 
   // ----------------------
   // 保存订单限制设置
@@ -152,29 +148,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const max_orders = parseInt(document.getElementById("limitMaxOrders").value);
     const cooldown_seconds = parseInt(document.getElementById("limitCooldownSeconds").value);
 
-    if (isNaN(max_orders) || isNaN(cooldown_seconds)) {
-      return alert("❌ 请输入正确的数字");
+    if(isNaN(max_orders) || isNaN(cooldown_seconds) || max_orders < 1 || cooldown_seconds < 1) {
+      return alert("❌ 请填写正确的数字");
     }
 
-    // 更新第一行配置
     const { error } = await supabaseClient
       .from("order_limit_settings")
       .update({ max_orders, cooldown_seconds, updated_at: new Date() })
       .eq("id", 1);
-
-    if (error) return alert("❌ 保存失败: " + error.message);
+    if(error) return alert("❌ 保存失败: "+error.message);
 
     alert("✅ 保存成功");
     document.getElementById("limitSettingsModal").style.display = "none";
-  };
+
+    orderLimitSettings.max_orders = max_orders;
+    orderLimitSettings.cooldown_seconds = cooldown_seconds;
+  }
 
   // ----------------------
-  // 关闭订单限制设置弹窗
+  // 添加产品按钮
   // ----------------------
-  document.getElementById("closeLimitSettingsModal").onclick = () => {
-    document.getElementById("limitSettingsModal").style.display = "none";
+  document.getElementById("addProductBtn").onclick = () => openProductModal();
+
+  // ----------------------
+  // A1 按钮（订单限制配置弹窗）
+  // ----------------------
+  const a1Btn = document.createElement("button");
+  a1Btn.textContent = "A1";
+  a1Btn.style.marginLeft = "8px";
+  a1Btn.onclick = () => {
+    document.getElementById("limitSettingsModal").style.display = "flex";
   };
+  document.getElementById("addProductBtn").parentNode.insertBefore(a1Btn, document.getElementById("addProductBtn").nextSibling);
 
   // 页面初始加载
   loadProducts();
+  loadOrderLimitSettings();
 });

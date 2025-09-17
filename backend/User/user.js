@@ -1,8 +1,9 @@
 let currentEditUserId = null;
 let currentRuleUserId = null;
+let cooldownTimers = {}; // 每个用户的冷却倒计时
 
 // ======================
-// 加载用户数据（包含订单数量）
+// 加载用户数据（包含订单数量 + 冷却）
 // ======================
 async function loadUsers() {
   const { data: users, error: userError } = await supabaseClient
@@ -18,6 +19,7 @@ async function loadUsers() {
 
   if (orderError) return alert("❌ 加载订单失败: " + orderError.message);
 
+  // 统计每个用户的订单数
   const orderCountMap = {};
   orders.forEach(order => {
     if (!orderCountMap[order.user_id]) orderCountMap[order.user_id] = 0;
@@ -27,8 +29,11 @@ async function loadUsers() {
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
 
-  users.forEach(user => {
+  for (const user of users) {
+    const cooldownText = await getUserCooldownText(user.id);
+
     const tr = document.createElement("tr");
+    tr.dataset.userId = user.id; // 用于倒计时更新
     tr.innerHTML = `
       <td>${user.id}</td>
       <td>${user.username}</td>
@@ -37,13 +42,70 @@ async function loadUsers() {
       <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
       <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
       <td>${orderCountMap[user.id] ?? 0}</td>
+      <td class="cooldownCell">${cooldownText.text}</td>
       <td>
         <button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Setting</button>
         <button onclick="openRuleModal(${user.id}, '${user.username}')">Mark</button>
       </td>
     `;
     tbody.appendChild(tr);
-  });
+
+    // 如果有倒计时，启动本地倒计时
+    if (cooldownText.sec > 0) {
+      startCooldownTimer(user.id, cooldownText.sec);
+    }
+  }
+}
+
+// ======================
+// 获取用户冷却信息
+// 返回 {text, sec}
+// ======================
+async function getUserCooldownText(userId) {
+  try {
+    const { data: cdData } = await supabaseClient
+      .rpc("check_user_order_cooldown", { p_user_id: userId });
+    if (cdData && cdData[0] && !cdData[0].allowed) {
+      const next = new Date(cdData[0].next_allowed);
+      let sec = Math.ceil((next - new Date()) / 1000);
+      if (sec < 0) sec = 0;
+      return { text: sec > 0 ? formatTime(sec) : "✅ 可下单", sec };
+    }
+  } catch (e) {
+    console.error("获取冷却失败", e);
+    return { text: "⚠️ 查询失败", sec: 0 };
+  }
+  return { text: "✅ 可下单", sec: 0 };
+}
+
+// ======================
+// 本地倒计时
+// ======================
+function startCooldownTimer(userId, sec) {
+  if (cooldownTimers[userId]) clearInterval(cooldownTimers[userId]);
+  const row = document.querySelector(`#usersTable tbody tr[data-user-id='${userId}']`);
+  const cell = row?.querySelector(".cooldownCell");
+  if (!cell) return;
+
+  cooldownTimers[userId] = setInterval(() => {
+    sec--;
+    if (sec <= 0) {
+      clearInterval(cooldownTimers[userId]);
+      cell.textContent = "✅ 可下单";
+    } else {
+      cell.textContent = formatTime(sec);
+    }
+  }, 1000);
+}
+
+// ======================
+// 格式化秒 -> hh:mm:ss
+// ======================
+function formatTime(sec) {
+  const h = String(Math.floor(sec / 3600)).padStart(2, "0");
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
 }
 
 // ======================

@@ -1,8 +1,8 @@
 (() => {
-  // 已经初始化好的 supabaseClient
-  const rechargesTable = document
-    .getElementById("rechargesTable")
-    .getElementsByTagName("tbody")[0];
+  // tbody 容器
+  const rechargesTable = document.getElementById("rechargesTable").getElementsByTagName("tbody")[0];
+
+  // 搜索输入框
   const searchInput = document.getElementById("searchRechargeInput");
 
   // 格式化时间
@@ -18,47 +18,39 @@
 
   // 获取充值记录
   async function fetchRecharges() {
-    let { data, error } = await supabaseClient
-      .from("recharges")
-      .select(`
-        id,
-        amount,
-        recharge_url,
-        status,
-        created_at,
-        user_id,
-        users:user_id (
-          name,
-          platform_account
-        )
-      `)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabaseClient
+        .from("recharges")
+        .select(`
+          id,
+          amount,
+          recharge_url,
+          status,
+          created_at,
+          platform_account,
+          users!inner(uuid, username)
+        `)
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("加载充值记录失败:", error);
-      return;
+      if (error) throw error;
+      displayRecharges(data);
+    } catch (err) {
+      console.error("加载充值记录失败:", err);
+      rechargesTable.innerHTML = `<tr><td colspan="7" style="color:red">加载失败: ${err.message}</td></tr>`;
     }
-
-    displayRecharges(data);
   }
 
-  // 渲染充值记录
+  // 渲染表格
   function displayRecharges(recharges) {
     rechargesTable.innerHTML = "";
 
-    recharges.forEach((item) => {
+    recharges.forEach(item => {
       const row = rechargesTable.insertRow();
 
-      row.insertCell(0).textContent = item.users?.name || "未知用户";
-      row.insertCell(1).textContent = item.users?.platform_account || "-";
+      row.insertCell(0).textContent = item.users?.username || "未知用户";
+      row.insertCell(1).textContent = item.platform_account || "-";
       row.insertCell(2).textContent = item.amount;
-
-      const urlCell = row.insertCell(3);
-      const link = document.createElement("a");
-      link.href = item.recharge_url;
-      link.target = "_blank";
-      link.textContent = "查看截图";
-      urlCell.appendChild(link);
+      row.insertCell(3).innerHTML = `<a href="${item.recharge_url}" target="_blank">查看截图</a>`;
 
       const statusCell = row.insertCell(4);
       statusCell.textContent = item.status;
@@ -68,7 +60,6 @@
 
       row.insertCell(5).textContent = formatDate(item.created_at);
 
-      // 操作按钮
       const actionsCell = row.insertCell(6);
 
       const rejectBtn = document.createElement("button");
@@ -92,10 +83,32 @@
     });
   }
 
-  // 搜索功能
+  // 更新状态
+  async function updateStatus(id, status) {
+    const { error } = await supabaseClient
+      .from("recharges")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) alert("更新状态失败: " + error.message);
+    else fetchRecharges();
+  }
+
+  // 删除充值记录
+  async function deleteRecharge(id) {
+    if (!confirm("确定要删除这条充值记录吗？")) return;
+    const { error } = await supabaseClient
+      .from("recharges")
+      .delete()
+      .eq("id", id);
+
+    if (error) alert("删除失败: " + error.message);
+    else fetchRecharges();
+  }
+
+  // 搜索功能（用户名 / 平台账号）
   searchInput.addEventListener("keyup", async () => {
     const keyword = searchInput.value.trim();
-
     let query = supabaseClient
       .from("recharges")
       .select(`
@@ -104,59 +117,22 @@
         recharge_url,
         status,
         created_at,
-        user_id,
-        users:user_id (
-          name,
-          platform_account
-        )
+        platform_account,
+        users!inner(uuid, username)
       `)
       .order("created_at", { ascending: false });
 
     if (keyword) {
-      query = query.or(
-        `users.name.ilike.%${keyword}%,users.platform_account.ilike.%${keyword}%`
-      );
+      query = query.or(`users.username.ilike.%${keyword}%,platform_account.ilike.%${keyword}%`);
     }
 
-    let { data, error } = await query;
-
+    const { data, error } = await query;
     if (error) {
       console.error("搜索失败:", error);
       return;
     }
-
     displayRecharges(data);
   });
-
-  // 更新状态
-  async function updateStatus(id, status) {
-    const { error } = await supabaseClient
-      .from("recharges")
-      .update({ status })
-      .eq("id", id);
-
-    if (error) {
-      alert("更新状态失败：" + error.message);
-    } else {
-      fetchRecharges();
-    }
-  }
-
-  // 删除记录
-  async function deleteRecharge(id) {
-    if (!confirm("确定删除此充值记录吗？")) return;
-
-    const { error } = await supabaseClient
-      .from("recharges")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      alert("删除失败：" + error.message);
-    } else {
-      fetchRecharges();
-    }
-  }
 
   // 初始化
   fetchRecharges();

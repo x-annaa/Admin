@@ -1,34 +1,37 @@
-// backend/Page4/page4.js
 document.addEventListener("DOMContentLoaded", () => {
   const rechargesTableBody = document.querySelector("#rechargesTable tbody");
   const searchInput = document.getElementById("searchRechargeInput");
 
-  // 加载充值记录
   async function loadRecharges() {
     try {
-      // 通过嵌套关联 users 表
-      const { data, error } = await supabaseClient
+      // 1. 先获取所有充值记录
+      const { data: recharges, error: rechargeError } = await supabaseClient
         .from("recharges")
-        .select(`
-          id,
-          amount,
-          recharge_url,
-          status,
-          created_at,
-          user_id,
-          users:user_id(id,name,platform_account)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (rechargeError) throw rechargeError;
+
+      // 2. 获取所有用户信息
+      const userIds = recharges.map(r => r.user_id).filter(Boolean);
+      let usersMap = {};
+      if (userIds.length) {
+        const { data: users, error: userError } = await supabaseClient
+          .from("users")
+          .select("id,name,platform_account")
+          .in("id", userIds);
+        if (userError) throw userError;
+        usersMap = Object.fromEntries(users.map(u => [u.id, u]));
+      }
 
       rechargesTableBody.innerHTML = "";
 
-      data.forEach(item => {
-        const tr = document.createElement("tr");
-        const userName = item.users?.[0]?.name || "未知";
-        const platformAccount = item.users?.[0]?.platform_account || "";
+      recharges.forEach(item => {
+        const user = usersMap[item.user_id] || {};
+        const userName = user.name || "未知";
+        const platformAccount = user.platform_account || "";
 
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${userName}</td>
           <td>${platformAccount}</td>
@@ -91,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 搜索功能
   searchInput?.addEventListener("input", () => {
     const filter = searchInput.value.toLowerCase();
     Array.from(rechargesTableBody.children).forEach(tr => {

@@ -1,92 +1,116 @@
-// Page4/page4.js
+// backend/Page4/page4.js
 document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.querySelector("#rechargesTable tbody");
   const searchInput = document.getElementById("searchRechargeInput");
 
-  if (!tableBody) return;
-
-  // 读取充值记录
-  async function loadRecharges() {
+  // 加载充值记录
+  async function loadRecharges(searchTerm = "") {
     try {
-      // 查询 recharges 并关联 users 表获取 name 和 platform_account
-      const { data, error } = await supabaseClient
+      // 1. 获取充值记录
+      const { data: recharges, error: rechargeError } = await supabaseClient
         .from("recharges")
-        .select(`
-          id,
-          amount,
-          recharge_url,
-          status,
-          created_at,
-          user_id,
-          users!inner(name, platform_account)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
+      if (rechargeError) throw rechargeError;
 
-      if (error) throw error;
+      // 2. 获取所有用户信息
+      const userIds = recharges.map(r => r.user_id).filter(Boolean);
+      let users = [];
+      if (userIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabaseClient
+          .from("users")
+          .select("id, name, platform_account");
+        if (usersError) throw usersError;
+        users = usersData;
+      }
 
+      const userMap = {};
+      users.forEach(u => userMap[u.id] = u);
+
+      // 3. 渲染表格
       tableBody.innerHTML = "";
-      data.forEach(row => {
+      recharges.forEach(row => {
+        const user = userMap[row.user_id] || {};
+        const userName = user.name || "-";
+        const platformAccount = user.platform_account || "-";
+
+        if (
+          searchTerm &&
+          !userName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !platformAccount.toLowerCase().includes(searchTerm.toLowerCase())
+        ) return; // 过滤搜索
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${row.id}</td>
-          <td>${row.users.name || "-"}</td>
-          <td>${row.users.platform_account || "-"}</td>
+          <td>${userName}</td>
+          <td>${platformAccount}</td>
           <td>${row.amount}</td>
           <td><a href="${row.recharge_url}" target="_blank">查看截图</a></td>
           <td>${row.status}</td>
           <td>${new Date(row.created_at).toLocaleString()}</td>
           <td>
-            <button onclick="updateStatus(${row.id}, 'approved')">通过</button>
-            <button onclick="updateStatus(${row.id}, 'rejected')">拒绝</button>
-            <button onclick="deleteRecharge(${row.id})">删除</button>
+            <button class="approve-btn" data-id="${row.id}">通过</button>
+            <button class="reject-btn" data-id="${row.id}">拒绝</button>
+            <button class="delete-btn" data-id="${row.id}">删除</button>
           </td>
         `;
         tableBody.appendChild(tr);
       });
+
+      attachButtons(); // 绑定操作按钮事件
     } catch (err) {
       console.error("加载充值记录失败:", err);
     }
   }
 
-  // 更新状态
-  window.updateStatus = async (id, status) => {
-    if (!confirm(`确认要将充值记录 ${id} 设置为 ${status} 吗？`)) return;
+  // 绑定按钮事件
+  function attachButtons() {
+    document.querySelectorAll(".approve-btn").forEach(btn => {
+      btn.onclick = () => updateStatus(btn.dataset.id, "approved");
+    });
+    document.querySelectorAll(".reject-btn").forEach(btn => {
+      btn.onclick = () => updateStatus(btn.dataset.id, "rejected");
+    });
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.onclick = () => deleteRecharge(btn.dataset.id);
+    });
+  }
+
+  // 修改状态
+  async function updateStatus(id, status) {
     try {
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from("recharges")
         .update({ status })
         .eq("id", id);
       if (error) throw error;
-      loadRecharges();
+      loadRecharges(searchInput.value);
     } catch (err) {
       console.error("更新状态失败:", err);
     }
-  };
+  }
 
   // 删除记录
-  window.deleteRecharge = async (id) => {
-    if (!confirm(`确认删除充值记录 ${id} 吗？此操作不可撤销！`)) return;
+  async function deleteRecharge(id) {
+    if (!confirm("确定要删除这条充值记录吗？")) return;
     try {
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from("recharges")
         .delete()
         .eq("id", id);
       if (error) throw error;
-      loadRecharges();
+      loadRecharges(searchInput.value);
     } catch (err) {
-      console.error("删除失败:", err);
+      console.error("删除充值记录失败:", err);
     }
-  };
+  }
 
-  // 搜索功能
-  window.searchRecharges = () => {
-    const filter = searchInput.value.toLowerCase();
-    document.querySelectorAll("#rechargesTable tbody tr").forEach(row => {
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(filter) ? "" : "none";
-    });
-  };
+  // 搜索
+  searchInput?.addEventListener("input", () => {
+    loadRecharges(searchInput.value);
+  });
 
-  // 初次加载
+  // 初始加载
   loadRecharges();
 });

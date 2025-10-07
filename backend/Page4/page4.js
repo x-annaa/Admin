@@ -1,116 +1,104 @@
 // backend/Page4/page4.js
 document.addEventListener("DOMContentLoaded", () => {
-  const tableBody = document.querySelector("#rechargesTable tbody");
+  const rechargesTableBody = document.querySelector("#rechargesTable tbody");
   const searchInput = document.getElementById("searchRechargeInput");
 
-  // 加载充值记录
-  async function loadRecharges(searchTerm = "") {
+  // 初始化加载充值记录
+  async function loadRecharges() {
     try {
-      // 1. 获取充值记录
-      const { data: recharges, error: rechargeError } = await supabaseClient
-        .from("recharges")
+      const { data, error } = await supabaseClient
+        .from("recharges_view")
         .select("*")
         .order("created_at", { ascending: false });
-      if (rechargeError) throw rechargeError;
 
-      // 2. 获取所有用户信息
-      const userIds = recharges.map(r => r.user_id).filter(Boolean);
-      let users = [];
-      if (userIds.length > 0) {
-        const { data: usersData, error: usersError } = await supabaseClient
-          .from("users")
-          .select("id, name, platform_account");
-        if (usersError) throw usersError;
-        users = usersData;
-      }
+      if (error) throw error;
 
-      const userMap = {};
-      users.forEach(u => userMap[u.id] = u);
+      rechargesTableBody.innerHTML = "";
 
-      // 3. 渲染表格
-      tableBody.innerHTML = "";
-      recharges.forEach(row => {
-        const user = userMap[row.user_id] || {};
-        const userName = user.name || "-";
-        const platformAccount = user.platform_account || "-";
-
-        if (
-          searchTerm &&
-          !userName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !platformAccount.toLowerCase().includes(searchTerm.toLowerCase())
-        ) return; // 过滤搜索
-
+      data.forEach(item => {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-          <td>${row.id}</td>
-          <td>${userName}</td>
-          <td>${platformAccount}</td>
-          <td>${row.amount}</td>
-          <td><a href="${row.recharge_url}" target="_blank">查看截图</a></td>
-          <td>${row.status}</td>
-          <td>${new Date(row.created_at).toLocaleString()}</td>
+          <td>${item.user_name || "未知"}</td>
+          <td>${item.platform_account || ""}</td>
+          <td>${item.amount}</td>
+          <td><a href="${item.recharge_url}" target="_blank">查看截图</a></td>
+          <td>${item.status || "pending"}</td>
+          <td>${new Date(item.created_at).toLocaleString()}</td>
           <td>
-            <button class="approve-btn" data-id="${row.id}">通过</button>
-            <button class="reject-btn" data-id="${row.id}">拒绝</button>
-            <button class="delete-btn" data-id="${row.id}">删除</button>
+            <button class="approveBtn" data-id="${item.id}">通过</button>
+            <button class="rejectBtn" data-id="${item.id}">拒绝</button>
+            <button class="deleteBtn" data-id="${item.id}">删除</button>
           </td>
         `;
-        tableBody.appendChild(tr);
+
+        rechargesTableBody.appendChild(tr);
       });
 
-      attachButtons(); // 绑定操作按钮事件
+      attachRechargeActions();
     } catch (err) {
       console.error("加载充值记录失败:", err);
+      rechargesTableBody.innerHTML = `<tr><td colspan="7" style="color:red">加载失败</td></tr>`;
     }
   }
 
-  // 绑定按钮事件
-  function attachButtons() {
-    document.querySelectorAll(".approve-btn").forEach(btn => {
-      btn.onclick = () => updateStatus(btn.dataset.id, "approved");
+  function attachRechargeActions() {
+    document.querySelectorAll(".approveBtn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        try {
+          await supabaseClient
+            .from("recharges")
+            .update({ status: "approved" })
+            .eq("id", id);
+          loadRecharges();
+        } catch (err) {
+          console.error("审批失败:", err);
+        }
+      });
     });
-    document.querySelectorAll(".reject-btn").forEach(btn => {
-      btn.onclick = () => updateStatus(btn.dataset.id, "rejected");
+
+    document.querySelectorAll(".rejectBtn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        try {
+          await supabaseClient
+            .from("recharges")
+            .update({ status: "rejected" })
+            .eq("id", id);
+          loadRecharges();
+        } catch (err) {
+          console.error("拒绝失败:", err);
+        }
+      });
     });
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-      btn.onclick = () => deleteRecharge(btn.dataset.id);
+
+    document.querySelectorAll(".deleteBtn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (!confirm("确定要删除这条充值记录吗？")) return;
+        try {
+          await supabaseClient
+            .from("recharges")
+            .delete()
+            .eq("id", id);
+          loadRecharges();
+        } catch (err) {
+          console.error("删除失败:", err);
+        }
+      });
     });
   }
 
-  // 修改状态
-  async function updateStatus(id, status) {
-    try {
-      const { error } = await supabaseClient
-        .from("recharges")
-        .update({ status })
-        .eq("id", id);
-      if (error) throw error;
-      loadRecharges(searchInput.value);
-    } catch (err) {
-      console.error("更新状态失败:", err);
-    }
-  }
-
-  // 删除记录
-  async function deleteRecharge(id) {
-    if (!confirm("确定要删除这条充值记录吗？")) return;
-    try {
-      const { error } = await supabaseClient
-        .from("recharges")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-      loadRecharges(searchInput.value);
-    } catch (err) {
-      console.error("删除充值记录失败:", err);
-    }
-  }
-
-  // 搜索
+  // 搜索功能
   searchInput?.addEventListener("input", () => {
-    loadRecharges(searchInput.value);
+    const filter = searchInput.value.toLowerCase();
+    Array.from(rechargesTableBody.children).forEach(tr => {
+      const userName = tr.children[0].textContent.toLowerCase();
+      const platform = tr.children[1].textContent.toLowerCase();
+      tr.style.display = userName.includes(filter) || platform.includes(filter) ? "" : "none";
+    });
   });
 
-  // 初始加载
   loadRecharges();
 });

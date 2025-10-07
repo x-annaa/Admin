@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <title>Admin</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="User/user.css">
@@ -18,7 +18,7 @@
 <!-- 用户管理页面 -->
 <div id="userPage" class="page active">
   <h2>👥 用户管理</h2>
-  <input type="text" id="searchUserInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
+  <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
   <table id="usersTable">
     <thead>
       <tr>
@@ -53,6 +53,20 @@
   </div>
 </div>
 
+<!-- 手动匹配产品弹窗 -->
+<div id="ruleModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3 id="ruleUserName">手动匹配产品</h3>
+    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
+    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
+    <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
+    <div class="modal-actions">
+      <button id="saveRuleBtn">确认匹配</button>
+      <button id="closeRuleModal">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- 产品管理页面 -->
 <div id="productPage" class="page">
   <h2>📦 产品管理</h2>
@@ -72,7 +86,7 @@
   </table>
 </div>
 
-<!-- 产品编辑/添加弹窗 -->
+<!-- 编辑/添加产品弹窗 -->
 <div id="productModal" class="modal" style="display:none;">
   <div class="modal-content">
     <h3 id="productModalTitle">编辑产品</h3>
@@ -88,19 +102,32 @@
   </div>
 </div>
 
+<!-- 匹配设置弹窗 -->
+<div id="productMatchModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>产品匹配设置</h3>
+    <label><input type="checkbox" id="productEnabledCheckbox" checked> 开启匹配</label><br>
+    <label><input type="checkbox" id="productManualOnlyCheckbox"> 手动专属</label><br>
+    <div class="modal-actions">
+      <button id="saveProductMatchBtn">确认保存</button>
+      <button id="closeProductMatchModal">取消</button>
+    </div>
+  </div>
+</div>
+
 <!-- 提现管理页面 (Page3) -->
-<div id="withdrawalPage" class="page">
+<div id="page3" class="page">
   <h2>📊 提现管理</h2>
-  <input type="text" id="searchWithdrawalInput" placeholder="搜索用户名 / 平台账号 / 钱包地址">
+  <input type="text" id="searchWithdrawalInput" placeholder="搜索 User ID 或 Wallet Address...">
   <table id="withdrawalsTable">
     <thead>
       <tr>
-        <th>用户名</th>
-        <th>平台账号</th>
-        <th>金额</th>
-        <th>钱包地址</th>
-        <th>状态</th>
-        <th>创建时间</th>
+        <th>Name</th>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Wallet Address</th>
+        <th>Status</th>
+        <th>Created At</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -128,9 +155,11 @@
   </table>
 </div>
 
-<!-- 客服聊天页面 (Page5) -->
-<div id="chatPage" class="page">
-  <h2>💬 客服聊天</h2>
+<!-- 页面5: 客服聊天 -->
+<div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
+<div id="page5" class="page"><h2>
+
+  <!-- 聊天窗口 -->
   <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
     <div class="admin-chat-header">
       <button id="adminBackBtn">⬅ 返回</button>
@@ -148,9 +177,12 @@
 <div class="bottom-nav">
   <button data-page="userPage" class="active">Users</button>
   <button data-page="productPage">Products</button>
-  <button data-page="withdrawalPage">Withdrawals</button>
-  <button data-page="rechargePage">Recharges</button>
-  <button data-page="chatPage">Chat</button>
+  <button data-page="page3">Withdrawals</button>
+  <button data-page="page4">Page4</button>
+  <button data-page="page5" style="position: relative;">
+    Page5
+    <span id="page5Unread" class="unread-dot hidden"></span>
+  </button>
 </div>
 
 <!-- JS -->
@@ -162,6 +194,5 @@
 <script src="Page4/page4.js"></script>
 <script src="Page5/page5.js"></script>
 <script src="Button/button.js"></script>
-
 </body>
 </html>

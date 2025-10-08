@@ -156,38 +156,19 @@
 </div>
 
 <!-- 页面5: 客服聊天 -->
-<div id="page5" class="page">
-  <h2>💬 客服聊天</h2>
+<div id="page4" class="page"><h2>⚙️ 页面 4</h2><p>这里暂时为空白</p></div>
+<div id="page5" class="page"><h2>
 
-  <!-- 用户列表 -->
-  <div id="chatUserList">
-    <table id="chatUsersTable">
-      <thead>
-        <tr>
-          <th>User ID</th>
-          <th>用户名</th>
-          <th>平台账号</th>
-          <th>最近消息</th>
-          <th>未读</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- 聊天弹窗 -->
-  <div id="chatWindow">
-    <div class="chat-header">
-      <button id="closeChatBtn">←</button>
-      <span id="chatWithName">聊天</span>
+  <!-- 聊天窗口 -->
+  <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
+    <div class="admin-chat-header">
+      <button id="adminBackBtn">⬅ 返回</button>
+      <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>
     </div>
-
-    <div id="chatMessages"></div>
-
-    <div class="chat-input">
-      <textarea id="chatInput" placeholder="输入消息 (Shift+Enter 换行)..."></textarea>
-      <button id="sendMessageBtn">发送</button>
+    <div id="adminChatMessages" class="admin-chat-messages"></div>
+    <div class="admin-chat-input">
+      <input type="text" id="adminChatInput" placeholder="输入消息...">
+      <button id="adminSendBtn">发送</button>
     </div>
   </div>
 </div>

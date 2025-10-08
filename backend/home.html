@@ -155,11 +155,45 @@
   </table>
 </div>
 
-
-
 <!-- 页面5: 客服聊天 -->
+<div id="page5" class="page">
+  <h2>💬 客服聊天管理</h2>
 
+  <!-- 用户消息列表 -->
+  <div class="chat-user-list">
+    <table id="chatUsersTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>用户名</th>
+          <th>平台账号</th>
+          <th>最后消息</th>
+          <th>时间</th>
+          <th>未读</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
+  <!-- 聊天弹窗 -->
+  <div id="chatModal" class="modal" style="display:none;">
+    <div class="modal-content chat-modal-content">
+      <div class="chat-header">
+        <button id="closeChatModal">⬅ 返回</button>
+        <h3 id="chatWithUserName">与用户聊天</h3>
+      </div>
+
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="chat-input">
+        <textarea id="chatInput" placeholder="输入回复内容..." rows="2"></textarea>
+        <button id="sendBtn">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- 底部导航 -->
 <div class="bottom-nav">

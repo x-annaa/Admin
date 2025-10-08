@@ -1,18 +1,24 @@
 /* =======================
-   页面5: 美观客服聊天 CSS
+   居中客服聊天弹窗
 ======================= */
 
-/* 聊天窗口整体 */
+/* 聊天弹窗整体 */
 #adminChatWindow {
   display: none; /* 默认隐藏 */
+  position: fixed; /* 悬浮在页面 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 完全居中 */
+  width: 400px; /* 弹窗宽度，可调整 */
+  height: 600px; /* 弹窗高度，可调整 */
+  display: flex;
   flex-direction: column;
-  height: 500px; /* 根据需要调整 */
-  width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   background-color: #f9f9f9;
   font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  z-index: 9999; /* 保证在最上层 */
 }
 
 /* 聊天头部 */
@@ -25,6 +31,7 @@
   font-weight: 600;
   font-size: 16px;
   color: #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 /* 返回按钮 */
@@ -42,7 +49,7 @@
   color: #000;
 }
 
-/* 聊天消息列表 */
+/* 消息列表 */
 #adminChatMessages {
   flex: 1;
   display: flex;
@@ -51,6 +58,7 @@
   overflow-y: auto;
   gap: 10px;
   background-color: #f4f6f8;
+  border-radius: 0 0 0 0;
 }
 
 /* 消息气泡 */
@@ -125,7 +133,7 @@
 
 /* 用户列表 */
 #userList {
-  max-height: 500px;
+  max-height: 300px;
   overflow-y: auto;
   border-radius: 12px;
   background-color: #fff;

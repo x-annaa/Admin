@@ -158,20 +158,21 @@
 <!-- page5 -->
 <div id="page5" class="page">
   <h2>⚙️ 客服聊天</h2>
+  <div class="chat-container">
+    <!-- 左侧用户列表 -->
+    <div id="userList" class="user-list"></div>
 
-  <!-- 用户列表 -->
-  <div id="userList"></div>
-
-  <!-- 聊天窗口 -->
-  <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
-    <div class="admin-chat-header">
-      <button id="adminBackBtn">⬅ 返回</button>
-      <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>
-    </div>
-    <div id="adminChatMessages" class="admin-chat-messages"></div>
-    <div class="admin-chat-input">
-      <textarea id="adminChatInput" placeholder="输入消息..." rows="2"></textarea>
-      <button id="adminSendBtn">发送</button>
+    <!-- 右侧聊天窗口 -->
+    <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
+      <div class="admin-chat-header">
+        <button id="adminBackBtn">⬅ 返回</button>
+        <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>
+      </div>
+      <div id="adminChatMessages" class="admin-chat-messages"></div>
+      <div class="admin-chat-input">
+        <textarea id="adminChatInput" placeholder="输入消息..." rows="2"></textarea>
+        <button id="adminSendBtn">发送</button>
+      </div>
     </div>
   </div>
 </div>

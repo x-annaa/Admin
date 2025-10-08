@@ -1,13 +1,13 @@
-/* ===== 提现管理 Page3 样式 ===== */
+/* ===== 充值管理 Page4 样式 ===== */
 
 /* 页面整体 */
-#page3 {
+#page4 {
   padding: 20px;
   font-family: "Microsoft YaHei", sans-serif;
 }
 
 /* 搜索框 */
-#searchWithdrawalInput {
+#searchRechargeInput {
   width: 300px;
   padding: 8px 12px;
   margin-bottom: 15px;
@@ -16,37 +16,67 @@
   outline: none;
   transition: all 0.2s ease;
 }
-#searchWithdrawalInput:focus {
+
+#searchRechargeInput:focus {
   border-color: #4a90e2;
   box-shadow: 0 0 5px rgba(74, 144, 226, 0.4);
 }
 
 /* 表格 */
-#withdrawalsTable {
+#rechargesTable {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-#withdrawalsTable thead {
+#rechargesTable thead {
   background: #f4f6f9;
 }
 
-#withdrawalsTable th, 
-#withdrawalsTable td {
+#rechargesTable th,
+#rechargesTable td {
   padding: 10px 12px;
   border: 1px solid #e0e0e0;
   text-align: center;
   font-size: 14px;
 }
 
-#withdrawalsTable tbody tr:hover {
+#rechargesTable tbody tr:hover {
   background: #f9f9f9;
 }
 
+/* 截图样式 */
+#rechargesTable img {
+  width: 70px;
+  height: auto;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+#rechargesTable img:hover {
+  transform: scale(1.1);
+}
+
+/* ===== 状态颜色 ===== */
+#rechargesTable td.status-pending {
+  color: orange;
+  font-weight: bold;
+}
+
+#rechargesTable td.status-approved {
+  color: green;
+  font-weight: bold;
+}
+
+#rechargesTable td.status-rejected {
+  color: red;
+  font-weight: bold;
+}
+
 /* ===== 操作按钮样式 ===== */
-#withdrawalsTable button {
+#rechargesTable button {
   margin: 0 4px;
   padding: 5px 10px;
   border: 1px solid #ccc;
@@ -58,19 +88,19 @@
 }
 
 /* hover 效果 */
-#withdrawalsTable button:hover {
+#rechargesTable button:hover {
   background: #e6e6e6;
 }
 
 /* 字体颜色区分 */
-#withdrawalsTable button.reject {
-  color: rgb(0, 0, 0);
+#rechargesTable button.approve {
+  color: black;
 }
 
-#withdrawalsTable button.complete {
-  color: rgb(0, 0, 0);
+#rechargesTable button.reject {
+  color: black;
 }
 
-#withdrawalsTable button.delete {
+#rechargesTable button.delete {
   color: black;
 }

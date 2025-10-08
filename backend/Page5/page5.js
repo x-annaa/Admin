@@ -121,7 +121,11 @@ adminBackBtn.addEventListener("click", () => {
 function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("message-item", sender);
-  msg.textContent = text;
+  msg.innerHTML = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>"); // ✅ 支持换行显示
   adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }

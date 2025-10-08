@@ -1,7 +1,7 @@
 // =======================
 // DOM 元素
 // =======================
-const userListEl = document.getElementById('userList'); // 直接获取已有 DOM
+const userListEl = document.createElement('div');
 userListEl.id = 'userList';
 document.getElementById('page5').prepend(userListEl);
 
@@ -28,7 +28,6 @@ let chatSubscription = null;
 // =======================
 async function fetchUsersWithUnread() {
   try {
-    // 拉取所有与客服相关的消息（发送或接收）
     const { data, error } = await supabaseClient
       .from("messages")
       .select("*")
@@ -41,7 +40,6 @@ async function fetchUsersWithUnread() {
     }
 
     data.forEach(msg => {
-      // 确定另一方的 userId
       const userId = msg.sender_id === 1 ? msg.receiver_id : msg.sender_id;
 
       if (!users[userId]) {
@@ -50,7 +48,6 @@ async function fetchUsersWithUnread() {
 
       users[userId].messages.push(msg);
 
-      // 只有接收的消息且未读才算未读
       if (msg.receiver_id === 1 && !msg.is_read) {
         users[userId].unreadCount++;
       }
@@ -96,14 +93,13 @@ function openChat(userId) {
   adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
   adminChatMessages.innerHTML = "";
 
-  // 按时间顺序显示历史消息
   user.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
                .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
 
   adminChatWindow.style.display = "flex";
 
-  // 标记已读
   markMessagesAsRead(userId);
+  renderUserList();
 }
 
 // =======================
@@ -125,7 +121,7 @@ function appendMessage(sender, text) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>"); // ✅ 支持换行显示
+    .replace(/\n/g, "<br>");
   adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }
@@ -141,7 +137,6 @@ adminSendBtn.addEventListener("click", async () => {
   appendMessage("me", content);
   adminChatInput.value = "";
 
-  if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
   users[currentChatUserId].messages.push({
     sender_id: 1,
     receiver_id: Number(currentChatUserId),
@@ -222,7 +217,6 @@ function listenForMessages() {
         if (!users[userId]) users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
         users[userId].messages.push(msg);
 
-        // 如果不是当前聊天用户，增加未读并播放音效
         if (currentChatUserId !== userId) {
           users[userId].unreadCount++;
           if (soundUnlocked) {
@@ -249,7 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchUsersWithUnread();
   listenForMessages();
 
-  // 全局解锁音效（首次用户交互）
+  // 全局解锁音效
   document.body.addEventListener("click", () => {
     if (!soundUnlocked) {
       notificationSound.play().catch(() => {});

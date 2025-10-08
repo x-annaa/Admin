@@ -259,3 +259,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }, { once: true });
 });
+
+const loadAllUsersBtn = document.getElementById("loadAllUsersBtn");
+const allUsersList = document.getElementById("allUsersList");
+
+// 点击按钮拉取数据库全部用户
+loadAllUsersBtn.addEventListener("click", async () => {
+  try {
+    const { data: usersData, error } = await supabaseClient
+      .from("users")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.error("拉取用户失败", error);
+      return;
+    }
+
+    renderAllUsers(usersData);
+  } catch (err) {
+    console.error("fetch all users 异常:", err);
+  }
+});
+
+// 渲染全部用户列表
+function renderAllUsers(usersData) {
+  allUsersList.innerHTML = "";
+
+  usersData.forEach(user => {
+    const div = document.createElement("div");
+    div.classList.add("user-item-full");
+    div.innerHTML = `
+      <span>${user.username} (ID: ${user.id})</span>
+      <button>聊天</button>
+    `;
+    div.querySelector("button").addEventListener("click", () => openChat(user.id));
+    allUsersList.appendChild(div);
+  });
+}

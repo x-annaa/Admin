@@ -133,13 +133,15 @@ function appendMessage(sender, text) {
 // =======================
 // 发送消息
 // =======================
-adminSendBtn.addEventListener("click", async () => {
-  if (!currentChatUserId) return;
-  const content = adminChatInput.value.trim();
-  if (!content) return;
+const adminChatInput = document.getElementById("adminChatInput");
 
-  appendMessage("me", content);
-  adminChatInput.value = "";
+adminChatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // 阻止换行
+    adminSendBtn.click(); // 调用发送
+  }
+});
+
 
   if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
   users[currentChatUserId].messages.push({

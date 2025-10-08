@@ -259,3 +259,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }, { once: true });
 });
+
+const newChatBtn = document.getElementById("newChatBtn");
+
+newChatBtn.addEventListener("click", () => {
+  const userId = prompt("请输入用户ID开始聊天:");
+  if (!userId) return;
+
+  if (!users[userId]) {
+    users[userId] = {
+      username: `User ${userId}`,
+      unreadCount: 0,
+      messages: []
+    };
+    renderUserList();
+  }
+
+  openChat(userId);
+});

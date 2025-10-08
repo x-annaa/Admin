@@ -1,1 +1,128 @@
+/* =======================
+   页面5: 客服聊天窗口 CSS
+======================= */
 
+/* 聊天窗口整体 */
+#adminChatWindow {
+  display: none; /* 默认隐藏 */
+  flex-direction: column;
+  height: 500px; /* 根据实际情况调整 */
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* 聊天头部 */
+.admin-chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+/* 聊天消息列表 */
+#adminChatMessages {
+  flex: 1; /* 占满剩余空间 */
+  display: flex;
+  flex-direction: column; /* ✅ 竖直排列 */
+  padding: 10px;
+  overflow-y: auto;
+  background: #fafafa;
+  gap: 8px; /* 消息间距 */
+}
+
+/* 单条消息 */
+.message-item {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  word-wrap: break-word;
+  white-space: pre-wrap; /* ✅ 支持换行 */
+}
+
+/* 我发送的消息 */
+.message-item.me {
+  background-color: #dcf8c6;
+  align-self: flex-end; /* 右侧显示 */
+}
+
+/* 用户发来的消息 */
+.message-item.user {
+  background-color: #fff;
+  border: 1px solid #eee;
+  align-self: flex-start; /* 左侧显示 */
+}
+
+/* 输入框容器 */
+.admin-chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background: #f5f5f5;
+}
+
+/* 输入框 */
+#adminChatInput {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  resize: none;
+}
+
+/* 发送按钮 */
+#adminSendBtn {
+  margin-left: 10px;
+  padding: 8px 16px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#adminSendBtn:hover {
+  background-color: #45a049;
+}
+
+/* 用户列表 */
+#userList {
+  max-height: 500px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* 用户项 */
+.user-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.user-item.active {
+  background-color: #e6f7ff;
+  font-weight: bold;
+}
+
+.unread-dot {
+  display: inline-block;
+  margin-left: 8px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 18px;
+}

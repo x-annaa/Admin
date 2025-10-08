@@ -1,1 +1,67 @@
+#page5 {
+  padding: 20px;
+  font-family: "Microsoft YaHei", sans-serif;
+}
 
+.chat-user-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.chat-user-list th, .chat-user-list td {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+.chat-modal-content {
+  width: 90%;
+  max-width: 480px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.message-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  max-width: 75%;
+}
+
+.message-item.me {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+}
+
+.message-item.bot {
+  background-color: #f8d7da;
+  align-self: flex-start;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  padding: 8px;
+}
+
+.unread-dot {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}

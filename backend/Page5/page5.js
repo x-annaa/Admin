@@ -293,7 +293,18 @@ function renderAllUsers(usersData) {
       <span>${user.username} (ID: ${user.id})</span>
       <button>聊天</button>
     `;
-    div.querySelector("button").addEventListener("click", () => openChat(user.id));
+
+    div.querySelector("button").addEventListener("click", () => {
+      if (!users[user.id]) {
+        users[user.id] = {
+          username: user.username,
+          unreadCount: 0,
+          messages: []
+        };
+      }
+      openChat(user.id);
+    });
+
     allUsersList.appendChild(div);
   });
 }

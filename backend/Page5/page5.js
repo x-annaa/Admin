@@ -2,7 +2,6 @@
 // DOM 元素
 // =======================
 const userListEl = document.getElementById('userList'); // 直接获取已有 DOM
-const userListEl = document.createElement('div');
 userListEl.id = 'userList';
 document.getElementById('page5').prepend(userListEl);
 

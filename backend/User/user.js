@@ -8,7 +8,7 @@ async function loadUsers() {
   try {
     const { data: users, error: userError } = await supabaseClient
       .from("users")
-      .select("id, username, coins, balance, platform_account, created_at")
+      .select("id, username, coins, balance, platform_account, created_at, register_ip")
       .order("id", { ascending: true });
     if (userError) throw userError;
 

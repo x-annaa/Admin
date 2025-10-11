@@ -39,6 +39,7 @@ async function loadUsers() {
         <td style="color:${user.balance < 0 ? "red" : "black"}">${user.balance ?? 0}</td>
         <td>${new Date(user.created_at).toISOString().split('T')[0]}</td>
         <td>${orderCountMap[user.id] ?? 0}</td>
+        <td>${user.register_ip || "-"}</td>
         <td class="cooldownCell">${cooldownText.text}</td>
         <td>
           <button onclick="openEditModal(${user.id}, '${user.username}', ${orderCountMap[user.id] ?? 0})">Setting</button>

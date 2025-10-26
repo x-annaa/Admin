@@ -1,37 +1,22 @@
-/* =====================
-   产品表格样式
-   ===================== */
+
+/* 产品表格样式 */
 #productsTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  table-layout: fixed; /* 固定列宽 */
 }
 
 #productsTable th, #productsTable td {
   border: 1px solid #ccc;
   padding: 8px 10px;
   text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis; /* 超长文本显示省略号 */
-  white-space: nowrap;      /* 单行显示 */
 }
 
 #productsTable th {
   background-color: #f0f0f0;
 }
 
-/* 隐藏描述和 URL 列 */
-#productsTable th:nth-child(4),
-#productsTable th:nth-child(6),
-#productsTable td:nth-child(4),
-#productsTable td:nth-child(6) {
-  display: none;
-}
-
-/* =====================
-   弹窗样式
-   ===================== */
+/* 弹窗样式 */
 .modal {
   display: none;
   position: fixed;
@@ -66,7 +51,6 @@
   border-radius: 6px;
 }
 
-/* 弹窗按钮 */
 .modal-actions {
   display: flex;
   justify-content: space-between;
@@ -89,7 +73,6 @@
   color: #fff;
 }
 
-/* 添加产品按钮 */
 .add-btn {
   margin: 10px 0;
   padding: 6px 12px;

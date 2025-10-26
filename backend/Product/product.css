@@ -1,11 +1,14 @@
-/* 产品表格样式 */
+/* =====================
+   产品表格样式
+   ===================== */
 #productsTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
 }
 
-#productsTable th, #productsTable td {
+#productsTable th,
+#productsTable td {
   border: 1px solid #ccc;
   padding: 8px 10px;
   text-align: center;
@@ -15,7 +18,9 @@
   background-color: #f0f0f0;
 }
 
-/* 弹窗样式 */
+/* =====================
+   弹窗通用样式
+   ===================== */
 .modal {
   display: none;
   position: fixed;
@@ -37,19 +42,40 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.modal-content label {
-  display: block;
-  margin: 10px 0;
+.modal-content h3 {
+  margin-bottom: 12px;
 }
 
-.modal-content input {
-  width: 50%;
+.modal-content label {
+  display: block;
+  margin: 10px 0 5px 0;
+  font-size: 14px;
+  text-align: left;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"] {
+  width: 90%;
   padding: 5px 8px;
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
 }
 
+/* URL 输入框单独处理 */
+#editUrl {
+  width: 90%;
+  padding: 5px 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* 弹窗操作按钮 */
 .modal-actions {
   display: flex;
   justify-content: space-between;
@@ -72,6 +98,7 @@
   color: #fff;
 }
 
+/* 添加产品按钮 */
 .add-btn {
   margin: 10px 0;
   padding: 6px 12px;
@@ -86,4 +113,3 @@
 .add-btn:hover {
   background-color: #0056b3;
 }
-

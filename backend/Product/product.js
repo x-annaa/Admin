@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${product.price}</td>
         <td>${product.description || ""}</td>
         <td>${product.profit || 0}</td>
+        <td>${product.url || ""}</td>
         <td>
           <button onclick="openProductModal(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${(product.description||"").replace(/'/g, "\\'")}', ${product.profit||0}, '${product.url||""}')">✏ 编辑</button>
           <button onclick="openProductMatchModal(${product.id}, ${product.enabled}, ${product.manual_only})">🎯 匹配</button>

@@ -21,46 +21,12 @@
   background-color: #f0f0f0;
 }
 
-/* 描述列和 URL 列允许多行，但限制高度 */
-#productsTable td:nth-child(4), /* 描述 */
-#productsTable td:nth-child(6)  /* URL */ {
-  white-space: normal;       /* 多行显示 */
-  max-height: 40px;          /* 固定高度 */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  position: relative;
-}
-
-/* Tooltip 显示完整文字 */
-#productsTable td:nth-child(4):hover,
-#productsTable td:nth-child(6):hover {
-  overflow: visible;
-  white-space: normal;
-  z-index: 1;
-}
-
-#productsTable td:nth-child(4)::after,
-#productsTable td:nth-child(6)::after {
-  content: attr(title);
-  position: absolute;
-  background: #333;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: normal;
+/* 隐藏描述和 URL 列 */
+#productsTable th:nth-child(4),
+#productsTable th:nth-child(6),
+#productsTable td:nth-child(4),
+#productsTable td:nth-child(6) {
   display: none;
-  width: max-content;
-  max-width: 300px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-#productsTable td:nth-child(4):hover::after,
-#productsTable td:nth-child(6):hover::after {
-  display: block;
-  z-index: 100;
 }
 
 /* =====================

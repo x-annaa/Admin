@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("editPrice").value = price;
     document.getElementById("editDescription").value = description;
     document.getElementById("editProfit").value = profit;
-    document.getElementById("editUrl").value = url || "";
+    document.getElementById("editUrl").value = url;
     document.getElementById("productModalTitle").textContent = id ? "编辑产品" : "添加产品";
     document.getElementById("productModal").style.display = "flex";
   };

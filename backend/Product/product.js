@@ -1,184 +1,166 @@
-// 确保 script 标签 type="module" 引入
+// product.js
 
-import { supabaseClient } from '../User/supabaseClient.js';
+// DOM 元素
+const productsTableBody = document.querySelector("#productsTable tbody");
+const searchInput = document.getElementById("searchProductInput");
+const addProductBtn = document.getElementById("addProductBtn");
+const editProductModal = document.getElementById("editProductModal");
+const editProductIdInput = document.getElementById("editProductId");
+const editProductName = document.getElementById("editProductName");
+const editProductPrice = document.getElementById("editProductPrice");
+const editProductDescription = document.getElementById("editProductDescription");
+const editProductProfit = document.getElementById("editProductProfit");
+const editProductEnabled = document.getElementById("editProductEnabled");
+const editProductManualOnly = document.getElementById("editProductManualOnly");
+const editProductUrl = document.getElementById("editProductUrl");
+const saveProductBtn = document.getElementById("saveProductBtn");
+const closeEditProductModal = document.getElementById("closeEditProductModal");
 
-const productsTableBody = document.querySelector('#productsTable tbody');
-const addProductBtn = document.getElementById('addProductBtn');
-const editProductModal = document.getElementById('editProductModal');
-const closeEditProductModalBtn = document.getElementById('closeEditProductModal');
-const saveProductBtn = document.getElementById('saveProductBtn');
-
-const editProductIdInput = document.getElementById('editProductId');
-const editProductNameInput = document.getElementById('editProductName');
-const editProductPriceInput = document.getElementById('editProductPrice');
-const editProductDescriptionInput = document.getElementById('editProductDescription');
-const editProductProfitInput = document.getElementById('editProductProfit');
-const editProductEnabledInput = document.getElementById('editProductEnabled');
-const editProductManualOnlyInput = document.getElementById('editProductManualOnly');
-const editProductUrlInput = document.getElementById('editProductUrl');
-
-// -----------------
-// 获取产品列表
-// -----------------
+// 读取并渲染产品列表
 async function loadProducts() {
   const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .order('id', { ascending: true });
+    .from("products")
+    .select("*")
+    .order("id", { ascending: true });
 
   if (error) {
-    console.error(error);
+    console.error("加载产品失败:", error);
     return;
   }
 
-  productsTableBody.innerHTML = '';
-  data.forEach(product => {
-    const tr = document.createElement('tr');
+  renderProducts(data);
+}
+
+// 渲染产品表格
+function renderProducts(products) {
+  productsTableBody.innerHTML = "";
+  products.forEach(product => {
+    const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>${product.id}</td>
       <td>${product.name}</td>
       <td>${product.price}</td>
-      <td class="description" title="${product.description || ''}">${product.description || ''}</td>
+      <td class="text-overflow" title="${product.description}">${product.description}</td>
       <td>${product.profit}</td>
-      <td>${product.enabled ? '✅' : '❌'}</td>
-      <td>${product.manual_only ? '✅' : '❌'}</td>
-      <td class="url" title="${product.url || ''}">${product.url || ''}</td>
-      <td><button class="edit-btn" data-id="${product.id}">编辑</button></td>
+      <td>${product.enabled ? "✔" : "✖"}</td>
+      <td>${product.manual_only ? "✔" : "✖"}</td>
+      <td class="text-overflow" title="${product.url}">${product.url}</td>
+      <td>
+        <button class="edit-btn" data-id="${product.id}">编辑</button>
+        <button class="delete-btn" data-id="${product.id}">删除</button>
+      </td>
     `;
-
     productsTableBody.appendChild(tr);
   });
 
-  // 给每个编辑按钮添加事件
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+  // 绑定编辑删除事件
+  document.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
   });
 }
 
-// -----------------
+// 搜索产品
+function searchProducts() {
+  const keyword = searchInput.value.toLowerCase();
+  document.querySelectorAll("#productsTable tbody tr").forEach(tr => {
+    const name = tr.children[1].textContent.toLowerCase();
+    tr.style.display = name.includes(keyword) ? "" : "none";
+  });
+}
+
 // 打开编辑弹窗
-// -----------------
 async function openEditModal(id) {
   const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .eq('id', id)
+    .from("products")
+    .select("*")
+    .eq("id", id)
     .single();
 
   if (error) {
-    console.error(error);
+    console.error("加载产品失败:", error);
     return;
   }
 
   editProductIdInput.value = data.id;
-  editProductNameInput.value = data.name;
-  editProductPriceInput.value = data.price;
-  editProductDescriptionInput.value = data.description || '';
-  editProductProfitInput.value = data.profit;
-  editProductEnabledInput.checked = data.enabled;
-  editProductManualOnlyInput.checked = data.manual_only;
-  editProductUrlInput.value = data.url || '';
+  editProductName.value = data.name;
+  editProductPrice.value = data.price;
+  editProductDescription.value = data.description;
+  editProductProfit.value = data.profit;
+  editProductEnabled.checked = data.enabled;
+  editProductManualOnly.checked = data.manual_only;
+  editProductUrl.value = data.url;
 
-  editProductModal.style.display = 'flex';
+  editProductModal.style.display = "flex";
 }
 
-// -----------------
 // 保存产品
-// -----------------
-saveProductBtn.addEventListener('click', async () => {
+async function saveProduct() {
   const id = editProductIdInput.value;
   const updates = {
-    name: editProductNameInput.value,
-    price: parseFloat(editProductPriceInput.value),
-    description: editProductDescriptionInput.value,
-    profit: parseFloat(editProductProfitInput.value),
-    enabled: editProductEnabledInput.checked,
-    manual_only: editProductManualOnlyInput.checked,
-    url: editProductUrlInput.value
+    name: editProductName.value,
+    price: parseFloat(editProductPrice.value),
+    description: editProductDescription.value,
+    profit: parseFloat(editProductProfit.value),
+    enabled: editProductEnabled.checked,
+    manual_only: editProductManualOnly.checked,
+    url: editProductUrl.value
   };
 
-  const { data, error } = await supabaseClient
-    .from('products')
-    .update(updates)
-    .eq('id', id);
+  let res;
+  if (id) {
+    // 更新
+    res = await supabaseClient.from("products").update(updates).eq("id", id);
+  } else {
+    // 新增
+    res = await supabaseClient.from("products").insert(updates);
+  }
 
-  if (error) {
-    console.error(error);
-    alert('更新失败');
+  if (res.error) {
+    console.error("保存失败:", res.error);
     return;
   }
 
-  editProductModal.style.display = 'none';
+  editProductModal.style.display = "none";
   loadProducts();
-});
+}
 
-// -----------------
-// 关闭弹窗
-// -----------------
-closeEditProductModalBtn.addEventListener('click', () => {
-  editProductModal.style.display = 'none';
-});
+// 删除产品
+async function deleteProduct(id) {
+  if (!confirm("确定删除该产品吗？")) return;
+  const { error } = await supabaseClient.from("products").delete().eq("id", id);
+  if (error) {
+    console.error("删除失败:", error);
+    return;
+  }
+  loadProducts();
+}
 
-// -----------------
 // 添加新产品
-// -----------------
-addProductBtn.addEventListener('click', async () => {
-  const { data, error } = await supabaseClient
-    .from('products')
-    .insert([{ name: '新产品', price: 0, profit: 0, enabled: true, manual_only: false, description: '', url: '' }])
-    .select()
-    .single();
+function addNewProduct() {
+  editProductIdInput.value = "";
+  editProductName.value = "";
+  editProductPrice.value = "";
+  editProductDescription.value = "";
+  editProductProfit.value = "";
+  editProductEnabled.checked = false;
+  editProductManualOnly.checked = false;
+  editProductUrl.value = "";
+  editProductModal.style.display = "flex";
+}
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  openEditModal(data.id);
+// 关闭弹窗
+closeEditProductModal.addEventListener("click", () => {
+  editProductModal.style.display = "none";
 });
 
-// -----------------
-// 搜索功能
-// -----------------
-window.searchProducts = async function () {
-  const keyword = document.getElementById('searchProductInput').value;
-  const { data, error } = await supabaseClient
-    .from('products')
-    .select('*')
-    .ilike('name', `%${keyword}%`)
-    .order('id', { ascending: true });
+addProductBtn.addEventListener("click", addNewProduct);
+saveProductBtn.addEventListener("click", saveProduct);
+searchInput.addEventListener("keyup", searchProducts);
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  productsTableBody.innerHTML = '';
-  data.forEach(product => {
-    const tr = document.createElement('tr');
-
-    tr.innerHTML = `
-      <td>${product.id}</td>
-      <td>${product.name}</td>
-      <td>${product.price}</td>
-      <td class="description" title="${product.description || ''}">${product.description || ''}</td>
-      <td>${product.profit}</td>
-      <td>${product.enabled ? '✅' : '❌'}</td>
-      <td>${product.manual_only ? '✅' : '❌'}</td>
-      <td class="url" title="${product.url || ''}">${product.url || ''}</td>
-      <td><button class="edit-btn" data-id="${product.id}">编辑</button></td>
-    `;
-
-    productsTableBody.appendChild(tr);
-  });
-
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-  });
-};
-
-// -----------------
-// 初始化加载
-// -----------------
+// 初始加载
 loadProducts();

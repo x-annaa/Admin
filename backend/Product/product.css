@@ -1,3 +1,4 @@
+/* 产品表格 */
 #productsTable {
   width: 100%;
   border-collapse: collapse;
@@ -10,6 +11,25 @@
   text-align: left;
 }
 
+/* 描述和 URL 列超出省略号 */
+#productsTable td.description,
+#productsTable td.url {
+  max-width: 100px;          /* 根据需要调节显示宽度 */
+  white-space: nowrap;        /* 不换行 */
+  overflow: hidden;           /* 超出隐藏 */
+  text-overflow: ellipsis;    /* 显示 ... */
+}
+
+/* 鼠标悬停显示完整内容 */
+#productsTable td.description:hover,
+#productsTable td.url:hover {
+  white-space: normal;        /* 换行显示完整文本 */
+  background: #f9f9f9;       /* 高亮背景 */
+  position: relative;
+  z-index: 1;
+}
+
+/* 弹窗样式 */
 .modal {
   position: fixed;
   top: 0;

@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <title>Admin</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="User/user.css">
   <link rel="stylesheet" href="Product/product.css">
+  <link rel="stylesheet" href="Page3/page3.css">
+  <link rel="stylesheet" href="Page4/page4.css">
+  <link rel="stylesheet" href="Page5/page5.css">
   <link rel="stylesheet" href="Button/button.css">
 </head>
 <body>
 
-<!-- 用户管理 -->
+<!-- 用户管理页面 -->
 <div id="userPage" class="page active">
   <h2>👥 用户管理</h2>
-  <input type="text" id="searchInput" placeholder="搜索用户名...">
+  <input type="text" id="searchInput" placeholder="搜索用户名..." onkeyup="searchUsers()">
   <table id="usersTable">
     <thead>
       <tr>
@@ -36,7 +39,7 @@
 </div>
 
 <!-- 用户编辑弹窗 -->
-<div id="editModal" class="modal">
+<div id="editModal" class="modal" style="display:none;">
   <div class="modal-content">
     <p id="editUserName"></p>
     <div class="edit-actions">
@@ -52,11 +55,11 @@
 </div>
 
 <!-- 手动匹配产品弹窗 -->
-<div id="ruleModal" class="modal">
+<div id="ruleModal" class="modal" style="display:none;">
   <div class="modal-content">
     <h3 id="ruleUserName">手动匹配产品</h3>
-    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label>
-    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label>
+    <label>第几单: <input type="number" id="ruleOrderNumber" min="1"></label><br>
+    <label>产品ID: <input type="number" id="ruleProductId" min="1"></label><br>
     <label><input type="checkbox" id="ruleEnabled" checked> 开启规则</label>
     <div class="modal-actions">
       <button id="saveRuleBtn">确认匹配</button>
@@ -65,11 +68,12 @@
   </div>
 </div>
 
-<!-- 产品管理 -->
+<!-- 产品管理页面 -->
 <div id="productPage" class="page">
   <h2>🛍 产品管理</h2>
-  <input type="text" id="searchProductInput" placeholder="搜索产品名...">
+  <input type="text" id="searchProductInput" placeholder="搜索产品名..." onkeyup="searchProducts()">
   <button id="addProductBtn">➕ 添加新产品</button>
+
   <table id="productsTable">
     <thead>
       <tr>
@@ -89,23 +93,24 @@
 </div>
 
 <!-- 编辑产品弹窗 -->
-<div id="editProductModal" class="modal">
-  <div class="modal-content">
+<div id="editProductModal" class="product-modal" style="display:none;">
+  <div class="product-modal-content">
     <h3>编辑产品</h3>
     <input type="hidden" id="editProductId">
-    <label>名称: <input type="text" id="editProductName"></label>
-    <label>价格: <input type="number" id="editProductPrice" step="0.01"></label>
-    <label>描述: <textarea id="editProductDescription"></textarea></label>
-    <label>Profit: <input type="number" id="editProductProfit" step="0.01"></label>
-    <label>Enabled: <input type="checkbox" id="editProductEnabled"></label>
-    <label>Manual Only: <input type="checkbox" id="editProductManualOnly"></label>
-    <label>URL: <input type="text" id="editProductUrl"></label>
+    <label>名称: <input type="text" id="editProductName"></label><br>
+    <label>价格: <input type="number" id="editProductPrice" step="0.01"></label><br>
+    <label>描述: <textarea id="editProductDescription"></textarea></label><br>
+    <label>Profit: <input type="number" id="editProductProfit" step="0.01"></label><br>
+    <label>Enabled: <input type="checkbox" id="editProductEnabled"></label><br>
+    <label>Manual Only: <input type="checkbox" id="editProductManualOnly"></label><br>
+    <label>URL: <input type="text" id="editProductUrl"></label><br>
     <button id="saveProductBtn">保存</button>
     <button id="closeEditProductModal">取消</button>
   </div>
 </div>
 
-<!-- Page3 提现 -->
+
+<!-- 提现管理页面 (Page3) -->
 <div id="page3" class="page">
   <h2>📊 提现管理</h2>
   <input type="text" id="searchWithdrawalInput" placeholder="搜索 User ID 或 Wallet Address...">
@@ -125,7 +130,7 @@
   </table>
 </div>
 
-<!-- Page4 充值 -->
+<!-- 充值管理页面 (Page4) -->
 <div id="page4" class="page">
   <h2>💰 充值管理</h2>
   <input type="text" id="searchRechargeInput" placeholder="搜索用户名或平台账号">
@@ -145,10 +150,14 @@
   </table>
 </div>
 
-<!-- Page5 客服 -->
+<!-- 页面5: 客服聊天 -->
 <div id="page5" class="page">
   <button id="loadAllUsersBtn">+</button>
+
+  <!-- 用户列表容器 -->
   <div id="allUsersList" style="margin-top: 16px;"></div>
+
+  <!-- 聊天窗口 -->
   <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
     <div class="admin-chat-header">
       <button id="adminBackBtn">⬅ 返回</button>
@@ -162,13 +171,17 @@
   </div>
 </div>
 
+
 <!-- 底部导航 -->
 <div class="bottom-nav">
   <button data-page="userPage" class="active">Users</button>
   <button data-page="productPage">Products</button>
   <button data-page="page3">Withdrawals</button>
-  <button data-page="page4">Recharges</button>
-  <button data-page="page5">Chat</button>
+  <button data-page="page4">Page4</button>
+  <button data-page="page5" style="position: relative;">
+    Page5
+    <span id="page5Unread" class="unread-dot hidden"></span>
+  </button>
 </div>
 
 <!-- JS -->

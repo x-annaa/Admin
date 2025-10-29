@@ -87,10 +87,28 @@ table tbody tr:hover {
   color: #fff;
 }
 
+/* Edit1 按钮 */
+.edit1-btn {
+  background-color: #e9ecef;
+}
+.edit1-btn:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+/* Edit2 按钮 */
+.edit2-btn {
+  background-color: #e9ecef;
+}
+.edit2-btn:hover {
+  background-color: #ffc107;
+  color: #fff;
+}
+
 /* ======================
-   用户编辑弹窗（Edit1）
+   弹窗（公共）
    ====================== */
-.user-modal {
+.modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -99,11 +117,11 @@ table tbody tr:hover {
   display: none; /* 默认隐藏 */
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明遮罩 */
   z-index: 1000;
 }
 
-.user-modal-content {
+.modal-content {
   background-color: #fff;
   padding: 20px 30px;
   border-radius: 12px;
@@ -120,19 +138,21 @@ table tbody tr:hover {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.user-modal-content h3 {
+.modal-content h3 {
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 20px;
 }
 
-.user-modal-content p {
+.modal-content p {
   margin: 10px 0;
   font-weight: bold;
   color: #333;
 }
 
-/* 用户弹窗按钮组 */
+/* ======================
+   Edit1 弹窗按钮
+   ====================== */
 .edit-actions {
   display: flex;
   flex-wrap: wrap;
@@ -158,17 +178,17 @@ table tbody tr:hover {
 }
 
 /* ======================
-   手动匹配规则弹窗（Edit2）
+   Edit2 弹窗（手动匹配）
    ====================== */
-#ruleModal label {
+#matchModal label {
   display: block;
   margin: 8px 0;
   font-size: 14px;
   text-align: left;
 }
 
-#ruleModal input[type="number"],
-#ruleModal input[type="text"] {
+#matchModal input[type="number"],
+#matchModal input[type="text"] {
   width: 100%;
   padding: 6px;
   border: 1px solid #ddd;
@@ -176,7 +196,7 @@ table tbody tr:hover {
   margin-top: 3px;
 }
 
-#ruleModal input[type="checkbox"] {
+#matchModal input[type="checkbox"] {
   margin-left: 6px;
 }
 
@@ -195,21 +215,19 @@ table tbody tr:hover {
   transition: all 0.2s ease;
 }
 
-#saveRuleBtn {
+#saveMatchBtn {
   background-color: #007bff;
   color: #fff;
 }
-
-#saveRuleBtn:hover {
+#saveMatchBtn:hover {
   background-color: #0056b3;
 }
 
-#closeRuleModal, #closeEditModal {
+#closeMatchModal, #closeEditModal {
   background-color: #ccc;
   color: #333;
 }
-
-#closeRuleModal:hover, #closeEditModal:hover {
+#closeMatchModal:hover, #closeEditModal:hover {
   background-color: #999;
   color: #fff;
 }

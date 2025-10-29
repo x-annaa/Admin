@@ -1,83 +1,73 @@
-/* ======================
-   产品页弹窗
-   ====================== */
+/* 产品表格 */
+#productsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+#productsTable th, #productsTable td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 特殊处理描述和 URL 列超长显示省略号 */
+#productsTable td.description,
+#productsTable td.url {
+  max-width: 100px; /* 可以调整 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 弹窗样式 */
 .product-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: none; /* 默认隐藏 */
+  background: rgba(0,0,0,0.4);
+  display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0,0,0,0.5);
   z-index: 1000;
 }
 
 .product-modal-content {
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 12px;
-  width: 340px;
-  max-width: 90%;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  position: relative;
-  animation: fadeIn 0.3s ease;
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  width: 400px;
+  max-height: 90%;
+  overflow-y: auto;
 }
 
-.product-modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 20px;
-}
-
-.product-modal-content label {
-  display: block;
-  margin: 8px 0;
-  text-align: left;
-  font-size: 14px;
-}
-
+/* 弹窗输入框样式 */
 .product-modal-content input,
 .product-modal-content textarea {
   width: 100%;
+  margin-bottom: 8px;
   padding: 6px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-top: 3px;
-  font-size: 14px;
+  box-sizing: border-box;
 }
 
-.product-modal-content input[type="checkbox"] {
-  margin-left: 6px;
-}
-
-.product-modal-content button {
-  margin-top: 12px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
+/* 按钮样式 */
+#addProductBtn, #saveProductBtn, #closeEditProductModal {
+  padding: 6px 12px;
+  margin-top: 6px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-#saveProductBtn {
+  border-radius: 4px;
+  border: none;
   background-color: #007bff;
-  color: #fff;
-}
-
-#saveProductBtn:hover {
-  background-color: #0056b3;
+  color: white;
 }
 
 #closeEditProductModal {
   background-color: #ccc;
-  color: #333;
-}
-
-#closeEditProductModal:hover {
-  background-color: #999;
-  color: #fff;
+  color: #000;
 }

@@ -1,12 +1,13 @@
-// Product/product.js
+// ⚡ 初始化 Supabase（假设已经在 supabaseClient.js 中引入）
+const supabase = supabaseClient;
 
 // DOM 元素
 const productsTableBody = document.querySelector("#productsTable tbody");
-const searchInput = document.querySelector("#searchProductInput");
-const addProductBtn = document.querySelector("#addProductBtn");
+const addProductBtn = document.getElementById("addProductBtn");
+const editProductModal = document.getElementById("editProductModal");
+const saveProductBtn = document.getElementById("saveProductBtn");
+const closeEditProductModal = document.getElementById("closeEditProductModal");
 
-// 编辑弹窗
-const editModal = document.getElementById("editProductModal");
 const editProductId = document.getElementById("editProductId");
 const editProductName = document.getElementById("editProductName");
 const editProductPrice = document.getElementById("editProductPrice");
@@ -15,151 +16,160 @@ const editProductProfit = document.getElementById("editProductProfit");
 const editProductEnabled = document.getElementById("editProductEnabled");
 const editProductManualOnly = document.getElementById("editProductManualOnly");
 const editProductUrl = document.getElementById("editProductUrl");
-const saveProductBtn = document.getElementById("saveProductBtn");
-const closeEditProductModal = document.getElementById("closeEditProductModal");
 
-// =====================
-// 获取并显示产品
-// =====================
+const searchProductInput = document.getElementById("searchProductInput");
+
+// ========== 获取并渲染产品 ==========
 async function loadProducts() {
-  const { data, error } = await supabaseClient.from("products").select("*").order("id", { ascending: true });
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("id", { ascending: true });
+
   if (error) {
-    console.error("获取产品失败:", error);
+    console.error(error);
     return;
   }
 
+  renderProducts(products);
+}
+
+function renderProducts(products) {
   productsTableBody.innerHTML = "";
 
-  data.forEach(product => {
+  products.forEach(product => {
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${product.id}</td>
       <td>${product.name}</td>
       <td>${product.price}</td>
-      <td>${product.description}</td>
+      <td class="description" title="${product.description}">${product.description}</td>
       <td>${product.profit}</td>
       <td>${product.enabled ? "✅" : "❌"}</td>
       <td>${product.manual_only ? "✅" : "❌"}</td>
-      <td>${product.url || ""}</td>
+      <td class="url" title="${product.url}">${product.url}</td>
       <td>
-        <button class="edit-btn" data-id="${product.id}">编辑</button>
-        <button class="delete-btn" data-id="${product.id}">删除</button>
+        <button class="editBtn" data-id="${product.id}">编辑</button>
+        <button class="deleteBtn" data-id="${product.id}">删除</button>
       </td>
     `;
     productsTableBody.appendChild(tr);
   });
-}
 
-// =====================
-// 搜索产品
-// =====================
-function searchProducts() {
-  const keyword = searchInput.value.toLowerCase();
-  const rows = productsTableBody.querySelectorAll("tr");
-  rows.forEach(row => {
-    const name = row.cells[1].textContent.toLowerCase();
-    row.style.display = name.includes(keyword) ? "" : "none";
+  // 绑定编辑删除事件
+  document.querySelectorAll(".editBtn").forEach(btn => {
+    btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".deleteBtn").forEach(btn => {
+    btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
   });
 }
 
-// =====================
-// 编辑产品弹窗
-// =====================
-productsTableBody.addEventListener("click", async (e) => {
-  const id = e.target.dataset.id;
-  if (!id) return;
+// ========== 搜索功能 ==========
+function searchProducts() {
+  const query = searchProductInput.value.toLowerCase();
+  document.querySelectorAll("#productsTable tbody tr").forEach(row => {
+    const name = row.children[1].textContent.toLowerCase();
+    row.style.display = name.includes(query) ? "" : "none";
+  });
+}
 
-  if (e.target.classList.contains("edit-btn")) {
-    // 获取产品信息
-    const { data, error } = await supabaseClient.from("products").select("*").eq("id", id).single();
-    if (error) {
-      console.error("获取产品失败:", error);
-      return;
-    }
+// ========== 编辑产品 ==========
+async function openEditModal(id) {
+  const { data: product } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-    // 填充弹窗
-    editProductId.value = data.id;
-    editProductName.value = data.name;
-    editProductPrice.value = data.price;
-    editProductDescription.value = data.description;
-    editProductProfit.value = data.profit;
-    editProductEnabled.checked = data.enabled;
-    editProductManualOnly.checked = data.manual_only;
-    editProductUrl.value = data.url || "";
+  if (!product) return;
 
-    // 显示弹窗
-    editModal.style.display = "block";
-  }
+  editProductId.value = product.id;
+  editProductName.value = product.name;
+  editProductPrice.value = product.price;
+  editProductDescription.value = product.description;
+  editProductProfit.value = product.profit;
+  editProductEnabled.checked = product.enabled;
+  editProductManualOnly.checked = product.manual_only;
+  editProductUrl.value = product.url;
 
-  // 删除产品
-  if (e.target.classList.contains("delete-btn")) {
-    if (confirm("确认删除该产品吗？")) {
-      const { error } = await supabaseClient.from("products").delete().eq("id", id);
-      if (error) {
-        console.error("删除失败:", error);
-      } else {
-        loadProducts();
-      }
-    }
-  }
-});
+  editProductModal.style.display = "flex";
+}
 
-// =====================
-// 保存产品
-// =====================
+// ========== 保存产品 ==========
 saveProductBtn.addEventListener("click", async () => {
   const id = editProductId.value;
-  const payload = {
+
+  const updates = {
     name: editProductName.value,
     price: parseFloat(editProductPrice.value),
     description: editProductDescription.value,
     profit: parseFloat(editProductProfit.value),
     enabled: editProductEnabled.checked,
     manual_only: editProductManualOnly.checked,
-    url: editProductUrl.value
+    url: editProductUrl.value,
   };
 
-  if (id) {
-    // 更新
-    const { error } = await supabaseClient.from("products").update(payload).eq("id", id);
-    if (error) {
-      console.error("更新失败:", error);
-      return;
-    }
-  } else {
-    // 新增
-    const { error } = await supabaseClient.from("products").insert([payload]);
-    if (error) {
-      console.error("添加失败:", error);
-      return;
-    }
+  const { error } = await supabase
+    .from("products")
+    .update(updates)
+    .eq("id", id);
+
+  if (error) {
+    alert("保存失败: " + error.message);
+    return;
   }
 
-  editModal.style.display = "none";
+  editProductModal.style.display = "none";
   loadProducts();
 });
 
-// 关闭弹窗
+// ========== 关闭编辑弹窗 ==========
 closeEditProductModal.addEventListener("click", () => {
-  editModal.style.display = "none";
+  editProductModal.style.display = "none";
 });
 
-// =====================
-// 添加新产品
-// =====================
-addProductBtn.addEventListener("click", () => {
-  editProductId.value = "";
-  editProductName.value = "";
-  editProductPrice.value = "";
-  editProductDescription.value = "";
-  editProductProfit.value = "";
-  editProductEnabled.checked = true;
-  editProductManualOnly.checked = false;
-  editProductUrl.value = "";
-  editModal.style.display = "block";
+// ========== 添加新产品 ==========
+addProductBtn.addEventListener("click", async () => {
+  const { data, error } = await supabase.from("products").insert([
+    {
+      name: "新产品",
+      price: 0,
+      description: "",
+      profit: 0,
+      enabled: true,
+      manual_only: false,
+      url: "",
+    },
+  ]);
+
+  if (error) {
+    alert("添加失败: " + error.message);
+    return;
+  }
+
+  loadProducts();
 });
 
-// =====================
-// 初始化
-// =====================
+// ========== 删除产品 ==========
+async function deleteProduct(id) {
+  if (!confirm("确定删除该产品吗？")) return;
+
+  const { error } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("删除失败: " + error.message);
+    return;
+  }
+
+  loadProducts();
+}
+
+// ========== 初始化 ==========
 loadProducts();
+searchProductInput.addEventListener("input", searchProducts);

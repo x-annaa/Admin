@@ -108,7 +108,7 @@ function formatTime(sec) {
 }
 
 // ======================
-// 打开用户编辑弹窗
+// 打开编辑弹窗 (Edit1)
 // ======================
 function openEditModal(userId, username, orderCount) {
   currentEditUserId = userId;
@@ -117,7 +117,7 @@ function openEditModal(userId, username, orderCount) {
 }
 
 // ======================
-// 打开规则弹窗
+// 打开规则弹窗 (Edit2)
 // ======================
 function openRuleModal(userId, username) {
   const modal = document.getElementById("ruleModal");
@@ -130,7 +130,7 @@ function openRuleModal(userId, username) {
 }
 
 // ======================
-// 保存规则
+// 保存规则 (Edit2)
 // ======================
 async function saveRule() {
   const modal = document.getElementById("ruleModal");
@@ -172,7 +172,7 @@ document.getElementById("closeRuleModal").addEventListener("click", () => {
 });
 
 // ======================
-// 弹窗按钮功能绑定
+// 弹窗按钮功能绑定 (Edit1)
 // ======================
 document.getElementById("addCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'add'));
 document.getElementById("subCoinsBtn").addEventListener("click", () => updateField(currentEditUserId, 'coins', 'sub'));
@@ -256,20 +256,5 @@ function searchUsers() {
 // ======================
 // 页面加载
 // ======================
-document.addEventListener("DOMContentLoaded", () => {
-  loadUsers();
-  document.getElementById("saveRuleBtn").addEventListener("click", saveRule);
-});
-
-function switchPage(pageId) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-
-  // 关闭所有弹窗，防止冲突
-  document.getElementById("editModal").style.display = "none";
-  document.getElementById("ruleModal").style.display = "none";
-  document.getElementById("editProductModal")?.style.display = "none";
-}
-document.querySelectorAll(".bottom-nav button").forEach(btn => {
-  btn.addEventListener("click", () => switchPage(btn.dataset.page));
-});
+document.addEventListener("DOMContentLoaded", loadUsers);
+document.getElementById("saveRuleBtn").addEventListener("click", saveRule);

@@ -9,28 +9,23 @@
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 描述和 URL 列超出省略号 */
+/* 特殊处理描述和 URL 列超长显示省略号 */
 #productsTable td.description,
 #productsTable td.url {
-  max-width: 100px;          /* 根据需要调节显示宽度 */
-  white-space: nowrap;        /* 不换行 */
-  overflow: hidden;           /* 超出隐藏 */
-  text-overflow: ellipsis;    /* 显示 ... */
-}
-
-/* 鼠标悬停显示完整内容 */
-#productsTable td.description:hover,
-#productsTable td.url:hover {
-  white-space: normal;        /* 换行显示完整文本 */
-  background: #f9f9f9;       /* 高亮背景 */
-  position: relative;
-  z-index: 1;
+  max-width: 100px; /* 可以调整 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 弹窗样式 */
-.modal {
+.product-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -40,11 +35,39 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
-.modal-content {
+.product-modal-content {
   background: #fff;
   padding: 16px;
   border-radius: 8px;
   width: 400px;
+  max-height: 90%;
+  overflow-y: auto;
+}
+
+/* 弹窗输入框样式 */
+.product-modal-content input,
+.product-modal-content textarea {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* 按钮样式 */
+#addProductBtn, #saveProductBtn, #closeEditProductModal {
+  padding: 6px 12px;
+  margin-top: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+}
+
+#closeEditProductModal {
+  background-color: #ccc;
+  color: #000;
 }

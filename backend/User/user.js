@@ -268,7 +268,7 @@ function switchPage(pageId) {
   // 关闭所有弹窗，防止冲突
   document.getElementById("editModal").style.display = "none";
   document.getElementById("ruleModal").style.display = "none";
-  document.getElementById("editProductModal").style.display = "none";
+  document.getElementById("editProductModal")?.style.display = "none";
 }
 document.querySelectorAll(".bottom-nav button").forEach(btn => {
   btn.addEventListener("click", () => switchPage(btn.dataset.page));

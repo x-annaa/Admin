@@ -70,8 +70,10 @@
 
 <!-- 产品管理页面 -->
 <div id="productPage" class="page">
-  <h2>📦 产品管理</h2>
-  <button id="addProductBtn" class="add-btn">➕ 添加产品</button>
+  <h2>🛍 产品管理</h2>
+  <input type="text" id="searchProductInput" placeholder="搜索产品名..." onkeyup="searchProducts()">
+  <button id="addProductBtn">➕ 添加新产品</button>
+
   <table id="productsTable">
     <thead>
       <tr>
@@ -79,7 +81,10 @@
         <th>名称</th>
         <th>价格</th>
         <th>描述</th>
-        <th>利润</th>
+        <th>Profit</th>
+        <th>Enabled</th>
+        <th>Manual Only</th>
+        <th>URL</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -87,34 +92,23 @@
   </table>
 </div>
 
-<!-- 编辑/添加产品弹窗 -->
-<div id="productModal" class="modal" style="display:none;">
+<!-- 编辑产品弹窗 -->
+<div id="editProductModal" class="modal" style="display:none;">
   <div class="modal-content">
-    <h3 id="productModalTitle">编辑产品</h3>
-    <label>名称: <input type="text" id="editName"></label><br>
-    <label>价格: <input type="number" id="editPrice"></label><br>
-    <label>描述: <input type="text" id="editDescription"></label><br>
-    <label>利润: <input type="number" id="editProfit"></label><br>
-    <div class="modal-actions">
-      <button id="saveProductBtn">保存</button>
-      <button id="deleteProductBtn">删除</button>
-      <button id="closeProductModal">取消</button>
-    </div>
+    <h3>编辑产品</h3>
+    <input type="hidden" id="editProductId">
+    <label>名称: <input type="text" id="editProductName"></label><br>
+    <label>价格: <input type="number" id="editProductPrice" step="0.01"></label><br>
+    <label>描述: <textarea id="editProductDescription"></textarea></label><br>
+    <label>Profit: <input type="number" id="editProductProfit" step="0.01"></label><br>
+    <label>Enabled: <input type="checkbox" id="editProductEnabled"></label><br>
+    <label>Manual Only: <input type="checkbox" id="editProductManualOnly"></label><br>
+    <label>URL: <input type="text" id="editProductUrl"></label><br>
+    <button id="saveProductBtn">保存</button>
+    <button id="closeEditProductModal">取消</button>
   </div>
 </div>
 
-<!-- 匹配设置弹窗 -->
-<div id="productMatchModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>产品匹配设置</h3>
-    <label><input type="checkbox" id="productEnabledCheckbox" checked> 开启匹配</label><br>
-    <label><input type="checkbox" id="productManualOnlyCheckbox"> 手动专属</label><br>
-    <div class="modal-actions">
-      <button id="saveProductMatchBtn">确认保存</button>
-      <button id="closeProductMatchModal">取消</button>
-    </div>
-  </div>
-</div>
 
 <!-- 提现管理页面 (Page3) -->
 <div id="page3" class="page">

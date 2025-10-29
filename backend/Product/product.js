@@ -1,158 +1,166 @@
-// Product/product.js
+// product.js
 
-document.addEventListener("DOMContentLoaded", () => {
-  const productsTableBody = document.querySelector("#productsTable tbody");
-  const addProductBtn = document.getElementById("addProductBtn");
-  const editProductModal = document.getElementById("editProductModal");
-  const closeEditProductModal = document.getElementById("closeEditProductModal");
-  const saveProductBtn = document.getElementById("saveProductBtn");
+// DOM 元素
+const productsTableBody = document.querySelector("#productsTable tbody");
+const searchInput = document.getElementById("searchProductInput");
+const addProductBtn = document.getElementById("addProductBtn");
+const editProductModal = document.getElementById("editProductModal");
+const editProductIdInput = document.getElementById("editProductId");
+const editProductName = document.getElementById("editProductName");
+const editProductPrice = document.getElementById("editProductPrice");
+const editProductDescription = document.getElementById("editProductDescription");
+const editProductProfit = document.getElementById("editProductProfit");
+const editProductEnabled = document.getElementById("editProductEnabled");
+const editProductManualOnly = document.getElementById("editProductManualOnly");
+const editProductUrl = document.getElementById("editProductUrl");
+const saveProductBtn = document.getElementById("saveProductBtn");
+const closeEditProductModal = document.getElementById("closeEditProductModal");
 
-  const editProductId = document.getElementById("editProductId");
-  const editProductName = document.getElementById("editProductName");
-  const editProductPrice = document.getElementById("editProductPrice");
-  const editProductDescription = document.getElementById("editProductDescription");
-  const editProductProfit = document.getElementById("editProductProfit");
-  const editProductEnabled = document.getElementById("editProductEnabled");
-  const editProductManualOnly = document.getElementById("editProductManualOnly");
-  const editProductUrl = document.getElementById("editProductUrl");
-  const searchProductInput = document.getElementById("searchProductInput");
+// 读取并渲染产品列表
+async function loadProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("id", { ascending: true });
 
-  let products = []; // 本地产品列表
-  let editingProduct = null; // 当前编辑产品
-
-  // ========================
-  // 渲染产品列表
-  // ========================
-  function renderProducts(filter = "") {
-    productsTableBody.innerHTML = "";
-    const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-    filtered.forEach(p => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${p.id}</td>
-        <td>${p.name}</td>
-        <td>${p.price.toFixed(2)}</td>
-        <td>${p.description}</td>
-        <td>${p.profit.toFixed(2)}</td>
-        <td>${p.enabled ? "✅" : "❌"}</td>
-        <td>${p.manualOnly ? "✅" : "❌"}</td>
-        <td>${p.url}</td>
-        <td>
-          <button class="edit-btn">编辑</button>
-          <button class="delete-btn">删除</button>
-        </td>
-      `;
-      // 编辑按钮
-      tr.querySelector(".edit-btn").addEventListener("click", () => openEditProduct(p));
-      // 删除按钮
-      tr.querySelector(".delete-btn").addEventListener("click", () => deleteProduct(p.id));
-      productsTableBody.appendChild(tr);
-    });
+  if (error) {
+    console.error("加载产品失败:", error);
+    return;
   }
 
-  // ========================
-  // 添加新产品
-  // ========================
-  addProductBtn.addEventListener("click", () => {
-    editingProduct = null;
-    editProductId.value = "";
-    editProductName.value = "";
-    editProductPrice.value = "";
-    editProductDescription.value = "";
-    editProductProfit.value = "";
-    editProductEnabled.checked = true;
-    editProductManualOnly.checked = false;
-    editProductUrl.value = "";
-    editProductModal.style.display = "flex";
+  renderProducts(data);
+}
+
+// 渲染产品表格
+function renderProducts(products) {
+  productsTableBody.innerHTML = "";
+  products.forEach(product => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.price}</td>
+      <td class="text-overflow" title="${product.description}">${product.description}</td>
+      <td>${product.profit}</td>
+      <td>${product.enabled ? "✔" : "✖"}</td>
+      <td>${product.manual_only ? "✔" : "✖"}</td>
+      <td class="text-overflow" title="${product.url}">${product.url}</td>
+      <td>
+        <button class="edit-btn" data-id="${product.id}">编辑</button>
+        <button class="delete-btn" data-id="${product.id}">删除</button>
+      </td>
+    `;
+    productsTableBody.appendChild(tr);
   });
 
-  // ========================
-  // 关闭编辑弹窗
-  // ========================
-  closeEditProductModal.addEventListener("click", () => {
-    editProductModal.style.display = "none";
+  // 绑定编辑删除事件
+  document.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => openEditModal(btn.dataset.id));
   });
 
-  // ========================
-  // 打开编辑弹窗
-  // ========================
-  function openEditProduct(product) {
-    editingProduct = product;
-    editProductId.value = product.id;
-    editProductName.value = product.name;
-    editProductPrice.value = product.price;
-    editProductDescription.value = product.description;
-    editProductProfit.value = product.profit;
-    editProductEnabled.checked = product.enabled;
-    editProductManualOnly.checked = product.manualOnly;
-    editProductUrl.value = product.url;
-    editProductModal.style.display = "flex";
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
+  });
+}
+
+// 搜索产品
+function searchProducts() {
+  const keyword = searchInput.value.toLowerCase();
+  document.querySelectorAll("#productsTable tbody tr").forEach(tr => {
+    const name = tr.children[1].textContent.toLowerCase();
+    tr.style.display = name.includes(keyword) ? "" : "none";
+  });
+}
+
+// 打开编辑弹窗
+async function openEditModal(id) {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("加载产品失败:", error);
+    return;
   }
 
-  // ========================
-  // 保存产品
-  // ========================
-  saveProductBtn.addEventListener("click", () => {
-    const name = editProductName.value.trim();
-    const price = parseFloat(editProductPrice.value) || 0;
-    const description = editProductDescription.value.trim();
-    const profit = parseFloat(editProductProfit.value) || 0;
-    const enabled = editProductEnabled.checked;
-    const manualOnly = editProductManualOnly.checked;
-    const url = editProductUrl.value.trim();
+  editProductIdInput.value = data.id;
+  editProductName.value = data.name;
+  editProductPrice.value = data.price;
+  editProductDescription.value = data.description;
+  editProductProfit.value = data.profit;
+  editProductEnabled.checked = data.enabled;
+  editProductManualOnly.checked = data.manual_only;
+  editProductUrl.value = data.url;
 
-    if (!name) {
-      alert("请输入产品名称");
-      return;
-    }
+  editProductModal.style.display = "flex";
+}
 
-    if (editingProduct) {
-      // 编辑已有产品
-      editingProduct.name = name;
-      editingProduct.price = price;
-      editingProduct.description = description;
-      editingProduct.profit = profit;
-      editingProduct.enabled = enabled;
-      editingProduct.manualOnly = manualOnly;
-      editingProduct.url = url;
-    } else {
-      // 新增产品
-      const newProduct = {
-        id: products.length ? Math.max(...products.map(p => p.id)) + 1 : 1,
-        name, price, description, profit, enabled, manualOnly, url
-      };
-      products.push(newProduct);
-    }
+// 保存产品
+async function saveProduct() {
+  const id = editProductIdInput.value;
+  const updates = {
+    name: editProductName.value,
+    price: parseFloat(editProductPrice.value),
+    description: editProductDescription.value,
+    profit: parseFloat(editProductProfit.value),
+    enabled: editProductEnabled.checked,
+    manual_only: editProductManualOnly.checked,
+    url: editProductUrl.value
+  };
 
-    renderProducts(searchProductInput.value);
-    editProductModal.style.display = "none";
-  });
-
-  // ========================
-  // 删除产品
-  // ========================
-  function deleteProduct(id) {
-    if (confirm("确定删除该产品吗？")) {
-      products = products.filter(p => p.id !== id);
-      renderProducts(searchProductInput.value);
-    }
+  let res;
+  if (id) {
+    // 更新
+    res = await supabaseClient.from("products").update(updates).eq("id", id);
+  } else {
+    // 新增
+    res = await supabaseClient.from("products").insert(updates);
   }
 
-  // ========================
-  // 搜索产品
-  // ========================
-  searchProductInput.addEventListener("input", () => {
-    renderProducts(searchProductInput.value);
-  });
+  if (res.error) {
+    console.error("保存失败:", res.error);
+    return;
+  }
 
-  // ========================
-  // 初始化测试数据
-  // ========================
-  products = [
-    {id:1,name:"产品A",price:10.5,description:"描述A",profit:2,enabled:true,manualOnly:false,url:"http://example.com/a"},
-    {id:2,name:"产品B",price:20,description:"描述B",profit:5,enabled:false,manualOnly:true,url:"http://example.com/b"},
-    {id:3,name:"产品C",price:15,description:"描述C",profit:3,enabled:true,manualOnly:false,url:"http://example.com/c"}
-  ];
+  editProductModal.style.display = "none";
+  loadProducts();
+}
 
-  renderProducts();
+// 删除产品
+async function deleteProduct(id) {
+  if (!confirm("确定删除该产品吗？")) return;
+  const { error } = await supabaseClient.from("products").delete().eq("id", id);
+  if (error) {
+    console.error("删除失败:", error);
+    return;
+  }
+  loadProducts();
+}
+
+// 添加新产品
+function addNewProduct() {
+  editProductIdInput.value = "";
+  editProductName.value = "";
+  editProductPrice.value = "";
+  editProductDescription.value = "";
+  editProductProfit.value = "";
+  editProductEnabled.checked = false;
+  editProductManualOnly.checked = false;
+  editProductUrl.value = "";
+  editProductModal.style.display = "flex";
+}
+
+// 关闭弹窗
+closeEditProductModal.addEventListener("click", () => {
+  editProductModal.style.display = "none";
 });
+
+addProductBtn.addEventListener("click", addNewProduct);
+saveProductBtn.addEventListener("click", saveProduct);
+searchInput.addEventListener("keyup", searchProducts);
+
+// 初始加载
+loadProducts();

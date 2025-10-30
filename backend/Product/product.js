@@ -1,23 +1,9 @@
 // product.js
 
-// DOM 元素
-const productsTableBody = document.querySelector("#productsTable tbody");
-const searchInput = document.getElementById("searchProductInput");
-const addProductBtn = document.getElementById("addProductBtn");
-const editProductModal = document.getElementById("editProductModal");
-const editProductIdInput = document.getElementById("editProductId");
-const editProductName = document.getElementById("editProductName");
-const editProductPrice = document.getElementById("editProductPrice");
-const editProductDescription = document.getElementById("editProductDescription");
-const editProductProfit = document.getElementById("editProductProfit");
-const editProductEnabled = document.getElementById("editProductEnabled");
-const editProductManualOnly = document.getElementById("editProductManualOnly");
-const editProductUrl = document.getElementById("editProductUrl");
-const saveProductBtn = document.getElementById("saveProductBtn");
-const closeEditProductModal = document.getElementById("closeEditProductModal");
+const ProductModule = {}; // ✅ 添加命名空间
 
 // 读取并渲染产品列表
-async function loadProducts() {
+ProductModule.loadProducts = async function() {
   const { data, error } = await supabaseClient
     .from("products")
     .select("*")
@@ -28,11 +14,12 @@ async function loadProducts() {
     return;
   }
 
-  renderProducts(data);
-}
+  ProductModule.renderProducts(data);
+};
 
 // 渲染产品表格
-function renderProducts(products) {
+ProductModule.renderProducts = function(products) {
+  const productsTableBody = document.querySelector("#productsTable tbody");
   productsTableBody.innerHTML = "";
   products.forEach(product => {
     const tr = document.createElement("tr");
@@ -54,27 +41,27 @@ function renderProducts(products) {
     productsTableBody.appendChild(tr);
   });
 
-  // 绑定编辑删除事件
+  // ✅ 绑定事件时也用 ProductModule 前缀
   document.querySelectorAll(".edit-btn").forEach(btn => {
-    btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+    btn.addEventListener("click", () => ProductModule.openEditModal(btn.dataset.id));
   });
 
   document.querySelectorAll(".delete-btn").forEach(btn => {
-    btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
+    btn.addEventListener("click", () => ProductModule.deleteProduct(btn.dataset.id));
   });
-}
+};
 
 // 搜索产品
-function searchProducts() {
-  const keyword = searchInput.value.toLowerCase();
+ProductModule.searchProducts = function() {
+  const keyword = document.getElementById("searchProductInput").value.toLowerCase();
   document.querySelectorAll("#productsTable tbody tr").forEach(tr => {
     const name = tr.children[1].textContent.toLowerCase();
     tr.style.display = name.includes(keyword) ? "" : "none";
   });
-}
+};
 
 // 打开编辑弹窗
-async function openEditModal(id) {
+ProductModule.openEditModal = async function(id) {
   const { data, error } = await supabaseClient
     .from("products")
     .select("*")
@@ -86,37 +73,35 @@ async function openEditModal(id) {
     return;
   }
 
-  editProductIdInput.value = data.id;
-  editProductName.value = data.name;
-  editProductPrice.value = data.price;
-  editProductDescription.value = data.description;
-  editProductProfit.value = data.profit;
-  editProductEnabled.checked = data.enabled;
-  editProductManualOnly.checked = data.manual_only;
-  editProductUrl.value = data.url;
+  document.getElementById("editProductId").value = data.id;
+  document.getElementById("editProductName").value = data.name;
+  document.getElementById("editProductPrice").value = data.price;
+  document.getElementById("editProductDescription").value = data.description;
+  document.getElementById("editProductProfit").value = data.profit;
+  document.getElementById("editProductEnabled").checked = data.enabled;
+  document.getElementById("editProductManualOnly").checked = data.manual_only;
+  document.getElementById("editProductUrl").value = data.url;
 
-  editProductModal.style.display = "flex";
-}
+  document.getElementById("editProductModal").style.display = "flex";
+};
 
 // 保存产品
-async function saveProduct() {
-  const id = editProductIdInput.value;
+ProductModule.saveProduct = async function() {
+  const id = document.getElementById("editProductId").value;
   const updates = {
-    name: editProductName.value,
-    price: parseFloat(editProductPrice.value),
-    description: editProductDescription.value,
-    profit: parseFloat(editProductProfit.value),
-    enabled: editProductEnabled.checked,
-    manual_only: editProductManualOnly.checked,
-    url: editProductUrl.value
+    name: document.getElementById("editProductName").value,
+    price: parseFloat(document.getElementById("editProductPrice").value),
+    description: document.getElementById("editProductDescription").value,
+    profit: parseFloat(document.getElementById("editProductProfit").value),
+    enabled: document.getElementById("editProductEnabled").checked,
+    manual_only: document.getElementById("editProductManualOnly").checked,
+    url: document.getElementById("editProductUrl").value
   };
 
   let res;
   if (id) {
-    // 更新
     res = await supabaseClient.from("products").update(updates).eq("id", id);
   } else {
-    // 新增
     res = await supabaseClient.from("products").insert(updates);
   }
 
@@ -125,42 +110,43 @@ async function saveProduct() {
     return;
   }
 
-  editProductModal.style.display = "none";
-  loadProducts();
-}
+  document.getElementById("editProductModal").style.display = "none";
+  ProductModule.loadProducts();
+};
 
 // 删除产品
-async function deleteProduct(id) {
+ProductModule.deleteProduct = async function(id) {
   if (!confirm("确定删除该产品吗？")) return;
   const { error } = await supabaseClient.from("products").delete().eq("id", id);
   if (error) {
     console.error("删除失败:", error);
     return;
   }
-  loadProducts();
-}
+  ProductModule.loadProducts();
+};
 
 // 添加新产品
-function addNewProduct() {
-  editProductIdInput.value = "";
-  editProductName.value = "";
-  editProductPrice.value = "";
-  editProductDescription.value = "";
-  editProductProfit.value = "";
-  editProductEnabled.checked = false;
-  editProductManualOnly.checked = false;
-  editProductUrl.value = "";
-  editProductModal.style.display = "flex";
-}
+ProductModule.addNewProduct = function() {
+  document.getElementById("editProductId").value = "";
+  document.getElementById("editProductName").value = "";
+  document.getElementById("editProductPrice").value = "";
+  document.getElementById("editProductDescription").value = "";
+  document.getElementById("editProductProfit").value = "";
+  document.getElementById("editProductEnabled").checked = false;
+  document.getElementById("editProductManualOnly").checked = false;
+  document.getElementById("editProductUrl").value = "";
+  document.getElementById("editProductModal").style.display = "flex";
+};
 
 // 关闭弹窗
-closeEditProductModal.addEventListener("click", () => {
-  editProductModal.style.display = "none";
+document.getElementById("closeEditProductModal").addEventListener("click", () => {
+  document.getElementById("editProductModal").style.display = "none";
 });
 
-addProductBtn.addEventListener("click", addNewProduct);
-saveProductBtn.addEventListener("click", saveProduct);
-searchInput.addEventListener("keyup", searchProducts);
+// ✅ 初始化绑定事件
+document.getElementById("addProductBtn").addEventListener("click", ProductModule.addNewProduct);
+document.getElementById("saveProductBtn").addEventListener("click", ProductModule.saveProduct);
+document.getElementById("searchProductInput").addEventListener("keyup", ProductModule.searchProducts);
 
-// 初始加载
-loadProducts();
+// ✅ 页面加载时执行
+ProductModule.loadProducts();

@@ -113,7 +113,7 @@ function formatTime(sec) {
 function openEditModal(userId, username, orderCount) {
   currentEditUserId = userId;
   document.getElementById("editUserName").textContent = `编辑用户: ${username} （订单: ${orderCount} 单）`;
-  document.getElementById("editModal").style.display = "flex";
+  document.getElementById("editModal1").style.display = "flex";
 }
 
 // ======================

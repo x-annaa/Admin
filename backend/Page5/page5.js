@@ -23,34 +23,53 @@ let users = {}; // key: userId, value: { username, unreadCount, messages: [] }
 let currentChatUserId = null;
 let chatSubscription = null;
 
-// =======================
-// 获取用户消息并初始化列表
-// =======================
 async function fetchUsersWithUnread() {
   try {
     // 拉取所有与客服相关的消息（发送或接收）
-    const { data, error } = await supabaseClient
+    const { data: messages, error: msgError } = await supabaseClient
       .from("messages")
       .select("*")
       .or(`receiver_id.eq.1,sender_id.eq.1`)
       .order("created_at", { ascending: true });
 
-    if (error) {
-      console.error("获取用户消息失败", error);
+    if (msgError) {
+      console.error("获取用户消息失败", msgError);
       return;
     }
 
-    data.forEach(msg => {
-      // 确定另一方的 userId
+    // 获取所有相关用户 ID
+    const userIds = [...new Set(messages.map(msg => msg.sender_id === 1 ? msg.receiver_id : msg.sender_id))];
+
+    // 拉取真实用户名
+    const { data: usersData, error: usersError } = await supabaseClient
+      .from("users")
+      .select("id, username")
+      .in("id", userIds);
+
+    if (usersError) {
+      console.error("获取用户信息失败", usersError);
+      return;
+    }
+
+    // 建立 id -> username 映射
+    const userMap = {};
+    usersData.forEach(u => userMap[u.id] = u.username);
+
+    // 初始化用户对象
+    messages.forEach(msg => {
       const userId = msg.sender_id === 1 ? msg.receiver_id : msg.sender_id;
 
       if (!users[userId]) {
-        users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
+        users[userId] = { 
+          username: userMap[userId] || `User ${userId}`, // 使用数据库用户名
+          unreadCount: 0, 
+          messages: [] 
+        };
       }
 
       users[userId].messages.push(msg);
 
-      // 只有接收的消息且未读才算未读
+      // 统计未读
       if (msg.receiver_id === 1 && !msg.is_read) {
         users[userId].unreadCount++;
       }

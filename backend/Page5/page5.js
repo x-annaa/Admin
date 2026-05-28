@@ -137,14 +137,28 @@ adminBackBtn.addEventListener("click", () => {
 // =======================
 // 显示消息
 // =======================
-function appendMessage(sender, text) {
+function appendMessage(sender, text, time) {
   const msg = document.createElement("div");
   msg.classList.add("message-item", sender);
-  msg.innerHTML = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>"); // ✅ 支持换行显示
+
+  // 格式化时间
+  const date = new Date(time);
+  const formattedTime = date.toLocaleString();
+
+  msg.innerHTML = `
+    <div class="message-text">
+      ${text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>")}
+    </div>
+
+    <div class="message-time">
+      ${formattedTime}
+    </div>
+  `;
+
   adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }

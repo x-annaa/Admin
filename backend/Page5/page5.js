@@ -176,7 +176,7 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
-  appendMessage("me", content);
+  appendMessage("me", content, new Date().toISOString());
   adminChatInput.value = "";
 
   if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];

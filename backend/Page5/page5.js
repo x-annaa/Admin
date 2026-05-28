@@ -272,7 +272,7 @@ function listenForMessages() {
         updatePage5Unread();
 
         if (currentChatUserId === userId) {
-          appendMessage("user", msg.content);
+          appendMessage("user", msg.content, msg.created_at);
           markMessagesAsRead(userId);
         }
       }

@@ -117,8 +117,13 @@ function openChat(userId) {
 
   // 按时间顺序显示历史消息
   user.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
-               .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
-
+               .forEach(msg =>
+                 appendMessage(
+                   msg.sender_id === 1 ? "me" : "user",
+                   msg.content,
+                   msg.created_at
+                  )
+                 );
   adminChatWindow.style.display = "flex";
 
   // 标记已读

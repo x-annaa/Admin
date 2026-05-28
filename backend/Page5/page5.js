@@ -117,13 +117,8 @@ function openChat(userId) {
 
   // 按时间顺序显示历史消息
   user.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
-               .forEach(msg =>
-                 appendMessage(
-                   msg.sender_id === 1 ? "me" : "user",
-                   msg.content,
-                   msg.created_at
-                  )
-                 );
+               .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
+
   adminChatWindow.style.display = "flex";
 
   // 标记已读
@@ -142,28 +137,14 @@ adminBackBtn.addEventListener("click", () => {
 // =======================
 // 显示消息
 // =======================
-function appendMessage(sender, text, time) {
+function appendMessage(sender, text) {
   const msg = document.createElement("div");
   msg.classList.add("message-item", sender);
-
-  // 格式化时间
-  const date = new Date(time);
-  const formattedTime = date.toLocaleString();
-
-  msg.innerHTML = `
-    <div class="message-text">
-      ${text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\n/g, "<br>")}
-    </div>
-
-    <div class="message-time">
-      ${formattedTime}
-    </div>
-  `;
-
+  msg.innerHTML = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>"); // ✅ 支持换行显示
   adminChatMessages.appendChild(msg);
   adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
 }
@@ -176,7 +157,7 @@ adminSendBtn.addEventListener("click", async () => {
   const content = adminChatInput.value.trim();
   if (!content) return;
 
-  appendMessage("me", content, new Date().toISOString());
+  appendMessage("me", content);
   adminChatInput.value = "";
 
   if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
@@ -272,7 +253,7 @@ function listenForMessages() {
         updatePage5Unread();
 
         if (currentChatUserId === userId) {
-          appendMessage("user", msg.content, msg.created_at);
+          appendMessage("user", msg.content);
           markMessagesAsRead(userId);
         }
       }

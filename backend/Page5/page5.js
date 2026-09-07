@@ -1,199 +1,154 @@
-/* ==========================
- PAGE5 USER LIST
-========================== */
+const ADMIN_ID = 1;
 
 
-#page5AdminUserList{
+// ===============================
+// DOM
+// ===============================
 
-    width:100%;
+const page5UserList =
+document.getElementById(
+    "page5AdminUserList"
+);
 
-}
 
+const page5Unread =
+document.getElementById(
+    "page5Unread"
+);
 
 
-.page5-user-row{
 
+const inboxModal =
+document.getElementById(
+    "page5AdminInboxModal"
+);
 
-    display:flex;
 
-    justify-content:space-between;
+const inboxUserName =
+document.getElementById(
+    "page5InboxUserName"
+);
 
-    align-items:center;
 
-    padding:18px;
+const inboxTitle =
+document.getElementById(
+    "page5InboxTitle"
+);
 
-    margin-bottom:12px;
 
-    background:#fff;
+const inboxContent =
+document.getElementById(
+    "page5InboxContent"
+);
 
-    border-radius:12px;
 
-    box-shadow:
-    0 3px 10px rgba(0,0,0,.08);
+const inboxHistory =
+document.getElementById(
+    "page5InboxHistory"
+);
 
 
-}
+const sendInboxBtn =
+document.getElementById(
+    "page5SendInboxBtn"
+);
 
 
+const closeInboxBtn =
+document.getElementById(
+    "page5CloseInboxBtn"
+);
 
-.page5-user-info{
 
-    font-size:16px;
 
-    font-weight:600;
 
-}
+const chatModal =
+document.getElementById(
+    "page5AdminChatModal"
+);
 
 
+const chatTitle =
+document.getElementById(
+    "page5ChatUserTitle"
+);
 
 
-.page5-user-actions button{
+const chatMessages =
+document.getElementById(
+    "page5AdminChatMessages"
+);
 
 
-    border:none;
+const chatInput =
+document.getElementById(
+    "page5AdminChatInput"
+);
 
-    padding:8px 16px;
 
-    margin-left:8px;
+const sendChatBtn =
+document.getElementById(
+    "page5AdminSendChatBtn"
+);
 
-    border-radius:20px;
 
-    cursor:pointer;
+const closeChatBtn =
+document.getElementById(
+    "page5CloseChatBtn"
+);
 
-    color:white;
 
-    font-size:14px;
 
-}
 
+let currentUser=null;
 
 
-.page5-inbox-btn{
+// 用户未读
+let userUnreadMap={};
 
-    background:#4caf50;
 
-}
 
 
+// ===============================
+// LOAD USERS
+// ===============================
 
-.page5-chat-btn{
+async function loadPage5Users(){
 
-    background:#2196f3;
 
-}
+    const {
+        data,
+        error
+    } =
+    await supabaseClient
+    .from("users")
+    .select(
+        "id,username"
+    )
+    .neq(
+        "id",
+        ADMIN_ID
+    )
+    .order(
+        "id",
+        {
+            ascending:true
+        }
+    );
 
 
 
+    if(error){
 
+        console.error(error);
 
-/* ==========================
- MODAL
-========================== */
+        return;
 
+    }
 
-.page5-admin-modal{
 
 
-    position:fixed;
-
-    inset:0;
-
-    display:none;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:
-    rgba(0,0,0,.45);
-
-    z-index:9999;
-
-
-}
-
-
-
-.page5-admin-modal-box{
-
-
-    width:380px;
-
-    max-width:90%;
-
-    background:white;
-
-    padding:25px;
-
-    border-radius:18px;
-
-
-}
-
-
-
-
-.page5-admin-modal-box input,
-.page5-admin-modal-box textarea{
-
-
-    width:100%;
-
-    margin-top:12px;
-
-    padding:12px;
-
-    border-radius:10px;
-
-    border:1px solid #ddd;
-
-    box-sizing:border-box;
-
-
-}
-
-
-
-
-.page5-admin-modal-box textarea{
-
-
-    height:80px;
-
-    resize:none;
-
-
-}
-
-
-
-
-.page5-admin-modal-box button{
-
-
-    margin-top:5px;
-
-    padding:10px 18px;
-
-    border:none;
-
-    border-radius:20px;
-
-    cursor:pointer;
-
-
-}
-
-
-
-
-#page5SendInboxBtn,
-#page5AdminSendChatBtn{
-
-
-    background:#2196f3;
-
-    color:white;
+    renderUsers(data);
 
 
 }
@@ -203,85 +158,66 @@
 
 
 
-/* ==========================
- CHAT
-========================== */
+// ===============================
+// LOAD UNREAD
+// ===============================
+
+async function loadPage5Unread(){
 
 
-.page5-chat-box{
-
-
-    height:560px;
-
-    display:flex;
-
-    flex-direction:column;
-
-
-}
-
-
-
-#page5AdminChatMessages{
-
-
-    flex:1;
-
-    overflow-y:auto;
-
-    padding:15px;
-
-    background:#f5f5f5;
-
-    margin-top:15px;
-
-
-}
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+    .from("messages")
+    .select(
+        "sender_id"
+    )
+    .eq(
+        "receiver_id",
+        ADMIN_ID
+    )
+    .eq(
+        "is_read",
+        false
+    );
 
 
 
+    if(error){
 
+        console.error(error);
 
-.page5-chat-message{
+        return;
 
-
-    max-width:70%;
-
-    padding:10px 15px;
-
-    margin-bottom:10px;
-
-    border-radius:18px;
-
-    line-height:1.5;
-
-
-}
+    }
 
 
 
-.page5-chat-message.admin{
-
-
-    margin-left:auto;
-
-    background:#2196f3;
-
-    color:white;
-
-
-}
+    userUnreadMap={};
 
 
 
-.page5-chat-message.user{
+    data.forEach(msg=>{
 
 
-    margin-right:auto;
+        if(!userUnreadMap[msg.sender_id]){
 
-    background:white;
+            userUnreadMap[msg.sender_id]=0;
 
-    border:1px solid #ddd;
+        }
+
+
+        userUnreadMap[msg.sender_id]++;
+
+
+    });
+
+
+
+    updatePage5Unread();
 
 
 }
@@ -289,228 +225,1145 @@
 
 
 
-#page5AdminChatInput{
 
 
-    height:80px;
+// ===============================
+// PAGE5 RED DOT
+// ===============================
 
 
-}
-
-/* =========================
-   CHAT CONTENT
-========================= */
+function updatePage5Unread(){
 
 
-.page5-chat-content{
+    let total=0;
 
 
-    white-space:pre-wrap;
+    Object.values(
+        userUnreadMap
+    )
+    .forEach(
+        n=>{
 
-    word-break:break-word;
+            total+=n;
 
-    line-height:1.5;
-
-
-}
-
-
-
-
-.page5-chat-time{
-
-
-    margin-top:6px;
-
-    font-size:11px;
-
-    opacity:.65;
-
-    text-align:right;
-
-
-}
-
-.page5-inbox-history{
-
-    margin-bottom:20px;
-
-}
-
-
-.page5-inbox-history h3{
-
-    font-size:16px;
-
-    margin-bottom:10px;
-
-}
+        }
+    );
 
 
 
-#page5InboxHistory{
-
-    max-height:250px;
-
-    overflow-y:auto;
-
-}
+    if(total>0){
 
 
+        page5Unread.textContent =
+        total;
 
-.page5-inbox-history-item{
+
+        page5Unread.classList.remove(
+            "hidden"
+        );
 
 
-    background:#f7f7f7;
+    }
+    else{
 
-    padding:12px;
 
-    margin-bottom:10px;
+        page5Unread.classList.add(
+            "hidden"
+        );
 
-    border-radius:10px;
+
+    }
 
 
 }
 
 
 
-.page5-inbox-history-title{
 
 
-    font-weight:600;
 
-    font-size:15px;
+// ===============================
+// USER LIST
+// ===============================
 
-    margin-bottom:8px;
+function renderUsers(users){
+
+
+    page5UserList.innerHTML="";
+
+
+
+    users.forEach(user=>{
+
+
+        const row =
+        document.createElement(
+            "div"
+        );
+
+
+        row.className =
+        "page5-user-row";
+
+
+
+        let unread="";
+
+
+        if(userUnreadMap[user.id]){
+
+
+            unread=
+            `
+            <span class="page5-user-unread">
+
+            ${userUnreadMap[user.id]}
+
+            </span>
+            `;
+
+
+        }
+
+
+
+
+        row.innerHTML=`
+
+        <div class="page5-user-info">
+
+        ${user.username}
+
+        -
+
+        ${user.id}
+
+        ${unread}
+
+        </div>
+
+
+        <div class="page5-user-actions">
+
+
+        <button class="page5-inbox-btn">
+
+        Inbox
+
+        </button>
+
+
+
+        <button class="page5-chat-btn">
+
+        Chat
+
+        </button>
+
+
+        </div>
+
+        `;
+
+
+
+
+        row.querySelector(
+            ".page5-inbox-btn"
+        )
+        .onclick=()=>{
+
+            openInbox(user);
+
+        };
+
+
+
+        row.querySelector(
+            ".page5-chat-btn"
+        )
+        .onclick=()=>{
+
+            openChat(user);
+
+        };
+
+
+
+        page5UserList.appendChild(
+            row
+        );
+
+
+    });
+
+
+}
+
+// ===============================
+// OPEN INBOX
+// ===============================
+
+async function openInbox(user){
+
+
+    currentUser=user;
+
+
+
+    inboxUserName.textContent =
+    `${user.username} - ID:${user.id}`;
+
+
+
+    inboxTitle.value="";
+
+    inboxContent.value="";
+
+
+
+    inboxModal.style.display =
+    "flex";
+
+
+
+    await loadInboxHistory(
+        user.id
+    );
 
 
 }
 
 
 
-.page5-inbox-history-content{
 
 
-    font-size:14px;
+closeInboxBtn.onclick =
+()=>{
 
-    line-height:1.6;
 
-    color:#333;
+    inboxModal.style.display =
+    "none";
+
+
+    currentUser=null;
+
+
+};
+
+
+
+
+
+
+// ===============================
+// LOAD INBOX HISTORY
+// ===============================
+
+
+async function loadInboxHistory(userId){
+
+
+    if(!inboxHistory)
+        return;
+
+
+
+    inboxHistory.innerHTML =
+    "Loading...";
+
+
+
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "inbox_messages"
+    )
+    .select(
+        "id,title,content,is_read,created_at"
+    )
+    .eq(
+        "user_id",
+        userId
+    )
+    .order(
+        "created_at",
+        {
+            ascending:false
+        }
+    );
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        inboxHistory.innerHTML =
+        "Load failed";
+
+
+        return;
+
+
+    }
+
+
+
+    if(!data || data.length===0){
+
+
+        inboxHistory.innerHTML =
+        "No Inbox History";
+
+
+        return;
+
+
+    }
+
+
+
+    inboxHistory.innerHTML="";
+
+
+
+    data.forEach(item=>{
+
+
+        const box =
+        document.createElement(
+            "div"
+        );
+
+
+        box.className =
+        "page5-inbox-history-item";
+
+
+
+        box.innerHTML=`
+
+        <div class="page5-inbox-history-title">
+
+        ${escapeHtml(item.title)}
+
+        </div>
+
+
+        <div class="page5-inbox-history-content">
+
+        ${escapeHtml(item.content)}
+
+        </div>
+
+
+        <div class="page5-inbox-history-time">
+
+        ${formatTime(item.created_at)}
+
+        </div>
+
+        `;
+
+
+        inboxHistory.appendChild(
+            box
+        );
+
+
+    });
 
 
 }
 
 
 
-.page5-inbox-history-time{
 
 
-    margin-top:8px;
 
-    font-size:12px;
 
-    color:#999;
+// ===============================
+// SEND INBOX
+// ===============================
+
+
+sendInboxBtn.onclick =
+async()=>{
+
+
+    if(!currentUser)
+        return;
+
+
+
+    const title =
+    inboxTitle.value.trim();
+
+
+
+    const content =
+    inboxContent.value.trim();
+
+
+
+    if(!title || !content){
+
+
+        alert(
+            "Please enter title and message"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "inbox_messages"
+    )
+    .insert([
+
+        {
+
+            user_id:
+            currentUser.id,
+
+
+            title,
+
+
+            content,
+
+
+            is_read:false
+
+        }
+
+    ]);
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Inbox send failed"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+    inboxTitle.value="";
+
+    inboxContent.value="";
+
+
+
+    await loadInboxHistory(
+        currentUser.id
+    );
+
+
+
+    alert(
+        "Inbox sent"
+    );
+
+
+};
+
+
+
+
+
+
+
+
+// ===============================
+// OPEN CHAT
+// ===============================
+
+
+async function openChat(user){
+
+
+    currentUser=user;
+
+    chatInput.value="";
+
+
+    // 清除红点
+
+    await clearUserUnread(
+        user.id
+    );
+
+
+
+    chatTitle.textContent =
+    `${user.username} - ID:${user.id}`;
+
+
+
+    chatMessages.innerHTML="";
+
+
+
+    chatModal.style.display =
+    "flex";
+
+
+
+    await loadChatMessages(
+        user.id
+    );
 
 
 }
 
 
 
-.page5-empty{
-
-
-    text-align:center;
-
-    color:#999;
-
-    padding:20px;
-
-}
-
-.page5-unread{
-
-    display:inline-flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    min-width:18px;
-
-    height:18px;
-
-    border-radius:50%;
-
-    background:red;
-
-    color:white;
-
-    font-size:12px;
-
-    margin-left:5px;
-
-}
 
 
 
-.page5-user-unread{
+// ===============================
+// CLEAR USER UNREAD
+// ===============================
 
 
-    display:inline-flex;
+async function clearUserUnread(userId){
 
-    justify-content:center;
 
-    align-items:center;
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .update({
 
-    min-width:18px;
+        is_read:true
 
-    height:18px;
+    })
+    .eq(
+        "sender_id",
+        userId
+    )
+    .eq(
+        "receiver_id",
+        ADMIN_ID
+    )
+    .eq(
+        "is_read",
+        false
+    );
 
-    border-radius:50%;
 
-    background:red;
 
-    color:white;
+    if(error){
 
-    font-size:12px;
+        console.error(error);
 
-    margin-left:8px;
+        return;
+
+    }
+
+
+
+    delete userUnreadMap[userId];
+
+
+    updatePage5Unread();
 
 
 }
 
 
 
-.hidden{
 
-    display:none;
+
+
+
+
+// ===============================
+// LOAD CHAT
+// ===============================
+
+
+async function loadChatMessages(userId){
+
+
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .select(
+        "id,sender_id,receiver_id,content,created_at,is_read"
+    )
+    .or(
+
+`and(sender_id.eq.${userId},receiver_id.eq.${ADMIN_ID}),and(sender_id.eq.${ADMIN_ID},receiver_id.eq.${userId})`
+
+    )
+    .order(
+        "created_at",
+        {
+            ascending:true
+        }
+    );
+
+
+
+    if(error){
+
+        console.error(
+            "Chat load error",
+            error
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    if(!data || data.length===0){
+
+
+        addChatMessage(
+            "system",
+            "No messages yet"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    data.forEach(msg=>{
+
+
+        addChatMessage(
+
+            msg.sender_id === ADMIN_ID
+            ?
+            "admin"
+            :
+            "user",
+
+
+            msg.content,
+
+
+            msg.created_at,
+
+            msg.is_read
+
+        );
+
+
+    });
+
+
 
 }
 
-.unread-dot{
 
-    display:inline-flex;
 
-    justify-content:center;
 
-    align-items:center;
 
-    min-width:8px;
 
-    height:18px;
+// ===============================
+// SEND CHAT
+// ===============================
 
-    padding:0 5px;
 
-    border-radius:50%;
+sendChatBtn.onclick =
+async()=>{
 
-    background:red;
 
-    color:white;
+    if(!currentUser)
+        return;
 
-    font-size:12px;
 
-    font-weight:bold;
 
-    margin-left:5px;
+    const text =
+    chatInput.value.trim();
+
+
+
+    if(!text)
+        return;
+
+
+
+
+    const now =
+    new Date()
+    .toISOString();
+
+
+
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .insert([
+
+        {
+
+            sender_id:
+            ADMIN_ID,
+
+
+            receiver_id:
+            currentUser.id,
+
+
+            content:
+            text,
+
+
+            is_read:false
+
+        }
+
+    ]);
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Send failed"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    addChatMessage(
+
+        "admin",
+
+        text,
+
+        now
+
+    );
+
+
+
+    chatInput.value="";
+
+
+};
+
+
+
+
+
+
+
+// ===============================
+// CTRL + ENTER SEND
+// ===============================
+
+
+chatInput?.addEventListener(
+"keydown",
+e=>{
+
+
+    if(
+        e.key==="Enter"
+        &&
+        e.ctrlKey
+    ){
+
+        sendChatBtn.click();
+
+    }
+
+
+});
+
+
+
+
+
+
+
+// ===============================
+// CHAT UI
+// ===============================
+
+
+function addChatMessage(
+    type,
+    text,
+    createdAt = null,
+    isRead = false
+){
+
+    const div =
+    document.createElement(
+        "div"
+    );
+
+
+    div.className =
+    "page5-chat-message " +
+    type;
+
+
+    // ===============================
+    // CONTENT
+    // ===============================
+
+    const content =
+    document.createElement(
+        "div"
+    );
+
+
+    content.className =
+    "page5-chat-content";
+
+
+    content.innerHTML =
+    escapeHtml(text);
+
+
+    // ===============================
+    // TIME + READ STATUS
+    // ===============================
+
+    const footer =
+    document.createElement(
+        "div"
+    );
+
+
+    footer.className =
+    "page5-chat-footer";
+
+
+    // TIME
+
+    const time =
+    document.createElement(
+        "span"
+    );
+
+
+    time.className =
+    "page5-chat-time";
+
+
+    time.textContent =
+    createdAt
+    ?
+    formatTime(createdAt)
+    :
+    "";
+
+
+    footer.appendChild(
+        time
+    );
+
+
+    // ===============================
+    // READ STATUS
+    // 只有 ADMIN 发出的消息显示
+    // ===============================
+
+    if(type === "admin"){
+
+        const readIcon =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+        );
+
+
+        readIcon.setAttribute(
+            "class",
+            isRead
+            ? "page5-read-icon read"
+            : "page5-read-icon unread"
+        );
+
+
+        readIcon.setAttribute(
+            "viewBox",
+            "0 0 24 24"
+        );
+
+
+        readIcon.setAttribute(
+            "aria-label",
+            isRead
+            ? "Read"
+            : "Unread"
+        );
+
+
+        // ===============================
+        // SVG CHECK
+        // ===============================
+
+        const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+
+        if(isRead){
+
+            // ✅ 双勾
+            path.setAttribute(
+                "d",
+                "M3 12.5l4 4L15 8"
+            );
+
+
+            const path2 =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+            );
+
+
+            path2.setAttribute(
+                "d",
+                "M9 16.5l2 2L21 8"
+            );
+
+
+            readIcon.appendChild(
+                path
+            );
+
+
+            readIcon.appendChild(
+                path2
+            );
+
+        }
+        else{
+
+            // ☑️ 单灰勾
+            path.setAttribute(
+                "d",
+                "M5 12.5l4 4L19 7"
+            );
+
+
+            readIcon.appendChild(
+                path
+            );
+
+        }
+
+
+        footer.appendChild(
+            readIcon
+        );
+
+    }
+
+
+    // ===============================
+    // APPEND
+    // ===============================
+
+    div.appendChild(
+        content
+    );
+
+
+    div.appendChild(
+        footer
+    );
+
+
+    chatMessages.appendChild(
+        div
+    );
+
+
+    chatMessages.scrollTop =
+    chatMessages.scrollHeight;
 
 }
+
+
+// ===============================
+// CLOSE CHAT
+// ===============================
+
+
+closeChatBtn.onclick =
+()=>{
+
+
+    chatModal.style.display =
+    "none";
+
+
+    currentUser=null;
+
+
+    chatMessages.innerHTML="";
+
+
+    chatInput.value="";
+
+
+};
+
+
+
+
+
+
+// ===============================
+// TOOL
+// ===============================
+
+
+function formatTime(time){
+
+
+    if(!time)
+        return "";
+
+
+
+    return new Date(time)
+    .toLocaleString([],{
+
+        year:"numeric",
+
+        month:"numeric",
+
+        day:"numeric",
+
+        hour:"numeric",
+
+        minute:"2-digit",
+
+        hour12:true
+
+    });
+
+
+}
+
+
+
+
+
+function escapeHtml(text){
+
+
+    return String(text || "")
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /\n/g,
+        "<br>"
+    );
+
+
+}
+
+
+
+
+
+
+// ===============================
+// INIT
+// ===============================
+
+
+document.addEventListener(
+"DOMContentLoaded",
+async()=>{
+
+
+    await loadPage5Unread();
+
+
+    await loadPage5Users();
+
+
+});

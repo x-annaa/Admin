@@ -1,154 +1,199 @@
-const ADMIN_ID = 1;
+/* ==========================
+ PAGE5 USER LIST
+========================== */
 
 
-// ===============================
-// DOM
-// ===============================
+#page5AdminUserList{
 
-const page5UserList =
-document.getElementById(
-    "page5AdminUserList"
-);
+    width:100%;
 
-
-const page5Unread =
-document.getElementById(
-    "page5Unread"
-);
+}
 
 
 
-const inboxModal =
-document.getElementById(
-    "page5AdminInboxModal"
-);
+.page5-user-row{
 
 
-const inboxUserName =
-document.getElementById(
-    "page5InboxUserName"
-);
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px;
+
+    margin-bottom:12px;
+
+    background:#fff;
+
+    border-radius:12px;
+
+    box-shadow:
+    0 3px 10px rgba(0,0,0,.08);
 
 
-const inboxTitle =
-document.getElementById(
-    "page5InboxTitle"
-);
+}
 
 
-const inboxContent =
-document.getElementById(
-    "page5InboxContent"
-);
 
+.page5-user-info{
 
-const inboxHistory =
-document.getElementById(
-    "page5InboxHistory"
-);
+    font-size:16px;
 
+    font-weight:600;
 
-const sendInboxBtn =
-document.getElementById(
-    "page5SendInboxBtn"
-);
-
-
-const closeInboxBtn =
-document.getElementById(
-    "page5CloseInboxBtn"
-);
+}
 
 
 
 
-const chatModal =
-document.getElementById(
-    "page5AdminChatModal"
-);
+.page5-user-actions button{
 
 
-const chatTitle =
-document.getElementById(
-    "page5ChatUserTitle"
-);
+    border:none;
 
+    padding:8px 16px;
 
-const chatMessages =
-document.getElementById(
-    "page5AdminChatMessages"
-);
+    margin-left:8px;
 
+    border-radius:20px;
 
-const chatInput =
-document.getElementById(
-    "page5AdminChatInput"
-);
+    cursor:pointer;
 
+    color:white;
 
-const sendChatBtn =
-document.getElementById(
-    "page5AdminSendChatBtn"
-);
+    font-size:14px;
 
-
-const closeChatBtn =
-document.getElementById(
-    "page5CloseChatBtn"
-);
+}
 
 
 
+.page5-inbox-btn{
 
-let currentUser=null;
+    background:#4caf50;
+
+}
 
 
-// 用户未读
-let userUnreadMap={};
+
+.page5-chat-btn{
+
+    background:#2196f3;
+
+}
 
 
 
 
-// ===============================
-// LOAD USERS
-// ===============================
 
-async function loadPage5Users(){
-
-
-    const {
-        data,
-        error
-    } =
-    await supabaseClient
-    .from("users")
-    .select(
-        "id,username"
-    )
-    .neq(
-        "id",
-        ADMIN_ID
-    )
-    .order(
-        "id",
-        {
-            ascending:true
-        }
-    );
+/* ==========================
+ MODAL
+========================== */
 
 
+.page5-admin-modal{
 
-    if(error){
 
-        console.error(error);
+    position:fixed;
 
-        return;
+    inset:0;
 
-    }
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+    rgba(0,0,0,.45);
+
+    z-index:9999;
+
+
+}
 
 
 
-    renderUsers(data);
+.page5-admin-modal-box{
+
+
+    width:380px;
+
+    max-width:90%;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+
+}
+
+
+
+
+.page5-admin-modal-box input,
+.page5-admin-modal-box textarea{
+
+
+    width:100%;
+
+    margin-top:12px;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    box-sizing:border-box;
+
+
+}
+
+
+
+
+.page5-admin-modal-box textarea{
+
+
+    height:80px;
+
+    resize:none;
+
+
+}
+
+
+
+
+.page5-admin-modal-box button{
+
+
+    margin-top:5px;
+
+    padding:10px 18px;
+
+    border:none;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+#page5SendInboxBtn,
+#page5AdminSendChatBtn{
+
+
+    background:#2196f3;
+
+    color:white;
 
 
 }
@@ -158,66 +203,37 @@ async function loadPage5Users(){
 
 
 
-// ===============================
-// LOAD UNREAD
-// ===============================
-
-async function loadPage5Unread(){
+/* ==========================
+ CHAT
+========================== */
 
 
-    const {
-        data,
-        error
-    }
-    =
-    await supabaseClient
-    .from("messages")
-    .select(
-        "sender_id"
-    )
-    .eq(
-        "receiver_id",
-        ADMIN_ID
-    )
-    .eq(
-        "is_read",
-        false
-    );
+.page5-chat-box{
+
+
+    height:560px;
+
+    display:flex;
+
+    flex-direction:column;
+
+
+}
 
 
 
-    if(error){
-
-        console.error(error);
-
-        return;
-
-    }
+#page5AdminChatMessages{
 
 
+    flex:1;
 
-    userUnreadMap={};
+    overflow-y:auto;
 
+    padding:15px;
 
+    background:#f5f5f5;
 
-    data.forEach(msg=>{
-
-
-        if(!userUnreadMap[msg.sender_id]){
-
-            userUnreadMap[msg.sender_id]=0;
-
-        }
-
-
-        userUnreadMap[msg.sender_id]++;
-
-
-    });
-
-
-
-    updatePage5Unread();
+    margin-top:15px;
 
 
 }
@@ -226,53 +242,46 @@ async function loadPage5Unread(){
 
 
 
-
-// ===============================
-// PAGE5 RED DOT
-// ===============================
+.page5-chat-message{
 
 
-function updatePage5Unread(){
+    max-width:70%;
+
+    padding:10px 15px;
+
+    margin-bottom:10px;
+
+    border-radius:18px;
+
+    line-height:1.5;
 
 
-    let total=0;
-
-
-    Object.values(
-        userUnreadMap
-    )
-    .forEach(
-        n=>{
-
-            total+=n;
-
-        }
-    );
+}
 
 
 
-    if(total>0){
+.page5-chat-message.admin{
 
 
-        page5Unread.textContent =
-        total;
+    margin-left:auto;
+
+    background:#2196f3;
+
+    color:white;
 
 
-        page5Unread.classList.remove(
-            "hidden"
-        );
+}
 
 
-    }
-    else{
+
+.page5-chat-message.user{
 
 
-        page5Unread.classList.add(
-            "hidden"
-        );
+    margin-right:auto;
 
+    background:white;
 
-    }
+    border:1px solid #ddd;
 
 
 }
@@ -280,156 +289,27 @@ function updatePage5Unread(){
 
 
 
+#page5AdminChatInput{
 
 
-// ===============================
-// USER LIST
-// ===============================
-
-function renderUsers(users){
-
-
-    page5UserList.innerHTML="";
-
-
-
-    users.forEach(user=>{
-
-
-        const row =
-        document.createElement(
-            "div"
-        );
-
-
-        row.className =
-        "page5-user-row";
-
-
-
-        let unread="";
-
-
-        if(userUnreadMap[user.id]){
-
-
-            unread=
-            `
-            <span class="page5-user-unread">
-
-            ${userUnreadMap[user.id]}
-
-            </span>
-            `;
-
-
-        }
-
-
-
-
-        row.innerHTML=`
-
-        <div class="page5-user-info">
-
-        ${user.username}
-
-        -
-
-        ${user.id}
-
-        ${unread}
-
-        </div>
-
-
-        <div class="page5-user-actions">
-
-
-        <button class="page5-inbox-btn">
-
-        Inbox
-
-        </button>
-
-
-
-        <button class="page5-chat-btn">
-
-        Chat
-
-        </button>
-
-
-        </div>
-
-        `;
-
-
-
-
-        row.querySelector(
-            ".page5-inbox-btn"
-        )
-        .onclick=()=>{
-
-            openInbox(user);
-
-        };
-
-
-
-        row.querySelector(
-            ".page5-chat-btn"
-        )
-        .onclick=()=>{
-
-            openChat(user);
-
-        };
-
-
-
-        page5UserList.appendChild(
-            row
-        );
-
-
-    });
+    height:80px;
 
 
 }
 
-// ===============================
-// OPEN INBOX
-// ===============================
-
-async function openInbox(user){
+/* =========================
+   CHAT CONTENT
+========================= */
 
 
-    currentUser=user;
+.page5-chat-content{
 
 
+    white-space:pre-wrap;
 
-    inboxUserName.textContent =
-    `${user.username} - ID:${user.id}`;
+    word-break:break-word;
 
-
-
-    inboxTitle.value="";
-
-    inboxContent.value="";
-
-
-
-    inboxModal.style.display =
-    "flex";
-
-
-
-    await loadInboxHistory(
-        user.id
-    );
+    line-height:1.5;
 
 
 }
@@ -437,821 +317,200 @@ async function openInbox(user){
 
 
 
+.page5-chat-time{
 
-closeInboxBtn.onclick =
-()=>{
 
+    margin-top:6px;
 
-    inboxModal.style.display =
-    "none";
+    font-size:11px;
 
+    opacity:.65;
 
-    currentUser=null;
+    text-align:right;
 
 
-};
+}
 
+.page5-inbox-history{
 
+    margin-bottom:20px;
 
+}
 
 
+.page5-inbox-history h3{
 
-// ===============================
-// LOAD INBOX HISTORY
-// ===============================
+    font-size:16px;
 
+    margin-bottom:10px;
 
-async function loadInboxHistory(userId){
+}
 
 
-    if(!inboxHistory)
-        return;
 
+#page5InboxHistory{
 
+    max-height:250px;
 
-    inboxHistory.innerHTML =
-    "Loading...";
+    overflow-y:auto;
 
+}
 
 
-    const {
-        data,
-        error
-    }
-    =
-    await supabaseClient
-    .from(
-        "inbox_messages"
-    )
-    .select(
-        "id,title,content,is_read,created_at"
-    )
-    .eq(
-        "user_id",
-        userId
-    )
-    .order(
-        "created_at",
-        {
-            ascending:false
-        }
-    );
 
+.page5-inbox-history-item{
 
 
-    if(error){
+    background:#f7f7f7;
 
+    padding:12px;
 
-        console.error(error);
+    margin-bottom:10px;
 
-
-        inboxHistory.innerHTML =
-        "Load failed";
-
-
-        return;
-
-
-    }
-
-
-
-    if(!data || data.length===0){
-
-
-        inboxHistory.innerHTML =
-        "No Inbox History";
-
-
-        return;
-
-
-    }
-
-
-
-    inboxHistory.innerHTML="";
-
-
-
-    data.forEach(item=>{
-
-
-        const box =
-        document.createElement(
-            "div"
-        );
-
-
-        box.className =
-        "page5-inbox-history-item";
-
-
-
-        box.innerHTML=`
-
-        <div class="page5-inbox-history-title">
-
-        ${escapeHtml(item.title)}
-
-        </div>
-
-
-        <div class="page5-inbox-history-content">
-
-        ${escapeHtml(item.content)}
-
-        </div>
-
-
-        <div class="page5-inbox-history-time">
-
-        ${formatTime(item.created_at)}
-
-        </div>
-
-        `;
-
-
-        inboxHistory.appendChild(
-            box
-        );
-
-
-    });
+    border-radius:10px;
 
 
 }
 
 
 
+.page5-inbox-history-title{
 
 
+    font-weight:600;
 
+    font-size:15px;
 
-// ===============================
-// SEND INBOX
-// ===============================
-
-
-sendInboxBtn.onclick =
-async()=>{
-
-
-    if(!currentUser)
-        return;
-
-
-
-    const title =
-    inboxTitle.value.trim();
-
-
-
-    const content =
-    inboxContent.value.trim();
-
-
-
-    if(!title || !content){
-
-
-        alert(
-            "Please enter title and message"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    const {
-        error
-    }
-    =
-    await supabaseClient
-    .from(
-        "inbox_messages"
-    )
-    .insert([
-
-        {
-
-            user_id:
-            currentUser.id,
-
-
-            title,
-
-
-            content,
-
-
-            is_read:false
-
-        }
-
-    ]);
-
-
-
-    if(error){
-
-
-        console.error(error);
-
-
-        alert(
-            "Inbox send failed"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    inboxTitle.value="";
-
-    inboxContent.value="";
-
-
-
-    await loadInboxHistory(
-        currentUser.id
-    );
-
-
-
-    alert(
-        "Inbox sent"
-    );
-
-
-};
-
-
-
-
-
-
-
-
-// ===============================
-// OPEN CHAT
-// ===============================
-
-
-async function openChat(user){
-
-
-    currentUser=user;
-
-    chatInput.value="";
-
-
-    // 清除红点
-
-    await clearUserUnread(
-        user.id
-    );
-
-
-
-    chatTitle.textContent =
-    `${user.username} - ID:${user.id}`;
-
-
-
-    chatMessages.innerHTML="";
-
-
-
-    chatModal.style.display =
-    "flex";
-
-
-
-    await loadChatMessages(
-        user.id
-    );
+    margin-bottom:8px;
 
 
 }
 
 
 
+.page5-inbox-history-content{
 
 
+    font-size:14px;
 
-// ===============================
-// CLEAR USER UNREAD
-// ===============================
+    line-height:1.6;
 
-
-async function clearUserUnread(userId){
-
-
-    const {
-        error
-    }
-    =
-    await supabaseClient
-    .from(
-        "messages"
-    )
-    .update({
-
-        is_read:true
-
-    })
-    .eq(
-        "sender_id",
-        userId
-    )
-    .eq(
-        "receiver_id",
-        ADMIN_ID
-    )
-    .eq(
-        "is_read",
-        false
-    );
-
-
-
-    if(error){
-
-        console.error(error);
-
-        return;
-
-    }
-
-
-
-    delete userUnreadMap[userId];
-
-
-    updatePage5Unread();
+    color:#333;
 
 
 }
 
 
 
+.page5-inbox-history-time{
 
 
+    margin-top:8px;
 
+    font-size:12px;
 
-
-// ===============================
-// LOAD CHAT
-// ===============================
-
-
-async function loadChatMessages(userId){
-
-
-    const {
-        data,
-        error
-    }
-    =
-    await supabaseClient
-    .from(
-        "messages"
-    )
-    .select(
-        "id,sender_id,receiver_id,content,created_at"
-    )
-    .or(
-
-`and(sender_id.eq.${userId},receiver_id.eq.${ADMIN_ID}),and(sender_id.eq.${ADMIN_ID},receiver_id.eq.${userId})`
-
-    )
-    .order(
-        "created_at",
-        {
-            ascending:true
-        }
-    );
-
-
-
-    if(error){
-
-        console.error(
-            "Chat load error",
-            error
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-    if(!data || data.length===0){
-
-
-        addChatMessage(
-            "system",
-            "No messages yet"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-    data.forEach(msg=>{
-
-
-        addChatMessage(
-
-            msg.sender_id === ADMIN_ID
-            ?
-            "admin"
-            :
-            "user",
-
-
-            msg.content,
-
-
-            msg.created_at
-
-        );
-
-
-    });
-
+    color:#999;
 
 
 }
 
 
 
+.page5-empty{
 
 
+    text-align:center;
 
-// ===============================
-// SEND CHAT
-// ===============================
+    color:#999;
 
+    padding:20px;
 
-sendChatBtn.onclick =
-async()=>{
+}
 
+.page5-unread{
 
-    if(!currentUser)
-        return;
+    display:inline-flex;
 
+    justify-content:center;
 
+    align-items:center;
 
-    const text =
-    chatInput.value.trim();
+    min-width:18px;
 
+    height:18px;
 
+    border-radius:50%;
 
-    if(!text)
-        return;
+    background:red;
 
+    color:white;
 
+    font-size:12px;
 
+    margin-left:5px;
 
-    const now =
-    new Date()
-    .toISOString();
+}
 
 
 
-    const {
-        error
-    }
-    =
-    await supabaseClient
-    .from(
-        "messages"
-    )
-    .insert([
+.page5-user-unread{
 
-        {
 
-            sender_id:
-            ADMIN_ID,
+    display:inline-flex;
 
+    justify-content:center;
 
-            receiver_id:
-            currentUser.id,
+    align-items:center;
 
+    min-width:18px;
 
-            content:
-            text,
+    height:18px;
 
+    border-radius:50%;
 
-            is_read:false
+    background:red;
 
-        }
+    color:white;
 
-    ]);
+    font-size:12px;
 
-
-
-    if(error){
-
-
-        console.error(error);
-
-
-        alert(
-            "Send failed"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-
-    addChatMessage(
-
-        "admin",
-
-        text,
-
-        now
-
-    );
-
-
-
-    chatInput.value="";
-
-
-};
-
-
-
-
-
-
-
-// ===============================
-// CTRL + ENTER SEND
-// ===============================
-
-
-chatInput?.addEventListener(
-"keydown",
-e=>{
-
-
-    if(
-        e.key==="Enter"
-        &&
-        e.ctrlKey
-    ){
-
-        sendChatBtn.click();
-
-    }
-
-
-});
-
-
-
-
-
-
-
-// ===============================
-// CHAT UI
-// ===============================
-
-
-function addChatMessage(
-type,
-text,
-createdAt=null
-){
-
-
-    const div =
-    document.createElement(
-        "div"
-    );
-
-
-
-    div.className =
-    "page5-chat-message "
-    +
-    type;
-
-
-
-
-    const content =
-    document.createElement(
-        "div"
-    );
-
-
-
-    content.className =
-    "page5-chat-content";
-
-
-
-    content.innerHTML =
-    escapeHtml(text);
-
-
-
-
-
-    const time =
-    document.createElement(
-        "div"
-    );
-
-
-
-    time.className =
-    "page5-chat-time";
-
-
-
-    time.textContent =
-    createdAt
-    ?
-    formatTime(createdAt)
-    :
-    "";
-
-
-
-
-    div.appendChild(
-        content
-    );
-
-
-    div.appendChild(
-        time
-    );
-
-
-
-    chatMessages.appendChild(
-        div
-    );
-
-
-
-    chatMessages.scrollTop =
-    chatMessages.scrollHeight;
+    margin-left:8px;
 
 
 }
 
 
 
+.hidden{
 
-
-
-
-// ===============================
-// CLOSE CHAT
-// ===============================
-
-
-closeChatBtn.onclick =
-()=>{
-
-
-    chatModal.style.display =
-    "none";
-
-
-    currentUser=null;
-
-
-    chatMessages.innerHTML="";
-
-
-    chatInput.value="";
-
-
-};
-
-
-
-
-
-
-// ===============================
-// TOOL
-// ===============================
-
-
-function formatTime(time){
-
-
-    if(!time)
-        return "";
-
-
-
-    return new Date(time)
-    .toLocaleString([],{
-
-        year:"numeric",
-
-        month:"numeric",
-
-        day:"numeric",
-
-        hour:"numeric",
-
-        minute:"2-digit",
-
-        hour12:true
-
-    });
-
+    display:none;
 
 }
 
+.unread-dot{
 
+    display:inline-flex;
 
+    justify-content:center;
 
+    align-items:center;
 
-function escapeHtml(text){
+    min-width:8px;
 
+    height:18px;
 
-    return String(text || "")
+    padding:0 5px;
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
+    border-radius:50%;
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
+    background:red;
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+    color:white;
 
-    .replace(
-        /\n/g,
-        "<br>"
-    );
+    font-size:12px;
 
+    font-weight:bold;
+
+    margin-left:5px;
 
 }
-
-
-
-
-
-
-// ===============================
-// INIT
-// ===============================
-
-
-document.addEventListener(
-"DOMContentLoaded",
-async()=>{
-
-
-    await loadPage5Unread();
-
-
-    await loadPage5Users();
-
-
-});

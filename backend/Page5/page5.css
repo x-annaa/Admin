@@ -1,212 +1,588 @@
-/* =======================
-   居中客服聊天弹窗
-======================= */
+/* ==========================
+ PAGE5 USER LIST
+========================== */
 
-/* 聊天弹窗整体 */
-#adminChatWindow {
-  display: none; /* 默认隐藏 */
-  position: fixed; /* 悬浮在页面 */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* 完全居中 */
-  width: 400px; /* 弹窗宽度，可调整 */
-  height: 600px; /* 弹窗高度，可调整 */
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  background-color: #f9f9f9;
-  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  z-index: 9999; /* 保证在最上层 */
+
+#page5AdminUserList{
+
+    width:100%;
+
 }
 
-/* 聊天头部 */
-.admin-chat-header {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  background-color: #fff;
-  border-bottom: 1px solid #e6e6e6;
-  font-weight: 600;
-  font-size: 16px;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+
+.page5-user-row{
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px;
+
+    margin-bottom:12px;
+
+    background:#fff;
+
+    border-radius:12px;
+
+    box-shadow:
+    0 3px 10px rgba(0,0,0,.08);
+
+
 }
 
-/* 返回按钮 */
-#adminBackBtn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 18px;
-  margin-right: 12px;
-  color: #555;
-  transition: color 0.2s;
+
+
+.page5-user-info{
+
+    font-size:16px;
+
+    font-weight:600;
+
 }
 
-#adminBackBtn:hover {
-  color: #000;
+
+
+
+.page5-user-actions button{
+
+
+    border:none;
+
+    padding:8px 16px;
+
+    margin-left:8px;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    color:white;
+
+    font-size:14px;
+
 }
 
-/* 消息列表 */
-#adminChatMessages {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  overflow-y: auto;
-  gap: 10px;
-  background-color: #f4f6f8;
-  border-radius: 0 0 0 0;
+
+
+.page5-inbox-btn{
+
+    background:#4caf50;
+
 }
 
-/* 消息气泡 */
-.message-item {
-  max-width: 70%;
-  padding: 10px 16px;
-  border-radius: 20px;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.5;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+
+.page5-chat-btn{
+
+    background:#2196f3;
+
 }
 
-/* 我发送的消息 */
-.message-item.me {
-  background: linear-gradient(135deg, #87e0fd, #53cbf1);
-  color: #fff;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
+
+
+
+
+/* ==========================
+ MODAL
+========================== */
+
+
+.page5-admin-modal{
+
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+    rgba(0,0,0,.45);
+
+    z-index:9999;
+
+
 }
 
-/* 用户发送的消息 */
-.message-item.user {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  color: #333;
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
+
+
+.page5-admin-modal-box{
+
+
+    width:380px;
+
+    max-width:90%;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:18px;
+
+
 }
 
-/* 输入框容器 */
-.admin-chat-input {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-top: 1px solid #e6e6e6;
-  background-color: #fff;
+
+
+
+.page5-admin-modal-box input,
+.page5-admin-modal-box textarea{
+
+
+    width:100%;
+
+    margin-top:12px;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    box-sizing:border-box;
+
+
 }
 
-/* 输入框 */
-#adminChatInput {
-  flex: 1;
-  padding: 10px 16px;
-  border-radius: 24px;
-  border: 1px solid #ccc;
-  outline: none;
-  font-size: 14px;
-  transition: border 0.2s;
+
+
+
+.page5-admin-modal-box textarea{
+
+
+    height:80px;
+
+    resize:none;
+
+
 }
 
-#adminChatInput:focus {
-  border-color: #53cbf1;
+
+
+
+.page5-admin-modal-box button{
+
+
+    margin-top:5px;
+
+    padding:10px 18px;
+
+    border:none;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+
 }
 
-/* 发送按钮 */
-#adminSendBtn {
-  margin-left: 12px;
-  padding: 10px 20px;
-  border-radius: 24px;
-  border: none;
-  background-color: #53cbf1;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+
+
+
+#page5SendInboxBtn,
+#page5AdminSendChatBtn{
+
+
+    background:#2196f3;
+
+    color:white;
+
+
 }
 
-#adminSendBtn:hover {
-  background-color: #42a8d8;
+
+
+
+
+
+/* ==========================
+ CHAT
+========================== */
+
+
+.page5-chat-box{
+
+
+    height:560px;
+
+    display:flex;
+
+    flex-direction:column;
+
+
 }
 
-/* 用户列表 */
-#userList {
-  max-height: 300px;
-  overflow-y: auto;
-  border-radius: 12px;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  margin-bottom: 16px;
+
+
+#page5AdminChatMessages{
+
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:15px;
+
+    background:#f5f5f5;
+
+    margin-top:15px;
+
+
 }
 
-/* 用户项 */
-.user-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 500;
-  transition: background 0.2s;
+
+
+
+
+.page5-chat-message{
+
+
+    max-width:70%;
+
+    padding:10px 15px;
+
+    margin-bottom:10px;
+
+    border-radius:18px;
+
+    line-height:1.5;
+
+
 }
 
-.user-item:hover {
-  background-color: #f0f8ff;
+
+
+.page5-chat-message.admin{
+
+
+    margin-left:auto;
+
+    background:#2196f3;
+
+    color:white;
+
+
 }
 
-.user-item.active {
-  background-color: #e6f7ff;
-  font-weight: 600;
+
+
+.page5-chat-message.user{
+
+
+    margin-right:auto;
+
+    background:white;
+
+    border:1px solid #ddd;
+
+
 }
 
-/* 未读红点 */
-.unread-dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 10px;
-  height: 18px;
-  padding: 0 6px;
-  border-radius: 12px;
-  background-color: #ff4d4f;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+
+
+
+#page5AdminChatInput{
+
+
+    height:80px;
+
+
 }
 
-/* 页面5 全部用户列表 */
-#allUsersList {
-  max-height: 150px;       /* 更紧凑的高度 */
-  overflow-y: auto;        /* 超出部分出现滚动条 */
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  padding: 4px;            /* 缩小内边距 */
-  font-size: 14px;         /* 字体小一点 */
+/* =========================
+   CHAT CONTENT
+========================= */
+
+
+.page5-chat-content{
+
+
+    white-space:pre-wrap;
+
+    word-break:break-word;
+
+    line-height:1.5;
+
+
 }
 
-/* 用户项 */
-.user-item-full {
-  padding: 6px 8px;        /* 更紧凑 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f0f0f0;
+
+
+
+.page5-chat-time{
+
+
+    margin-top:6px;
+
+    font-size:11px;
+
+    opacity:.65;
+
+    text-align:right;
+
+
 }
 
-.user-item-full button {
-  padding: 2px 6px;        /* 小按钮 */
-  font-size: 12px;
-  border-radius: 12px;
-  border: none;
-  background-color: #53cbf1;
-  color: #fff;
-  cursor: pointer;
+.page5-inbox-history{
+
+    margin-bottom:20px;
+
 }
 
-.user-item-full button:hover {
-  background-color: #42a8d8;
+
+.page5-inbox-history h3{
+
+    font-size:16px;
+
+    margin-bottom:10px;
+
+}
+
+
+
+#page5InboxHistory{
+
+    max-height:250px;
+
+    overflow-y:auto;
+
+}
+
+
+
+.page5-inbox-history-item{
+
+
+    background:#f7f7f7;
+
+    padding:12px;
+
+    margin-bottom:10px;
+
+    border-radius:10px;
+
+
+}
+
+
+
+.page5-inbox-history-title{
+
+
+    font-weight:600;
+
+    font-size:15px;
+
+    margin-bottom:8px;
+
+
+}
+
+
+
+.page5-inbox-history-content{
+
+
+    font-size:14px;
+
+    line-height:1.6;
+
+    color:#333;
+
+
+}
+
+
+
+.page5-inbox-history-time{
+
+
+    margin-top:8px;
+
+    font-size:12px;
+
+    color:#999;
+
+
+}
+
+
+
+.page5-empty{
+
+
+    text-align:center;
+
+    color:#999;
+
+    padding:20px;
+
+}
+
+.page5-unread{
+
+    display:inline-flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    background:red;
+
+    color:white;
+
+    font-size:12px;
+
+    margin-left:5px;
+
+}
+
+
+
+.page5-user-unread{
+
+
+    display:inline-flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    background:red;
+
+    color:white;
+
+    font-size:12px;
+
+    margin-left:8px;
+
+
+}
+
+
+
+.hidden{
+
+    display:none;
+
+}
+
+.unread-dot{
+
+    display:inline-flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-width:8px;
+
+    height:18px;
+
+    padding:0 5px;
+
+    border-radius:50%;
+
+    background:red;
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+    margin-left:5px;
+
+}
+
+/* =========================
+   CHAT TIME + READ STATUS
+========================= */
+
+.page5-chat-footer{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:5px;
+
+    margin-top:6px;
+
+}
+
+
+/* =========================
+   TIME
+========================= */
+
+.page5-chat-time{
+
+    font-size:11px;
+
+    opacity:.65;
+
+}
+
+
+/* =========================
+   READ SVG
+========================= */
+
+.page5-read-icon{
+
+    width:15px;
+
+    height:15px;
+
+    fill:none;
+
+    stroke-width:2.2;
+
+    stroke-linecap:round;
+
+    stroke-linejoin:round;
+
+    flex-shrink:0;
+
+}
+
+
+/* 未读：灰色 ☑️ */
+
+.page5-read-icon.unread{
+
+    stroke:#9e9e9e;
+
+}
+
+
+/* 已读：绿色 ✅ */
+
+.page5-read-icon.read{
+
+    stroke:#22c55e;
+
 }

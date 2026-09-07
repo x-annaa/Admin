@@ -151,24 +151,188 @@
 </div>
 
 <!-- 页面5: 客服聊天 -->
+<!-- Page5 -->
+
 <div id="page5" class="page">
-  <button id="loadAllUsersBtn">+</button>
 
-  <!-- 用户列表容器 -->
-  <div id="allUsersList" style="margin-top: 16px;"></div>
 
-  <!-- 聊天窗口 -->
-  <div id="adminChatWindow" class="admin-chat-window" style="display:none;">
-    <div class="admin-chat-header">
-      <button id="adminBackBtn">⬅ 返回</button>
-      <span id="adminChatUserInfo">用户ID: 0 - 用户名</span>
+<h2>
+💬 User Messages
+</h2>
+
+
+<div id="page5AdminUserList">
+
+</div>
+
+
+
+<!-- Inbox -->
+
+<div id="page5AdminInboxModal"
+     class="page5-admin-modal">
+
+
+    <div class="page5-admin-modal-box">
+
+
+
+        <h3>
+            Send Inbox
+        </h3>
+
+
+
+        <!-- 当前用户 -->
+
+        <div
+        id="page5InboxUserName"
+        class="page5-inbox-user-name">
+        </div>
+
+
+
+
+
+        <!-- =====================
+             Inbox History
+        ====================== -->
+
+
+        <div class="page5-inbox-history">
+
+            <div
+            id="page5InboxHistory"
+            class="page5-inbox-history-list">
+
+
+                Loading...
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- =====================
+             New Inbox
+        ====================== -->
+
+
+        <div class="page5-inbox-send">
+
+
+            <input
+            id="page5InboxTitle"
+            type="text"
+            placeholder="Title">
+
+
+
+
+
+            <textarea
+            id="page5InboxContent"
+            placeholder="Message"
+            rows="5"></textarea>
+
+
+
+        </div>
+
+
+
+
+
+
+        <!-- =====================
+             Buttons
+        ====================== -->
+
+
+        <div class="page5-admin-modal-buttons">
+
+
+            <button
+            id="page5SendInboxBtn">
+
+                Send
+
+            </button>
+
+
+
+            <button
+            id="page5CloseInboxBtn">
+
+                Close
+
+            </button>
+
+
+
+        </div>
+
+
+
     </div>
-    <div id="adminChatMessages" class="admin-chat-messages"></div>
-    <div class="admin-chat-input">
-      <textarea id="adminChatInput" placeholder="输入消息..." rows="2"></textarea>
-      <button id="adminSendBtn">发送</button>
+
+
+</div>
+
+
+
+<!-- Chat -->
+
+
+<div id="page5AdminChatModal"
+     class="page5-admin-modal">
+
+
+    <div class="page5-admin-modal-box page5-chat-box">
+
+
+        <h3 id="page5ChatUserTitle">
+        </h3>
+
+
+        <div id="page5AdminChatMessages">
+
+        </div>
+
+
+
+        <textarea
+        id="page5AdminChatInput"
+        placeholder="Message">
+        </textarea>
+
+
+
+        <button id="page5AdminSendChatBtn">
+        Send
+        </button>
+
+
+
+        <button id="page5CloseChatBtn">
+        Close
+        </button>
+
+
     </div>
-  </div>
+
+
+</div>
+
+
 </div>
 
 
@@ -177,9 +341,9 @@
   <button data-page="userPage" class="active">Users</button>
   <button data-page="productPage">Products</button>
   <button data-page="page3">Withdrawals</button>
-  <button data-page="page4">Page4</button>
+  <button data-page="page4">Deposit</button>
   <button data-page="page5" style="position: relative;">
-    Page5
+    Chat
     <span id="page5Unread" class="unread-dot hidden"></span>
   </button>
 </div>

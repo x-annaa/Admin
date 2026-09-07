@@ -1,329 +1,1257 @@
-// =======================
-// DOM 元素
-// =======================
-const userListEl = document.createElement('div');
-userListEl.id = 'userList';
-document.getElementById('page5').prepend(userListEl);
+const ADMIN_ID = 1;
 
-const adminChatWindow = document.getElementById("adminChatWindow");
-const adminBackBtn = document.getElementById("adminBackBtn");
-const adminChatMessages = document.getElementById("adminChatMessages");
-const adminChatInput = document.getElementById("adminChatInput");
-const adminSendBtn = document.getElementById("adminSendBtn");
-const adminChatUserInfo = document.getElementById("adminChatUserInfo");
-const page5UnreadEl = document.getElementById("page5Unread");
 
-const notificationSound = new Audio("https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3");
-let soundUnlocked = false;
+// ===============================
+// DOM
+// ===============================
 
-// =======================
-// 数据结构
-// =======================
-let users = {}; // key: userId, value: { username, unreadCount, messages: [] }
-let currentChatUserId = null;
-let chatSubscription = null;
+const page5UserList =
+document.getElementById(
+    "page5AdminUserList"
+);
 
-async function fetchUsersWithUnread() {
-  try {
-    // 拉取所有与客服相关的消息（发送或接收）
-    const { data: messages, error: msgError } = await supabaseClient
-      .from("messages")
-      .select("*")
-      .or(`receiver_id.eq.1,sender_id.eq.1`)
-      .order("created_at", { ascending: true });
 
-    if (msgError) {
-      console.error("获取用户消息失败", msgError);
-      return;
-    }
+const page5Unread =
+document.getElementById(
+    "page5Unread"
+);
 
-    // 获取所有相关用户 ID
-    const userIds = [...new Set(messages.map(msg => msg.sender_id === 1 ? msg.receiver_id : msg.sender_id))];
 
-    // 拉取真实用户名
-    const { data: usersData, error: usersError } = await supabaseClient
-      .from("users")
-      .select("id, username")
-      .in("id", userIds);
 
-    if (usersError) {
-      console.error("获取用户信息失败", usersError);
-      return;
-    }
+const inboxModal =
+document.getElementById(
+    "page5AdminInboxModal"
+);
 
-    // 建立 id -> username 映射
-    const userMap = {};
-    usersData.forEach(u => userMap[u.id] = u.username);
 
-    // 初始化用户对象
-    messages.forEach(msg => {
-      const userId = msg.sender_id === 1 ? msg.receiver_id : msg.sender_id;
+const inboxUserName =
+document.getElementById(
+    "page5InboxUserName"
+);
 
-      if (!users[userId]) {
-        users[userId] = { 
-          username: userMap[userId] || `User ${userId}`, // 使用数据库用户名
-          unreadCount: 0, 
-          messages: [] 
-        };
-      }
 
-      users[userId].messages.push(msg);
+const inboxTitle =
+document.getElementById(
+    "page5InboxTitle"
+);
 
-      // 统计未读
-      if (msg.receiver_id === 1 && !msg.is_read) {
-        users[userId].unreadCount++;
-      }
-    });
 
-    renderUserList();
-    updatePage5Unread();
-  } catch (err) {
-    console.error("fetchUsersWithUnread 异常:", err);
-  }
-}
+const inboxContent =
+document.getElementById(
+    "page5InboxContent"
+);
 
-// =======================
-// 渲染用户列表
-// =======================
-function renderUserList() {
-  userListEl.innerHTML = "";
-  for (const [userId, user] of Object.entries(users)) {
-    const div = document.createElement("div");
-    div.classList.add("user-item");
-    if (userId == currentChatUserId) div.classList.add("active");
-    div.dataset.userId = userId;
-    div.textContent = user.username;
 
-    if (user.unreadCount > 0) {
-      const dot = document.createElement("span");
-      dot.classList.add("unread-dot");
-      dot.textContent = user.unreadCount;
-      div.appendChild(dot);
-    }
+const inboxHistory =
+document.getElementById(
+    "page5InboxHistory"
+);
 
-    div.addEventListener("click", () => openChat(userId));
-    userListEl.appendChild(div);
-  }
-}
 
-// =======================
-// 打开聊天窗口
-// =======================
-function openChat(userId) {
-  currentChatUserId = userId;
-  const user = users[userId];
-  adminChatUserInfo.textContent = `用户ID: ${userId} - ${user.username}`;
-  adminChatMessages.innerHTML = "";
+const sendInboxBtn =
+document.getElementById(
+    "page5SendInboxBtn"
+);
 
-  // 按时间顺序显示历史消息
-  user.messages.sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
-               .forEach(msg => appendMessage(msg.sender_id === 1 ? "me" : "user", msg.content));
 
-  adminChatWindow.style.display = "flex";
+const closeInboxBtn =
+document.getElementById(
+    "page5CloseInboxBtn"
+);
 
-  // 标记已读
-  markMessagesAsRead(userId);
-}
 
-// =======================
-// 关闭聊天窗口
-// =======================
-adminBackBtn.addEventListener("click", () => {
-  adminChatWindow.style.display = "none";
-  currentChatUserId = null;
-  renderUserList();
-});
 
-// =======================
-// 显示消息
-// =======================
-function appendMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.classList.add("message-item", sender);
-  msg.innerHTML = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>"); // ✅ 支持换行显示
-  adminChatMessages.appendChild(msg);
-  adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-}
 
-// =======================
-// 发送消息
-// =======================
-adminSendBtn.addEventListener("click", async () => {
-  if (!currentChatUserId) return;
-  const content = adminChatInput.value.trim();
-  if (!content) return;
+const chatModal =
+document.getElementById(
+    "page5AdminChatModal"
+);
 
-  appendMessage("me", content);
-  adminChatInput.value = "";
 
-  if (!users[currentChatUserId].messages) users[currentChatUserId].messages = [];
-  users[currentChatUserId].messages.push({
-    sender_id: 1,
-    receiver_id: Number(currentChatUserId),
-    content,
-    is_read: false,
-    created_at: new Date().toISOString()
-  });
+const chatTitle =
+document.getElementById(
+    "page5ChatUserTitle"
+);
 
-  try {
-    const { data, error } = await supabaseClient
-      .from("messages")
-      .insert([{
-        sender_id: 1,
-        receiver_id: Number(currentChatUserId),
-        content,
-        is_read: false
-      }]);
 
-    if (error) console.error("发送消息失败", error);
-    else if (data?.[0]) {
-      users[currentChatUserId].messages[users[currentChatUserId].messages.length-1] = data[0];
-    }
-  } catch (err) {
-    console.error("发送消息异常", err);
-  }
-});
+const chatMessages =
+document.getElementById(
+    "page5AdminChatMessages"
+);
 
-// =======================
-// 标记已读
-// =======================
-async function markMessagesAsRead(userId) {
-  try {
-    const { data, error } = await supabaseClient
-      .from("messages")
-      .update({ is_read: true })
-      .eq("receiver_id", 1)
-      .eq("sender_id", userId)
-      .eq("is_read", false);
 
-    if (!error) users[userId].unreadCount = 0;
-    renderUserList();
-    updatePage5Unread();
-  } catch (err) {
-    console.error("markMessagesAsRead 异常:", err);
-  }
-}
+const chatInput =
+document.getElementById(
+    "page5AdminChatInput"
+);
 
-// =======================
-// 更新底部导航红点
-// =======================
-function updatePage5Unread() {
-  let totalUnread = 0;
-  for (const user of Object.values(users)) totalUnread += user.unreadCount;
 
-  if (totalUnread > 0) {
-    page5UnreadEl.textContent = totalUnread;
-    page5UnreadEl.classList.remove("hidden");
-  } else {
-    page5UnreadEl.classList.add("hidden");
-  }
-}
+const sendChatBtn =
+document.getElementById(
+    "page5AdminSendChatBtn"
+);
 
-// =======================
-// 实时监听新消息
-// =======================
-function listenForMessages() {
-  if (chatSubscription) supabaseClient.removeChannel(chatSubscription);
 
-  chatSubscription = supabaseClient
-    .channel("realtime-admin-messages")
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.1` },
-      (payload) => {
-        const msg = payload.new;
-        const userId = msg.sender_id;
+const closeChatBtn =
+document.getElementById(
+    "page5CloseChatBtn"
+);
 
-        if (!users[userId]) users[userId] = { username: `User ${userId}`, unreadCount: 0, messages: [] };
-        users[userId].messages.push(msg);
 
-        // 如果不是当前聊天用户，增加未读并播放音效
-        if (currentChatUserId !== userId) {
-          users[userId].unreadCount++;
-          if (soundUnlocked) {
-            try { notificationSound.play(); } catch(e) {}
-          }
-        }
 
-        renderUserList();
-        updatePage5Unread();
 
-        if (currentChatUserId === userId) {
-          appendMessage("user", msg.content);
-          markMessagesAsRead(userId);
-        }
-      }
+let currentUser=null;
+
+
+// 用户未读
+let userUnreadMap={};
+
+
+
+
+// ===============================
+// LOAD USERS
+// ===============================
+
+async function loadPage5Users(){
+
+
+    const {
+        data,
+        error
+    } =
+    await supabaseClient
+    .from("users")
+    .select(
+        "id,username"
     )
-    .subscribe();
+    .neq(
+        "id",
+        ADMIN_ID
+    )
+    .order(
+        "id",
+        {
+            ascending:true
+        }
+    );
+
+
+
+    if(error){
+
+        console.error(error);
+
+        return;
+
+    }
+
+
+
+    renderUsers(data);
+
+
 }
 
-// =======================
-// 页面初始化
-// =======================
-document.addEventListener("DOMContentLoaded", async () => {
-  await fetchUsersWithUnread();
-  listenForMessages();
 
-  // 全局解锁音效（首次用户交互）
-  document.body.addEventListener("click", () => {
-    if (!soundUnlocked) {
-      notificationSound.play().catch(() => {});
-      notificationSound.pause();
-      notificationSound.currentTime = 0;
-      soundUnlocked = true;
+
+
+
+
+// ===============================
+// LOAD UNREAD
+// ===============================
+
+async function loadPage5Unread(){
+
+
+    const {
+        data,
+        error
     }
-  }, { once: true });
-});
+    =
+    await supabaseClient
+    .from("messages")
+    .select(
+        "sender_id"
+    )
+    .eq(
+        "receiver_id",
+        ADMIN_ID
+    )
+    .eq(
+        "is_read",
+        false
+    );
 
-const loadAllUsersBtn = document.getElementById("loadAllUsersBtn");
-const allUsersList = document.getElementById("allUsersList");
 
-// 点击按钮拉取数据库全部用户
-loadAllUsersBtn.addEventListener("click", async () => {
-  try {
-    const { data: usersData, error } = await supabaseClient
-      .from("users")
-      .select("*")
-      .order("id", { ascending: true });
 
-    if (error) {
-      console.error("拉取用户失败", error);
-      return;
+    if(error){
+
+        console.error(error);
+
+        return;
+
     }
 
-    renderAllUsers(usersData);
-  } catch (err) {
-    console.error("fetch all users 异常:", err);
-  }
-});
 
-// 渲染全部用户列表
-function renderAllUsers(usersData) {
-  allUsersList.innerHTML = "";
 
-  usersData.forEach(user => {
-    const div = document.createElement("div");
-    div.classList.add("user-item-full");
-    div.innerHTML = `
-      <span>${user.username} (ID: ${user.id})</span>
-      <button>聊天</button>
-    `;
+    userUnreadMap={};
 
-    div.querySelector("button").addEventListener("click", () => {
-      if (!users[user.id]) {
-        users[user.id] = {
-          username: user.username,
-          unreadCount: 0,
-          messages: []
-        };
-      }
-      openChat(user.id);
+
+
+    data.forEach(msg=>{
+
+
+        if(!userUnreadMap[msg.sender_id]){
+
+            userUnreadMap[msg.sender_id]=0;
+
+        }
+
+
+        userUnreadMap[msg.sender_id]++;
+
+
     });
 
-    allUsersList.appendChild(div);
-  });
+
+
+    updatePage5Unread();
+
+
 }
+
+
+
+
+
+
+// ===============================
+// PAGE5 RED DOT
+// ===============================
+
+
+function updatePage5Unread(){
+
+
+    let total=0;
+
+
+    Object.values(
+        userUnreadMap
+    )
+    .forEach(
+        n=>{
+
+            total+=n;
+
+        }
+    );
+
+
+
+    if(total>0){
+
+
+        page5Unread.textContent =
+        total;
+
+
+        page5Unread.classList.remove(
+            "hidden"
+        );
+
+
+    }
+    else{
+
+
+        page5Unread.classList.add(
+            "hidden"
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// ===============================
+// USER LIST
+// ===============================
+
+function renderUsers(users){
+
+
+    page5UserList.innerHTML="";
+
+
+
+    users.forEach(user=>{
+
+
+        const row =
+        document.createElement(
+            "div"
+        );
+
+
+        row.className =
+        "page5-user-row";
+
+
+
+        let unread="";
+
+
+        if(userUnreadMap[user.id]){
+
+
+            unread=
+            `
+            <span class="page5-user-unread">
+
+            ${userUnreadMap[user.id]}
+
+            </span>
+            `;
+
+
+        }
+
+
+
+
+        row.innerHTML=`
+
+        <div class="page5-user-info">
+
+        ${user.username}
+
+        -
+
+        ${user.id}
+
+        ${unread}
+
+        </div>
+
+
+        <div class="page5-user-actions">
+
+
+        <button class="page5-inbox-btn">
+
+        Inbox
+
+        </button>
+
+
+
+        <button class="page5-chat-btn">
+
+        Chat
+
+        </button>
+
+
+        </div>
+
+        `;
+
+
+
+
+        row.querySelector(
+            ".page5-inbox-btn"
+        )
+        .onclick=()=>{
+
+            openInbox(user);
+
+        };
+
+
+
+        row.querySelector(
+            ".page5-chat-btn"
+        )
+        .onclick=()=>{
+
+            openChat(user);
+
+        };
+
+
+
+        page5UserList.appendChild(
+            row
+        );
+
+
+    });
+
+
+}
+
+// ===============================
+// OPEN INBOX
+// ===============================
+
+async function openInbox(user){
+
+
+    currentUser=user;
+
+
+
+    inboxUserName.textContent =
+    `${user.username} - ID:${user.id}`;
+
+
+
+    inboxTitle.value="";
+
+    inboxContent.value="";
+
+
+
+    inboxModal.style.display =
+    "flex";
+
+
+
+    await loadInboxHistory(
+        user.id
+    );
+
+
+}
+
+
+
+
+
+closeInboxBtn.onclick =
+()=>{
+
+
+    inboxModal.style.display =
+    "none";
+
+
+    currentUser=null;
+
+
+};
+
+
+
+
+
+
+// ===============================
+// LOAD INBOX HISTORY
+// ===============================
+
+
+async function loadInboxHistory(userId){
+
+
+    if(!inboxHistory)
+        return;
+
+
+
+    inboxHistory.innerHTML =
+    "Loading...";
+
+
+
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "inbox_messages"
+    )
+    .select(
+        "id,title,content,is_read,created_at"
+    )
+    .eq(
+        "user_id",
+        userId
+    )
+    .order(
+        "created_at",
+        {
+            ascending:false
+        }
+    );
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        inboxHistory.innerHTML =
+        "Load failed";
+
+
+        return;
+
+
+    }
+
+
+
+    if(!data || data.length===0){
+
+
+        inboxHistory.innerHTML =
+        "No Inbox History";
+
+
+        return;
+
+
+    }
+
+
+
+    inboxHistory.innerHTML="";
+
+
+
+    data.forEach(item=>{
+
+
+        const box =
+        document.createElement(
+            "div"
+        );
+
+
+        box.className =
+        "page5-inbox-history-item";
+
+
+
+        box.innerHTML=`
+
+        <div class="page5-inbox-history-title">
+
+        ${escapeHtml(item.title)}
+
+        </div>
+
+
+        <div class="page5-inbox-history-content">
+
+        ${escapeHtml(item.content)}
+
+        </div>
+
+
+        <div class="page5-inbox-history-time">
+
+        ${formatTime(item.created_at)}
+
+        </div>
+
+        `;
+
+
+        inboxHistory.appendChild(
+            box
+        );
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// SEND INBOX
+// ===============================
+
+
+sendInboxBtn.onclick =
+async()=>{
+
+
+    if(!currentUser)
+        return;
+
+
+
+    const title =
+    inboxTitle.value.trim();
+
+
+
+    const content =
+    inboxContent.value.trim();
+
+
+
+    if(!title || !content){
+
+
+        alert(
+            "Please enter title and message"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "inbox_messages"
+    )
+    .insert([
+
+        {
+
+            user_id:
+            currentUser.id,
+
+
+            title,
+
+
+            content,
+
+
+            is_read:false
+
+        }
+
+    ]);
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Inbox send failed"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+    inboxTitle.value="";
+
+    inboxContent.value="";
+
+
+
+    await loadInboxHistory(
+        currentUser.id
+    );
+
+
+
+    alert(
+        "Inbox sent"
+    );
+
+
+};
+
+
+
+
+
+
+
+
+// ===============================
+// OPEN CHAT
+// ===============================
+
+
+async function openChat(user){
+
+
+    currentUser=user;
+
+    chatInput.value="";
+
+
+    // 清除红点
+
+    await clearUserUnread(
+        user.id
+    );
+
+
+
+    chatTitle.textContent =
+    `${user.username} - ID:${user.id}`;
+
+
+
+    chatMessages.innerHTML="";
+
+
+
+    chatModal.style.display =
+    "flex";
+
+
+
+    await loadChatMessages(
+        user.id
+    );
+
+
+}
+
+
+
+
+
+
+// ===============================
+// CLEAR USER UNREAD
+// ===============================
+
+
+async function clearUserUnread(userId){
+
+
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .update({
+
+        is_read:true
+
+    })
+    .eq(
+        "sender_id",
+        userId
+    )
+    .eq(
+        "receiver_id",
+        ADMIN_ID
+    )
+    .eq(
+        "is_read",
+        false
+    );
+
+
+
+    if(error){
+
+        console.error(error);
+
+        return;
+
+    }
+
+
+
+    delete userUnreadMap[userId];
+
+
+    updatePage5Unread();
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// LOAD CHAT
+// ===============================
+
+
+async function loadChatMessages(userId){
+
+
+    const {
+        data,
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .select(
+        "id,sender_id,receiver_id,content,created_at"
+    )
+    .or(
+
+`and(sender_id.eq.${userId},receiver_id.eq.${ADMIN_ID}),and(sender_id.eq.${ADMIN_ID},receiver_id.eq.${userId})`
+
+    )
+    .order(
+        "created_at",
+        {
+            ascending:true
+        }
+    );
+
+
+
+    if(error){
+
+        console.error(
+            "Chat load error",
+            error
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    if(!data || data.length===0){
+
+
+        addChatMessage(
+            "system",
+            "No messages yet"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    data.forEach(msg=>{
+
+
+        addChatMessage(
+
+            msg.sender_id === ADMIN_ID
+            ?
+            "admin"
+            :
+            "user",
+
+
+            msg.content,
+
+
+            msg.created_at
+
+        );
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+// ===============================
+// SEND CHAT
+// ===============================
+
+
+sendChatBtn.onclick =
+async()=>{
+
+
+    if(!currentUser)
+        return;
+
+
+
+    const text =
+    chatInput.value.trim();
+
+
+
+    if(!text)
+        return;
+
+
+
+
+    const now =
+    new Date()
+    .toISOString();
+
+
+
+    const {
+        error
+    }
+    =
+    await supabaseClient
+    .from(
+        "messages"
+    )
+    .insert([
+
+        {
+
+            sender_id:
+            ADMIN_ID,
+
+
+            receiver_id:
+            currentUser.id,
+
+
+            content:
+            text,
+
+
+            is_read:false
+
+        }
+
+    ]);
+
+
+
+    if(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Send failed"
+        );
+
+
+        return;
+
+
+    }
+
+
+
+
+    addChatMessage(
+
+        "admin",
+
+        text,
+
+        now
+
+    );
+
+
+
+    chatInput.value="";
+
+
+};
+
+
+
+
+
+
+
+// ===============================
+// CTRL + ENTER SEND
+// ===============================
+
+
+chatInput?.addEventListener(
+"keydown",
+e=>{
+
+
+    if(
+        e.key==="Enter"
+        &&
+        e.ctrlKey
+    ){
+
+        sendChatBtn.click();
+
+    }
+
+
+});
+
+
+
+
+
+
+
+// ===============================
+// CHAT UI
+// ===============================
+
+
+function addChatMessage(
+type,
+text,
+createdAt=null
+){
+
+
+    const div =
+    document.createElement(
+        "div"
+    );
+
+
+
+    div.className =
+    "page5-chat-message "
+    +
+    type;
+
+
+
+
+    const content =
+    document.createElement(
+        "div"
+    );
+
+
+
+    content.className =
+    "page5-chat-content";
+
+
+
+    content.innerHTML =
+    escapeHtml(text);
+
+
+
+
+
+    const time =
+    document.createElement(
+        "div"
+    );
+
+
+
+    time.className =
+    "page5-chat-time";
+
+
+
+    time.textContent =
+    createdAt
+    ?
+    formatTime(createdAt)
+    :
+    "";
+
+
+
+
+    div.appendChild(
+        content
+    );
+
+
+    div.appendChild(
+        time
+    );
+
+
+
+    chatMessages.appendChild(
+        div
+    );
+
+
+
+    chatMessages.scrollTop =
+    chatMessages.scrollHeight;
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// CLOSE CHAT
+// ===============================
+
+
+closeChatBtn.onclick =
+()=>{
+
+
+    chatModal.style.display =
+    "none";
+
+
+    currentUser=null;
+
+
+    chatMessages.innerHTML="";
+
+
+    chatInput.value="";
+
+
+};
+
+
+
+
+
+
+// ===============================
+// TOOL
+// ===============================
+
+
+function formatTime(time){
+
+
+    if(!time)
+        return "";
+
+
+
+    return new Date(time)
+    .toLocaleString([],{
+
+        year:"numeric",
+
+        month:"numeric",
+
+        day:"numeric",
+
+        hour:"numeric",
+
+        minute:"2-digit",
+
+        hour12:true
+
+    });
+
+
+}
+
+
+
+
+
+function escapeHtml(text){
+
+
+    return String(text || "")
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /\n/g,
+        "<br>"
+    );
+
+
+}
+
+
+
+
+
+
+// ===============================
+// INIT
+// ===============================
+
+
+document.addEventListener(
+"DOMContentLoaded",
+async()=>{
+
+
+    await loadPage5Unread();
+
+
+    await loadPage5Users();
+
+
+});
